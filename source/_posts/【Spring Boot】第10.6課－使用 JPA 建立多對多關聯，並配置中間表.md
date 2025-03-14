@@ -12,11 +12,11 @@ categories:
 
 過程中也會介紹多對多關聯特有的「中間表」，並說明如何正確地操作，才能讓 JPA 在中間表維護雙方的關聯。最後配置雙向關聯，站在不同的角度，查詢另一方的資料。
 
-本文的練習用專案，請[點我](https://github.com/ntub46010/SpringBootTutorial/tree/Ch10.5-jpa-one-to-many-relationship-and-bidirectional-association)。
-
 
 -----
 
+
+本文的練習用專案，請[點我](https://github.com/ntub46010/SpringBootTutorial/tree/Ch10.5-jpa-one-to-many-relationship-and-bidirectional-association)。
 
 ## 一、程式專案準備
 ### （一）實體類別介紹

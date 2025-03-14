@@ -12,11 +12,11 @@ categories:
 
 隨後透過「MongoRepository」內建的 CRUD 方法存取資料庫，而下一篇才會介紹自定義查詢條件的方式。
 
-本文的練習用專案，請[點我](https://github.com/ntub46010/SpringBootTutorial/tree/Ch09.1-mongodb-introduction-and-setup)。
-
 
 -----
 
+
+本文的練習用專案，請[點我](https://github.com/ntub46010/SpringBootTutorial/tree/Ch09.1-mongodb-introduction-and-setup)。
 
 ## 一、資料類別
 以下是自定義的類別，叫做「Student」，用來描述學生資料。

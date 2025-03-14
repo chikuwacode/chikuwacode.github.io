@@ -14,11 +14,11 @@ categories:
 
 本文會以使用透過 Java Mail 寄送郵件為例，示範如何配置設定值，並利用 Profile 的功能來切換。最後講解在啟動 JAR 檔時，如何引入配置檔。
 
-本文的練習用專案，請[點我](https://github.com/ntub46010/SpringBootTutorial/tree/Ch07-start-application-properties-configuration)。
-
 
 -----
 
+
+本文的練習用專案，請[點我](https://github.com/ntub46010/SpringBootTutorial/tree/Ch07-start-application-properties-configuration)。
 
 ## 一、準備程式專案
 ### （一）範例專案介紹

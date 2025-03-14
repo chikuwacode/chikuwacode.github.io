@@ -14,11 +14,11 @@ categories:
 
 最後簡介 MongoTemplate，藉由動態產生查詢條件，以因應多樣的需求。
 
-本文的練習用專案，請[點我](https://github.com/ntub46010/SpringBootTutorial/tree/Ch09.2-mongodb-repository-crud)。
-
 
 -----
 
+
+本文的練習用專案，請[點我](https://github.com/ntub46010/SpringBootTutorial/tree/Ch09.2-mongodb-repository-crud)。
 
 ## 一、資料類別
 首先讓我們快速回顧上一篇要儲存到資料庫的學生資料類別。

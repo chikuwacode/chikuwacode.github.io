@@ -245,7 +245,7 @@ class ProductTests {
 
 首先在 repository 新增一筆資料。
 
-然後透過 `MockMvcRequestBuilders` 的方法構建 request 內容，此處呼叫 `get` 方法指定「GET /products/{id}」這支 API，並得到了 `RequestBuilder` 介面的物件。最後呼叫 `MockMvc` 的 `perform` 方法，即可發出 request。
+然後透過 `MockMvcRequestBuilders` 的方法構建 request 內容，此處呼叫 `get` 方法指定 `GET /products/{id}` 這支 API，並得到了 `RequestBuilder` 介面的物件。最後呼叫 `MockMvc` 的 `perform` 方法，即可發出 request。
 
 隨後我們可進行一些後續的動作。使用 `andExpect` 方法，可傳入各式各樣的規則來驗證 response。比方說 `status()` 方法可驗證 HTTP 狀態碼，有 200（OK）、201（Created）、404（Not Found）等許多選項可用。
 

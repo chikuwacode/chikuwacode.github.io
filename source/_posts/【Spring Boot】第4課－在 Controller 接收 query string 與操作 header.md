@@ -12,11 +12,11 @@ categories:
 
 首先是接收查詢字串（query string），進行條件篩選與排序，回傳多筆資料。接著是標頭（header）的處理，包含接收指定名稱的 request header，以及回傳 Location。最後提供幾項實用的做法，讓 Controller 的程式碼更簡潔。
 
-本文的練習用專案，請[點我](https://github.com/ntub46010/SpringBootTutorial/tree/Ch3-implement-restful-api-in-controller)。
-
 
 -----
 
+
+本文的練習用專案，請[點我](https://github.com/ntub46010/SpringBootTutorial/tree/Ch3-implement-restful-api-in-controller)。
 
 ## 一、範例專案介紹
 首先回顧一下練習用專案中的測試資料和 Controller。
@@ -62,7 +62,7 @@ public class ProductController {
 * sortDir：排序的方向。僅支援「asc」（遞增）與「desc」（遞減）。
 
 舉例來說，若想以「manage」關鍵字搜尋，並以價格遞增排序，則 endpoint 寫法為：
-「GET /products?searchKey=manage&sortField=price&sortDir=asc」。
+`GET /products?searchKey=manage&sortField=price&sortDir=asc`。
 
 ### （二）宣告 API
 了解需求後，就能開始實作了。以下是在 Controller 先宣告 API 的處理方法。
@@ -259,7 +259,7 @@ public class ProductController {
 其中 `ok` 方法可傳入 payload，而 `created` 方法可傳入 URI。
 
 ### （三）封裝多個查詢字串
-在第二節的實作的「GET /products」這支 API，若開放更多 query string 傳進來，將會使程式碼太冗長。畢竟每個 query string，都要配上一個 `@RequestParam` 注解，而每個注解都能傳入好幾個參數。
+在第二節的實作的 `GET /products` 這支 API，若開放更多 query string 傳進來，將會使程式碼太冗長。畢竟每個 query string，都要配上一個 `@RequestParam` 注解，而每個注解都能傳入好幾個參數。
 
 針對這個問題，我們可準備自定義的類別，並搭配一個叫做 `@ModelAttribute` 的注解，將 query string 的值自動填充到該類別的物件中。就像接收 request body 那樣。
 

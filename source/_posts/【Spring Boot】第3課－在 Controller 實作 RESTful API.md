@@ -12,11 +12,11 @@ categories:
 
 本文一開始先簡介知名的 MVC 架構，讓讀者知道 Controller 的由來。接著在 Spring Boot 中撰寫 RESTful API，將相關概念加以活用。最後會完成 4 支 API，分別能進行 CRUD。
 
-本文的練習用專案，請[點我](https://github.com/ntub46010/SpringBootTutorial/tree/Ch1-create-project)。
-
 
 -----
 
+
+本文的練習用專案，請[點我](https://github.com/ntub46010/SpringBootTutorial/tree/Ch1-create-project)。
 
 ## 一、MVC 架構簡介
 不知讀者以前是否聽過「MVC 架構」？筆者在此簡單地介紹。一套系統，依照職責可區分為 Model、View 與 Controller 三個部份。

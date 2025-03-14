@@ -14,11 +14,11 @@ categories:
 
 有了先備的概念後，筆者再經由這些議題，開始介紹控制反轉與依賴注入。最後引進物件導向的「多型」特性，示範以介面來操作物件，有助於實作細節的抽換。
 
-本文的練習用專案，請[點我](https://github.com/ntub46010/SpringBootTutorial/tree/Ch05-three-tier-architecture)。
-
 
 -----
 
+
+本文的練習用專案，請[點我](https://github.com/ntub46010/SpringBootTutorial/tree/Ch05-three-tier-architecture)。
 
 ## 一、依賴關係
 在介紹控制反轉與依賴注入的概念前，讓我們先看看範例專案大概的架構。

@@ -12,11 +12,11 @@ categories:
 
 但這些用來儲存元件狀態的全域變數，可能需要先完成初始化，才能開始使用。本文將介紹 `@Bean` 注解，讓我們透過程式碼手動控制元件的初始化。
 
-本文的練習用專案，請[點我](https://github.com/ntub46010/SpringBootTutorial/tree/Ch08-start-construct-bean-programmatically)。
-
 
 -----
 
+
+本文的練習用專案，請[點我](https://github.com/ntub46010/SpringBootTutorial/tree/Ch08-start-construct-bean-programmatically)。
 
 ## 一、範例程式介紹
 在本文的練習用專案，能找到筆者事先準備好的範例程式。

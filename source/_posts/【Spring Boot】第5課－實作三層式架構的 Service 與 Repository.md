@@ -12,11 +12,11 @@ categories:
 
 本文將介紹「三層式架構」，並搭配範例專案，點出當前做法所隱含的問題。接著進行修改，進一步將程式碼片段抽離到 Service 與 Repository 兩個層次，讓讀者體會切分的過程與思路。
 
-本文的練習用專案，請[點我](https://github.com/ntub46010/SpringBootTutorial/tree/Ch04-use-query-string-and-header-in-controller)。
-
 
 -----
 
+
+本文的練習用專案，請[點我](https://github.com/ntub46010/SpringBootTutorial/tree/Ch04-use-query-string-and-header-in-controller)。
 
 ## 一、範例專案概觀
 在正式介紹三層式架構前，先讓我們稍微認識目前的練習用專案。

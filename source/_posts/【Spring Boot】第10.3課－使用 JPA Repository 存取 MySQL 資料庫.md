@@ -12,11 +12,11 @@ categories:
 
 本文除了透過內建的 CRUD 方法進行存取，也會設計自己的查詢條件，包含透過方法名稱及原生語法。最後說明如何排序與分頁。
 
-本文的練習用專案，請[點我](https://github.com/ntub46010/SpringBootTutorial/tree/Ch10.2-mysql-column-definition-with-jpa)。
-
 
 -----
 
+
+本文的練習用專案，請[點我](https://github.com/ntub46010/SpringBootTutorial/tree/Ch10.2-mysql-column-definition-with-jpa)。
 
 ## 一、實體類別介紹
 讓我們快速回顧上一篇的實體類別。以下的「Student」類別描述了學生資料，會儲存到資料庫中。

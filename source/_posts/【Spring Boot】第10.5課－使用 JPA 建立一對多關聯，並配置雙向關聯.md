@@ -12,11 +12,11 @@ categories:
 
 過程中，也會說明如何針對資料表中的現存資料添加關聯。最後則介紹雙向關聯，讓這兩個實體類別，都能取得所關聯的另一方的資料。
 
-本文的練習用專案，請[點我](https://github.com/ntub46010/SpringBootTutorial/tree/Ch10.4-jpa-one-to-one-relationship)。
-
 
 -----
 
+
+本文的練習用專案，請[點我](https://github.com/ntub46010/SpringBootTutorial/tree/Ch10.4-jpa-one-to-one-relationship)。
 
 ## 一、程式專案準備
 ### （一）實體類別介紹
