@@ -1,5 +1,5 @@
 ---
-title: 【Spring Boot】第10.1課－準備 MySQL 資料庫與認識 Spring Data JPA
+title: 【Spring Boot】第9.1課－準備 MySQL 資料庫與認識 Spring Data JPA
 date: 2024-05-29 16:00:00
 permalink: articles/spring-boot-setup-mysql-and-introduce-jpa
 index_img: /img/index_img/spring-boot.jpg
@@ -8,7 +8,7 @@ categories:
   - ["Spring Boot"]
 ---
 
-在<a href="/articles/spring-boot-mongodb-introduction-and-setup" target="_blank">第 9 課</a>系列，我們了解如何在 Spring Boot 操作 MongoDB。而第 10 課系列要學習的是操作 MySQL 資料庫，它是一種關聯式資料庫，具有嚴謹的性質。它除了是一般課程常見的題材，幾乎也是職缺的必備要求。
+在<a href="/articles/spring-boot-mongodb-introduction-and-setup" target="_blank">第 8 課</a>系列，我們了解如何在 Spring Boot 操作 MongoDB。而第 9 課系列要學習的是操作 MySQL 資料庫，它是一種關聯式資料庫，具有嚴謹的性質。它除了是一般課程常見的題材，幾乎也是職缺的必備要求。
 
 本文會啟動 MySQL 的服務，並在 Spring Boot 專案中配置各種參數，確認可以連線上。最後介紹「Spring Data JPA」這套框架，了解它的由來。
 
@@ -115,7 +115,7 @@ Spring Data JPA 允許我們在程式中直接定義資料表（table），並�
 
 最後請啟動 Spring Boot。若 console 沒有出現 exception 訊息，代表有成功連線到 MySQL 的服務。
 
-這份叫做 application.properties 的配置檔，在<a href="/articles/spring-boot-application-properties-configuration" target="_blank">第 7 課</a>有專門介紹。讀者只要知道 Spring Data JPA 會從中讀取指定名稱的設定值即可。
+這份叫做 application.properties 的配置檔，在<a href="/articles/spring-boot-application-properties-configuration" target="_blank">第 6 課</a>有專門介紹。讀者只要知道 Spring Data JPA 會從中讀取指定名稱的設定值即可。
 
 ### 三、定義資料的實體類別
 在資料庫中，每張 table 在程式中都對應到一個實體（entity）類別。比方說想儲存學生資料，那就在程式中設計對應的類別，如下：
@@ -202,4 +202,4 @@ Spring 為了讓我們在程式中更容易存取資料庫，於是推出 Spring
 
 Spring Data JPA 預設採用 Hibernate 框架來存取資料庫，讓我們在操作上，能夠以 Java 程式語言為導向，不必依賴於不同資料庫種類的原生 SQL 語法。
 
-本文的完成後專案，請[點我](https://github.com/ntub46010/SpringBootTutorial/tree/Ch10.1-setup-mysql-and-introduce-jpa)。
+本文的完成後專案，請[點我](https://github.com/ntub46010/SpringBootTutorial/tree/Ch09.1-setup-mysql-and-introduce-jpa)。

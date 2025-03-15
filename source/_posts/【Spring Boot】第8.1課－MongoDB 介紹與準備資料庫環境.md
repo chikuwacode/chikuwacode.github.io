@@ -1,5 +1,5 @@
 ---
-title: 【Spring Boot】第9.1課－MongoDB 介紹與準備資料庫環境
+title: 【Spring Boot】第8.1課－MongoDB 介紹與準備資料庫環境
 date: 2019-06-23 08:33:39
 permalink: articles/spring-boot-mongodb-introduction-and-setup
 index_img: /img/index_img/spring-boot.jpg
@@ -10,7 +10,7 @@ categories:
 
 後端程式需要透過資料庫來儲存與查詢資料。在先前的文章，範例程式都是以 Java 的 Map 資料結構來暫存，一旦重新啟動程式，資料便消失了。
 
-在第 9 課系列中，本文首先會介紹 MongoDB 這款資料庫，並在 Spring Boot 中確認可以連接上。接著介紹基本語法，讓讀者在後續的練習中，知道如何在資料庫中查看資料，以便確認結果。
+在第 8 課系列中，本文首先會介紹 MongoDB 這款資料庫，並在 Spring Boot 中確認可以連接上。接著介紹基本語法，讓讀者在後續的練習中，知道如何在資料庫中查看資料，以便確認結果。
 
 
 -----
@@ -169,4 +169,4 @@ db.student.find(
 db.student.deleteMany({});
 ```
 
-本文的完成後專案，請[點我](https://github.com/ntub46010/SpringBootTutorial/tree/Ch09.1-mongodb-introduction-and-setup)。
+本文的完成後專案，請[點我](https://github.com/ntub46010/SpringBootTutorial/tree/Ch08.1-mongodb-introduction-and-setup)。

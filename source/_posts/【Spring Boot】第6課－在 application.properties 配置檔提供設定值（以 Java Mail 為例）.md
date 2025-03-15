@@ -1,5 +1,5 @@
 ---
-title: 【Spring Boot】第7課－在 application.properties 配置檔提供設定值（以 Java Mail 為例）
+title: 【Spring Boot】第6課－在 application.properties 配置檔提供設定值（以 Java Mail 為例）
 date: 2020-02-19 14:29:57
 permalink: articles/spring-boot-application-properties-configuration
 index_img: /img/index_img/spring-boot.jpg
@@ -18,7 +18,7 @@ categories:
 -----
 
 
-本文的練習用專案，請[點我](https://github.com/ntub46010/SpringBootTutorial/tree/Ch07-start-application-properties-configuration)。
+本文的練習用專案，請[點我](https://github.com/ntub46010/SpringBootTutorial/tree/Ch06-start-application-properties-configuration)。
 
 ## 一、準備程式專案
 ### （一）範例專案介紹
@@ -422,4 +422,4 @@ mail:
 
 從排版格式便可清楚地看出階層之分。YAML 檔以換行加兩個半形空格縮排為一個階層，相當於 properties 檔的「.」。YAML 格式有時具有更好的可讀性。
 
-本文的完成後專案，請[點我](https://github.com/ntub46010/SpringBootTutorial/tree/Ch07-fin-application-properties-configuration)。
+本文的完成後專案，請[點我](https://github.com/ntub46010/SpringBootTutorial/tree/Ch06-fin-application-properties-configuration)。

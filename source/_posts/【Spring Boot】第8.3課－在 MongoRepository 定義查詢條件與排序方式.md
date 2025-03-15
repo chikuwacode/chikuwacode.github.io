@@ -1,5 +1,5 @@
 ---
-title: 【Spring Boot】第9.3課－在 MongoRepository 定義查詢條件與排序方式
+title: 【Spring Boot】第8.3課－在 MongoRepository 定義查詢條件與排序方式
 date: 2019-06-23 08:37:56
 permalink: articles/spring-boot-mongo-repository-customize-query
 index_img: /img/index_img/spring-boot.jpg
@@ -18,7 +18,7 @@ categories:
 -----
 
 
-本文的練習用專案，請[點我](https://github.com/ntub46010/SpringBootTutorial/tree/Ch09.2-mongodb-repository-crud)。
+本文的練習用專案，請[點我](https://github.com/ntub46010/SpringBootTutorial/tree/Ch08.2-mongodb-repository-crud)。
 
 ## 一、資料類別
 首先讓我們快速回顧上一篇要儲存到資料庫的學生資料類別。
@@ -448,4 +448,4 @@ public class MyController {
 
 本節只是簡單介紹用法。至於 `MongoTemplate` 元件的配置方式，以及要如何開發出通用且易於擴充的查詢流程，讀者得自行去打造。
 
-本文的完成後專案，請[點我](https://github.com/ntub46010/SpringBootTutorial/tree/Ch09.3-mongo-repository-customize-query)。
+本文的完成後專案，請[點我](https://github.com/ntub46010/SpringBootTutorial/tree/Ch08.3-mongo-repository-customize-query)。

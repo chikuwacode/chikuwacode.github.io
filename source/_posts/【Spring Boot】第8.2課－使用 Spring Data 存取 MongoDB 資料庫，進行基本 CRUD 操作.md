@@ -1,6 +1,6 @@
 ---
-title: 【Spring Boot】第9.2課－使用 Spring Data 存取 MongoDB 資料庫，進行基本 CRUD 操作
-date: 2024-05-20 09:00:0
+title: 【Spring Boot】第8.2課－使用 Spring Data 存取 MongoDB 資料庫，進行基本 CRUD 操作
+date: 2024-05-20 09:00:00
 permalink: articles/spring-boot-data-mongodb-repository-crud
 index_img: /img/index_img/spring-boot.jpg
 excerpt: 準備好 MongoDB 的環境後，就能在 Spring Boot 中存取資料庫了。本文將介紹「Spring Data」這款框架，建立 ORM / ODM 的概念。隨後透過「MongoRepository」內建的 CRUD 方法，存取資料庫。
@@ -16,7 +16,7 @@ categories:
 -----
 
 
-本文的練習用專案，請[點我](https://github.com/ntub46010/SpringBootTutorial/tree/Ch09.1-mongodb-introduction-and-setup)。
+本文的練習用專案，請[點我](https://github.com/ntub46010/SpringBootTutorial/tree/Ch08.1-mongodb-introduction-and-setup)。
 
 ## 一、資料類別
 以下是自定義的類別，叫做「Student」，用來描述學生資料。
@@ -94,7 +94,7 @@ public class Certificate {
 </dependency>
 ```
 
-在<a href="/articles/spring-boot-bean-ioc-di-and-swap" target="_blank">第 6 課</a>，我們有練習建立一個「ProductRepository」介面，將其注入到商業邏輯中。該介面有 2 種實作類別，分別用 List 與 Map 結構來儲存測試資料。
+在<a href="/articles/spring-boot-bean-ioc-di-and-swap" target="_blank">第 5 課</a>，我們有練習建立一個「ProductRepository」介面，將其注入到商業邏輯中。該介面有 2 種實作類別，分別用 List 與 Map 結構來儲存測試資料。
 
 本節會建立一個特殊的介面，定位與上述的 ProductRepository 相同。但我們不必親自實作它，而是交給框架處理。
 ``` java
@@ -324,4 +324,4 @@ public class MyController {
 
 到目前為止，都是使用 `MongoRepository` 內建的方法存取資料庫。下一篇將說明如何設計自己的查詢條件，以及排序方式。
 
-本文的完成後專案，請[點我](https://github.com/ntub46010/SpringBootTutorial/tree/Ch09.2-mongodb-repository-crud)。
+本文的完成後專案，請[點我](https://github.com/ntub46010/SpringBootTutorial/tree/Ch08.2-mongodb-repository-crud)。

@@ -1,5 +1,5 @@
 ---
-title: 【Spring Boot】第10.5課－使用 JPA 建立一對多關聯，並配置雙向關聯
+title: 【Spring Boot】第9.5課－使用 JPA 建立一對多關聯，並配置雙向關聯
 date: 2024-06-12 08:30:00
 permalink: articles/spring-boot-jpa-one-to-many-relationship-and-bidirectional-association
 index_img: /img/index_img/spring-boot.jpg
@@ -16,7 +16,7 @@ categories:
 -----
 
 
-本文的練習用專案，請[點我](https://github.com/ntub46010/SpringBootTutorial/tree/Ch10.4-jpa-one-to-one-relationship)。
+本文的練習用專案，請[點我](https://github.com/ntub46010/SpringBootTutorial/tree/Ch09.4-jpa-one-to-one-relationship)。
 
 ## 一、程式專案準備
 ### （一）實體類別介紹
@@ -364,4 +364,4 @@ Hibernate:
 
 要注意的是，透過雙向關聯取得關聯資料時，無法進行條件篩選、排序與分頁。不過若讀者沒有這項需求，配置雙向關聯依然是相當實用的做法。
 
-本文的完成後專案，請[點我](https://github.com/ntub46010/SpringBootTutorial/tree/Ch10.5-jpa-one-to-many-relationship-and-bidirectional-association)。
+本文的完成後專案，請[點我](https://github.com/ntub46010/SpringBootTutorial/tree/Ch09.5-jpa-one-to-many-relationship-and-bidirectional-association)。

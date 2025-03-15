@@ -1,5 +1,5 @@
 ---
-title: 【Spring Boot】第3課－在 Controller 實作 RESTful API
+title: 【Spring Boot】第3.1課－在 Controller 實作 RESTful API
 date: 2019-05-19 15:16:46
 permalink: articles/spring-boot-implement-restful-api-in-controller
 index_img: /img/index_img/spring-boot.jpg
@@ -16,7 +16,7 @@ categories:
 -----
 
 
-本文的練習用專案，請[點我](https://github.com/ntub46010/SpringBootTutorial/tree/Ch1-create-project)。
+本文的練習用專案，請[點我](https://github.com/ntub46010/SpringBootTutorial/tree/Ch01-create-project)。
 
 ## 一、MVC 架構簡介
 不知讀者以前是否聽過「MVC 架構」？筆者在此簡單地介紹。一套系統，依照職責可區分為 Model、View 與 Controller 三個部份。
@@ -225,4 +225,4 @@ public class ProductController {
 
 以上的實作都完成後，讀者在 Controller 將擁有四支 RESTful API，能進行 CRUD。
 
-本文的完成後專案，請[點我](https://github.com/ntub46010/SpringBootTutorial/tree/Ch3-implement-restful-api-in-controller)。
+本文的完成後專案，請[點我](https://github.com/ntub46010/SpringBootTutorial/tree/Ch03.1-implement-restful-api-in-controller)。

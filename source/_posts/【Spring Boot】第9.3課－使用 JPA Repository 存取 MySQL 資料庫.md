@@ -1,5 +1,5 @@
 ---
-title: 【Spring Boot】第10.3課－使用 JPA Repository 存取 MySQL 資料庫
+title: 【Spring Boot】第9.3課－使用 JPA Repository 存取 MySQL 資料庫
 date: 2024-05-30 08:30:00
 permalink: articles/spring-boot-mysql-using-jpa-repository
 index_img: /img/index_img/spring-boot.jpg
@@ -16,7 +16,7 @@ categories:
 -----
 
 
-本文的練習用專案，請[點我](https://github.com/ntub46010/SpringBootTutorial/tree/Ch10.2-mysql-column-definition-with-jpa)。
+本文的練習用專案，請[點我](https://github.com/ntub46010/SpringBootTutorial/tree/Ch09.2-mysql-column-definition-with-jpa)。
 
 ## 一、實體類別介紹
 讓我們快速回顧上一篇的實體類別。以下的「Student」類別描述了學生資料，會儲存到資料庫中。
@@ -97,7 +97,7 @@ public class AuditorAwareImpl implements AuditorAware<String> {
 
 ## 二、認識 Spring Data 的 Repository 介面
 ### （一）建立 Repository 介面
-在<a href="/articles/spring-boot-bean-ioc-di-and-swap" target="_blank">第 6 課</a>，我們有練習過建立一個「ProductRepository」介面，將其注入到商業邏輯中。還提供兩種實作類別，分別用 List 與 Map 結構來儲存範例資料。
+在<a href="/articles/spring-boot-bean-ioc-di-and-swap" target="_blank">第 5 課</a>，我們有練習過建立一個「ProductRepository」介面，將其注入到商業邏輯中。還提供兩種實作類別，分別用 List 與 Map 結構來儲存範例資料。
 
 本節會使用一個特殊的介面，它是由 Spring Data JPA 所提供，其定位與上述的 ProductRepository 相同。但我們不必親自實作它，而是交給框架處理。
 ``` java
@@ -264,7 +264,7 @@ public class MyController {
 ## 四、自定義查詢條件
 我們能在 repository 中，依照特定的方法命名規則，設計自己的查詢條件。
 
-筆者在<a href="/articles/spring-boot-mongo-repository-customize-query" target="_blank">第 9.3 課</a>已經設計過各種查詢 MongoDB 的方法，以及排序的方式。雖然是另一款資料庫，但 Spring Data 提供的 repository，其使用方式大致都相同。
+筆者在<a href="/articles/spring-boot-mongo-repository-customize-query" target="_blank">第 8.3 課</a>已經設計過各種查詢 MongoDB 的方法，以及排序的方式。雖然是另一款資料庫，但 Spring Data 提供的 repository，其使用方式大致都相同。
 
 本節僅挑選一部份做快速的示範。更多命名方式，讀者可參考 Spring Data JPA 官方文件。
 
@@ -491,4 +491,4 @@ public class MyController {
 
 本文示範了使用 JPA Repository 對單一 table 進行 CRUD。接下來讓我們進入 2 張 table 的範疇，學習如何配置資料表的關聯。
 
-本文的完成後專案，請[點我](https://github.com/ntub46010/SpringBootTutorial/tree/Ch10.3-mysql-using-jpa-repository)。
+本文的完成後專案，請[點我](https://github.com/ntub46010/SpringBootTutorial/tree/Ch09.3-mysql-using-jpa-repository)。

@@ -1,5 +1,5 @@
 ---
-title: 【Spring Boot】第10.2課－使用 JPA 設計實體類別與 MySQL 資料表欄位
+title: 【Spring Boot】第9.2課－使用 JPA 設計實體類別與 MySQL 資料表欄位
 date: 2024-05-29 20:00:00
 permalink: articles/spring-boot-mysql-column-definition-with-jpa
 index_img: /img/index_img/spring-boot.jpg
@@ -298,4 +298,4 @@ public class Student extends BaseEntity {
 
 我們尚未印證本文第三節的 `AuditorAware` 元件，在插入或更新資料時的效果。下一篇將使用 Spring Data JPA 提供的介面，實際進行 CRUD。
 
-本文的完成後專案，請[點我](https://github.com/ntub46010/SpringBootTutorial/tree/Ch10.2-mysql-column-definition-with-jpa)。
+本文的完成後專案，請[點我](https://github.com/ntub46010/SpringBootTutorial/tree/Ch09.2-mysql-column-definition-with-jpa)。

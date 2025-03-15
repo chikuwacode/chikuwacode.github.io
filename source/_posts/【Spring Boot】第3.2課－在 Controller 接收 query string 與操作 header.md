@@ -1,5 +1,5 @@
 ---
-title: 【Spring Boot】第4課－在 Controller 接收 query string 與操作 header
+title: 【Spring Boot】第3.2課－在 Controller 接收 query string 與操作 header
 date: 2019-05-26 16:12:50
 permalink: articles/spring-boot-use-query-string-and-header-in-controller
 index_img: /img/index_img/spring-boot.jpg
@@ -8,7 +8,7 @@ categories:
   - ["Spring Boot"]
 ---
 
-完成<a href="/articles/spring-boot-implement-restful-api-in-controller" target="_blank">第 3 課</a>後，相信讀者已經知道如何在 Controller 設計 API。本文將繼續介紹其他可以實作的細節。
+完成<a href="/articles/spring-boot-implement-restful-api-in-controller" target="_blank">第 3.1 課</a>後，相信讀者已經知道如何在 Controller 設計 API。本文將繼續介紹其他可以實作的細節。
 
 首先是接收查詢字串（query string），進行條件篩選與排序，回傳多筆資料。接著是標頭（header）的處理，包含接收指定名稱的 request header，以及回傳 Location。最後提供幾項實用的做法，讓 Controller 的程式碼更簡潔。
 
@@ -16,7 +16,7 @@ categories:
 -----
 
 
-本文的練習用專案，請[點我](https://github.com/ntub46010/SpringBootTutorial/tree/Ch3-implement-restful-api-in-controller)。
+本文的練習用專案，請[點我](https://github.com/ntub46010/SpringBootTutorial/tree/Ch03.1-implement-restful-api-in-controller)。
 
 ## 一、範例專案介紹
 首先回顧一下練習用專案中的測試資料和 Controller。
@@ -195,7 +195,7 @@ public ResponseEntity<Foo> getFoo(
 這裡使用了 `@RequestHeader` 注解，並於注解的參數提供要接收 header 的名稱。
 
 ## 四、簡化 Controller 的程式
-完成<a href="/articles/spring-boot-implement-restful-api-in-controller" target="_blank">第 3 課</a>與第 4 課後，讀者在 Controller 將擁有五支 RESTful API。本節將補充一些寫法，讓程式能簡潔好讀一些。
+完成<a href="/articles/spring-boot-implement-restful-api-in-controller" target="_blank">第 3.1 課</a>與第 3.2 課後，讀者在 Controller 將擁有五支 RESTful API。本節將補充一些寫法，讓程式能簡潔好讀一些。
 
 ### （一）套用 Endpoint 前綴
 這些跟產品有關的 API，在 `@GetMapping`、`@PostMapping` 等注解中，其 endpoint 的開頭都要寫上「/products」，感覺重複性有點高。
@@ -296,6 +296,6 @@ public class ProductController {
 
 透過 `@ModelAttribute` 注解，可以將 query string 都收集起來，之後再分別取出做運用。
 
-我們在 Controller 寫了好幾支程式，內容也越來越龐大。<a href="/articles/spring-boot-three-tier-architecture" target="_blank">第 5 課</a>將介紹「三層式架構」，將不同目的的程式碼片段，分開撰寫在其他地方。
+我們在 Controller 寫了好幾支程式，內容也越來越龐大。<a href="/articles/spring-boot-three-tier-architecture" target="_blank">第 4 課</a>將介紹「三層式架構」，將不同目的的程式碼片段，分開撰寫在其他地方。
 
-本文的完成後專案，請[點我](https://github.com/ntub46010/SpringBootTutorial/tree/Ch04-use-query-string-and-header-in-controller)。
+本文的完成後專案，請[點我](https://github.com/ntub46010/SpringBootTutorial/tree/Ch03.2-use-query-string-and-header-in-controller)。

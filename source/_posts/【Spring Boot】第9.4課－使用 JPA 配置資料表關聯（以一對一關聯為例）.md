@@ -1,5 +1,5 @@
 ---
-title: 【Spring Boot】第10.4課－使用 JPA 配置資料表關聯（以一對一關聯為例）
+title: 【Spring Boot】第9.4課－使用 JPA 配置資料表關聯（以一對一關聯為例）
 date: 2024-05-30 13:00:00
 permalink: articles/spring-boot-jpa-one-to-one-relationship
 index_img: /img/index_img/spring-boot.jpg
@@ -446,4 +446,4 @@ Hibernate:
 
 可看到第一步是查詢學生資料。接著由於呼叫「getContact()」方法的緣故，又引發了對聯繫表的查詢。最後儲存 Student 實體時，才級聯更新 Contact。
 
-本文的完成後專案，請[點我](https://github.com/ntub46010/SpringBootTutorial/tree/Ch10.4-jpa-one-to-one-relationship)。
+本文的完成後專案，請[點我](https://github.com/ntub46010/SpringBootTutorial/tree/Ch09.4-jpa-one-to-one-relationship)。

@@ -1,5 +1,5 @@
 ---
-title: 【Spring Boot】第11.1課 - 使用 MockMvc 進行 API 整合測試
+title: 【Spring Boot】第10.1課 - 使用 MockMvc 進行 API 整合測試
 date: 2019-07-07 16:53:47
 permalink: articles/spring-boot-mockmvc-integration-test
 index_img: /img/index_img/spring-boot.jpg
@@ -433,7 +433,7 @@ class ProductTests {
 發出 request 後，我們會想要知道儲存到 repository 中的資料是否如預期。此處可從 response header 取出「Location」欄位值，擷取出產品 id，隨後從 repository 查詢出來進行驗證。
 
 ## 八、測試專屬的配置檔
-筆者在<a href="/articles/spring-boot-application-properties-configuration" target="_blank">第 7 課</a>介紹過 application.properties 配置檔，裡面可以填寫關於資料庫連線、郵件服務等各種設定值。
+筆者在<a href="/articles/spring-boot-application-properties-configuration" target="_blank">第 6 課</a>介紹過 application.properties 配置檔，裡面可以填寫關於資料庫連線、郵件服務等各種設定值。
 
 在進行整合測試時，建議使用獨立的配置檔，而不要與正式環境使用同一個。一來可以專注於當下的測試資料，不會受到其他資料干擾。二來也能避免測試程式沒寫好，誤刪或留下了髒資料。
 
@@ -503,4 +503,4 @@ public class RepositoryConfig {
 
 雖然本文並未串接真實的資料庫，但讀者可理解成，正式環境與測試程式所用的資料庫，並不會是同一個，已經分離開來了。
 
-本文的完成後專案，請<a href="https://github.com/ntub46010/SpringBootTutorial/tree/Ch11.1-mockmvc-integration-test" target="_blank">點我</a>。
+本文的完成後專案，請<a href="https://github.com/ntub46010/SpringBootTutorial/tree/Ch10.1-mockmvc-integration-test" target="_blank">點我</a>。

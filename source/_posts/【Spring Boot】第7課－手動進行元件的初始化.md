@@ -1,5 +1,5 @@
 ---
-title: 【Spring Boot】第8課－手動進行元件的初始化
+title: 【Spring Boot】第7課－手動進行元件的初始化
 date: 2020-03-03 14:34:49
 permalink: articles/spring-boot-construct-bean-programmatically
 index_img: /img/index_img/spring-boot.jpg
@@ -16,7 +16,7 @@ categories:
 -----
 
 
-本文的練習用專案，請[點我](https://github.com/ntub46010/SpringBootTutorial/tree/Ch08-start-construct-bean-programmatically)。
+本文的練習用專案，請[點我](https://github.com/ntub46010/SpringBootTutorial/tree/Ch07-start-construct-bean-programmatically)。
 
 ## 一、範例程式介紹
 在本文的練習用專案，能找到筆者事先準備好的範例程式。
@@ -347,7 +347,7 @@ public class ServiceConfig {
 
 因此，我們可將這兩個 `@Bean` 注解的方法合併，再透過 if 判斷決定要建立哪一個。
 
-接下來的範例，筆者會結合<a href="/articles/spring-boot-application-properties-configuration" target="_blank">第 7 課</a>介紹的 application.properties 配置檔，提供元件初始化的一些選項。請先添加以下 2 個設定值：
+接下來的範例，筆者會結合<a href="/articles/spring-boot-application-properties-configuration" target="_blank">第 6 課</a>介紹的 application.properties 配置檔，提供元件初始化的一些選項。請先添加以下 2 個設定值：
 ``` properties
 user-repository.storage=map
 user-repository.test-data.amount=3
@@ -390,4 +390,4 @@ public class RepositoryConfig {
 
 同時也將測試資料傳入 repository 的建構子中，隨即回傳，完成元件的初始化。
 
-本文的完成後專案，請[點我](https://github.com/ntub46010/SpringBootTutorial/tree/Ch08-fin-construct-bean-programmatically)。
+本文的完成後專案，請[點我](https://github.com/ntub46010/SpringBootTutorial/tree/Ch07-fin-construct-bean-programmatically)。

@@ -1,5 +1,5 @@
 ---
-title: 【Spring Boot】第10.6課－使用 JPA 建立多對多關聯，並配置中間表
+title: 【Spring Boot】第9.6課－使用 JPA 建立多對多關聯，並配置中間表
 date: 2024-06-12 11:30:00
 permalink: articles/spring-boot-jpa-many-to-many-relationship-and-intermediary-table
 index_img: /img/index_img/spring-boot.jpg
@@ -16,7 +16,7 @@ categories:
 -----
 
 
-本文的練習用專案，請[點我](https://github.com/ntub46010/SpringBootTutorial/tree/Ch10.5-jpa-one-to-many-relationship-and-bidirectional-association)。
+本文的練習用專案，請[點我](https://github.com/ntub46010/SpringBootTutorial/tree/Ch09.5-jpa-one-to-many-relationship-and-bidirectional-association)。
 
 ## 一、程式專案準備
 ### （一）實體類別介紹
@@ -364,4 +364,4 @@ Hibernate:
 
 可看到查詢修課學生的方式，是將中間表與學生表做關聯，再以課程編號做為查詢條件。
 
-本文的完成後專案，請[點我](https://github.com/ntub46010/SpringBootTutorial/tree/Ch10.6-jpa-many-to-many-relationship-and-intermediary-table)。
+本文的完成後專案，請[點我](https://github.com/ntub46010/SpringBootTutorial/tree/Ch09.6-jpa-many-to-many-relationship-and-intermediary-table)。
