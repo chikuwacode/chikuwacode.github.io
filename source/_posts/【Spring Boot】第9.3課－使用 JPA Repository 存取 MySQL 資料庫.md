@@ -491,4 +491,12 @@ public class MyController {
 
 本文示範了使用 JPA Repository 對單一 table 進行 CRUD。接下來讓我們進入 2 張 table 的範疇，學習如何配置資料表的關聯。
 
+
+-----
+
+
 本文的完成後專案，請[點我](https://github.com/ntub46010/SpringBootTutorial/tree/Ch09.3-mysql-using-jpa-repository)。
+
+上一課：<a href="/articles/spring-boot-mysql-column-definition-with-jpa" target="_blank">【Spring Boot】第9.2課－使用 JPA 設計實體類別與 MySQL 資料表欄位</a>
+
+下一課：<a href="/articles/spring-boot-jpa-one-to-one-relationship" target="_blank">【Spring Boot】第9.4課－使用 JPA 配置資料表關聯（以一對一關聯為例）</a>

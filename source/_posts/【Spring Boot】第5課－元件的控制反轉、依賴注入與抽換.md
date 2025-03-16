@@ -459,4 +459,12 @@ public class ProductService {
 }
 ```
 
+
+-----
+
+
 本文的完成後專案，請[點我](https://github.com/ntub46010/SpringBootTutorial/tree/Ch05-bean-ioc-di-and-swap)。
+
+上一課：<a href="/articles/spring-boot-three-tier-architecture" target="_blank">【Spring Boot】第4課－實作三層式架構的 Service 與 Repository</a>
+
+下一課：<a href="/articles/spring-boot-application-properties-configuration" target="_blank">【Spring Boot】第6課－在 application.properties 配置檔提供設定值（以 Java Mail 為例）</a>

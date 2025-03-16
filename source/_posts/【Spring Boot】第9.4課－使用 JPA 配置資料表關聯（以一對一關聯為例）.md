@@ -446,4 +446,12 @@ Hibernate:
 
 可看到第一步是查詢學生資料。接著由於呼叫「getContact()」方法的緣故，又引發了對聯繫表的查詢。最後儲存 Student 實體時，才級聯更新 Contact。
 
+
+-----
+
+
 本文的完成後專案，請[點我](https://github.com/ntub46010/SpringBootTutorial/tree/Ch09.4-jpa-one-to-one-relationship)。
+
+上一課：<a href="/articles/spring-boot-mysql-using-jpa-repository" target="_blank">【Spring Boot】第9.3課－使用 JPA Repository 存取 MySQL 資料庫</a>
+
+下一課：<a href="/articles/spring-boot-jpa-one-to-many-relationship-and-bidirectional-association" target="_blank">【Spring Boot】第9.5課－使用 JPA 建立一對多關聯，並配置雙向關聯</a>

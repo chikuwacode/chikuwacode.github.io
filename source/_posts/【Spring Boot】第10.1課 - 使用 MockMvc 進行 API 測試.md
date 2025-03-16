@@ -503,4 +503,10 @@ public class RepositoryConfig {
 
 雖然本文並未串接真實的資料庫，但讀者可理解成，正式環境與測試程式所用的資料庫，並不會是同一個，已經分離開來了。
 
+
+-----
+
+
 本文的完成後專案，請<a href="https://github.com/ntub46010/SpringBootTutorial/tree/Ch10.1-mockmvc-integration-test" target="_blank">點我</a>。
+
+上一課：<a href="/articles/spring-boot-jpa-many-to-many-relationship-and-intermediary-table" target="_blank">【Spring Boot】第9.6課－使用 JPA 建立多對多關聯，並配置中間表</a>

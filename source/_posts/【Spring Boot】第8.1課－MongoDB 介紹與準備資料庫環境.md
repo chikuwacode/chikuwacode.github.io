@@ -169,4 +169,12 @@ db.student.find(
 db.student.deleteMany({});
 ```
 
+
+-----
+
+
 本文的完成後專案，請[點我](https://github.com/ntub46010/SpringBootTutorial/tree/Ch08.1-mongodb-introduction-and-setup)。
+
+上一課：<a href="/articles/spring-boot-construct-bean-programmatically" target="_blank">【Spring Boot】第7課－手動進行元件的初始化</a>
+
+下一課：<a href="/articles/spring-boot-data-mongodb-repository-crud" target="_blank">【Spring Boot】第8.2課－使用 Spring Data 存取 MongoDB 資料庫，進行基本 CRUD 操作</a>

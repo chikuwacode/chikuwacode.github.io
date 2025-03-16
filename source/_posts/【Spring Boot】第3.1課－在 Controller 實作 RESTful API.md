@@ -225,4 +225,12 @@ public class ProductController {
 
 以上的實作都完成後，讀者在 Controller 將擁有四支 RESTful API，能進行 CRUD。
 
+
+-----
+
+
 本文的完成後專案，請[點我](https://github.com/ntub46010/SpringBootTutorial/tree/Ch03.1-implement-restful-api-in-controller)。
+
+上一課：<a href="/articles/spring-boot-restful-api" target="_blank">【Spring Boot】第2課－認識 RESTful API 與前後端的資料交換</a>
+
+下一課：<a href="/articles/spring-boot-use-query-string-and-header-in-controller" target="_blank">【Spring Boot】第3.2課－在 Controller 接收 query string 與操作 header</a>

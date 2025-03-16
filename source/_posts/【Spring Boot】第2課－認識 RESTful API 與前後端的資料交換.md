@@ -154,3 +154,11 @@ JSON 資料的內容，都是以 欄位: 值 的格式來撰寫。而物件寫�
 <img src="{{ permalink }}postman-post-request.png" />
 
 從操作畫面的右方，也能看見耗時與 HTTP 狀態碼。將「Body」的下拉式選單打開，還能切換查看 response header。
+
+
+-----
+
+
+上一課：<a href="/articles/spring-boot-create-project" target="_blank">【Spring Boot】第1課－從環境準備、建立專案、打包到啟動程式</a>
+
+下一課：<a href="/articles/spring-boot-implement-restful-api-in-controller" target="_blank">【Spring Boot】第3.1課－在 Controller 實作 RESTful API</a>

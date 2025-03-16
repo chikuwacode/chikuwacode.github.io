@@ -45,7 +45,7 @@ public class User {
 ``` java
 public interface IUserRepository {
     void insert(User user);
-    User getOneById(String id);
+    User findById(String id);
     void deleteById(String id);
 }
 ```
@@ -64,7 +64,7 @@ public class MapUserRepository implements IUserRepository {
         userMap.put(user.getId(), user);
     }
 
-    public User getOneById(String id) {
+    public User findById(String id) {
         return userMap.get(id);
     }
 
@@ -91,7 +91,7 @@ public class ListUserRepository implements IUserRepository {
         userList.add(user);
     }
 
-    public User getOneById(String id) {
+    public User findById(String id) {
         return userList
                 .stream()
                 .filter(u -> u.getId().equals(id))
@@ -127,7 +127,7 @@ public class UserController {
 
     @GetMapping("/{id}")
     public ResponseEntity<User> getUser(@PathVariable("id") String id) {
-        var user = userRepository.getOneById(id);
+        var user = userRepository.findById(id);
         return user == null
                 ? ResponseEntity.notFound().build()
                 : ResponseEntity.ok(user);
@@ -390,4 +390,15 @@ public class RepositoryConfig {
 
 同時也將測試資料傳入 repository 的建構子中，隨即回傳，完成元件的初始化。
 
+最後讀者別忘了確認注入 IUserRepository 的 Controller，已經不必再透過 `@Qualifier` 注解，來指定要注入的元件了。
+
+
+-----
+
+
 本文的完成後專案，請[點我](https://github.com/ntub46010/SpringBootTutorial/tree/Ch07-fin-construct-bean-programmatically)。
+
+
+上一課：<a href="/articles/spring-boot-application-properties-configuration" target="_blank">【Spring Boot】第6課－在 application.properties 配置檔提供設定值（以 Java Mail 為例）</a>
+
+下一課：<a href="/articles/spring-boot-mongodb-introduction-and-setup" target="_blank">【Spring Boot】第8.1課－MongoDB 介紹與準備資料庫環境</a>

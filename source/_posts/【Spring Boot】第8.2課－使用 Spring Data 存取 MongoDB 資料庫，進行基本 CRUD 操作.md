@@ -324,4 +324,12 @@ public class MyController {
 
 到目前為止，都是使用 `MongoRepository` 內建的方法存取資料庫。下一篇將說明如何設計自己的查詢條件，以及排序方式。
 
+
+-----
+
+
 本文的完成後專案，請[點我](https://github.com/ntub46010/SpringBootTutorial/tree/Ch08.2-mongodb-repository-crud)。
+
+上一課：<a href="/articles/spring-boot-mongodb-introduction-and-setup" target="_blank">【Spring Boot】第8.1課－MongoDB 介紹與準備資料庫環境</a>
+
+下一課：<a href="/articles/spring-boot-mongo-repository-customize-query" target="_blank">【Spring Boot】第8.3課－在 MongoRepository 定義查詢條件與排序方式</a>

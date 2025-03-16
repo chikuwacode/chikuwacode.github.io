@@ -448,4 +448,12 @@ public class MyController {
 
 本節只是簡單介紹用法。至於 `MongoTemplate` 元件的配置方式，以及要如何開發出通用且易於擴充的查詢流程，讀者得自行去打造。
 
+
+-----
+
+
 本文的完成後專案，請[點我](https://github.com/ntub46010/SpringBootTutorial/tree/Ch08.3-mongo-repository-customize-query)。
+
+上一課：<a href="/articles/spring-boot-data-mongodb-repository-crud" target="_blank">【Spring Boot】第8.2課－使用 Spring Data 存取 MongoDB 資料庫，進行基本 CRUD 操作</a>
+
+下一課：<a href="/articles/spring-boot-setup-mysql-and-introduce-jpa" target="_blank">【Spring Boot】第9.1課－準備 MySQL 資料庫與認識 Spring Data JPA</a>

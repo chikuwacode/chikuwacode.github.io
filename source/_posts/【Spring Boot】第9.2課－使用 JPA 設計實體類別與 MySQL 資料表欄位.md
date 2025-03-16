@@ -298,4 +298,12 @@ public class Student extends BaseEntity {
 
 我們尚未印證本文第三節的 `AuditorAware` 元件，在插入或更新資料時的效果。下一篇將使用 Spring Data JPA 提供的介面，實際進行 CRUD。
 
+
+-----
+
+
 本文的完成後專案，請[點我](https://github.com/ntub46010/SpringBootTutorial/tree/Ch09.2-mysql-column-definition-with-jpa)。
+
+上一課：<a href="/articles/spring-boot-setup-mysql-and-introduce-jpa" target="_blank">【Spring Boot】第9.1課－準備 MySQL 資料庫與認識 Spring Data JPA</a>
+
+下一課：<a href="/articles/spring-boot-mysql-using-jpa-repository" target="_blank">【Spring Boot】第9.3課－使用 JPA Repository 存取 MySQL 資料庫</a>

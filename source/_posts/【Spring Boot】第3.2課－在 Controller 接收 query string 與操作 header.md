@@ -298,4 +298,12 @@ public class ProductController {
 
 我們在 Controller 寫了好幾支程式，內容也越來越龐大。<a href="/articles/spring-boot-three-tier-architecture" target="_blank">第 4 課</a>將介紹「三層式架構」，將不同目的的程式碼片段，分開撰寫在其他地方。
 
+
+-----
+
+
 本文的完成後專案，請[點我](https://github.com/ntub46010/SpringBootTutorial/tree/Ch03.2-use-query-string-and-header-in-controller)。
+
+上一課：<a href="/articles/spring-boot-implement-restful-api-in-controller" target="_blank">【Spring Boot】第3.1課－在 Controller 實作 RESTful API</a>
+
+下一課：<a href="/articles/spring-boot-three-tier-architecture" target="_blank">【Spring Boot】第4課－實作三層式架構的 Service 與 Repository</a>

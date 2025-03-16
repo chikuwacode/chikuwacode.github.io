@@ -102,4 +102,10 @@ server.port=8080
 
 在命令列上出現的訊息，與先前在 IntelliJ 上執行是相同的。若要停止程式，按下「Ctrl + C」即可。
 
+
+-----
+
+
 本文的完成後專案，請[點我](https://github.com/ntub46010/SpringBootTutorial/tree/Ch01-create-project)。
+
+下一課：<a href="/articles/spring-boot-restful-api" target="_blank">【Spring Boot】第2課－認識 RESTful API 與前後端的資料交換</a>

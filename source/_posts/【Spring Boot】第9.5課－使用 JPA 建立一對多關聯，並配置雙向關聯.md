@@ -364,4 +364,12 @@ Hibernate:
 
 要注意的是，透過雙向關聯取得關聯資料時，無法進行條件篩選、排序與分頁。不過若讀者沒有這項需求，配置雙向關聯依然是相當實用的做法。
 
+
+-----
+
+
 本文的完成後專案，請[點我](https://github.com/ntub46010/SpringBootTutorial/tree/Ch09.5-jpa-one-to-many-relationship-and-bidirectional-association)。
+
+上一課：<a href="/articles/spring-boot-jpa-one-to-one-relationship" target="_blank">【Spring Boot】第9.4課－使用 JPA 配置資料表關聯（以一對一關聯為例）</a>
+
+下一課：<a href="/articles/spring-boot-jpa-many-to-many-relationship-and-intermediary-table" target="_blank">【Spring Boot】第9.6課－使用 JPA 建立多對多關聯，並配置中間表</a>
