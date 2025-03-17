@@ -71,7 +71,7 @@
   <script id="fluid-configs">
     var Fluid = window.Fluid || {};
     Fluid.ctx = Object.assign({}, Fluid.ctx)
-    var CONFIG = {"hostname":"chikuwacode.github.io","root":"/","version":"1.9.8","typing":{"enable":false,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h2,h3","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":false},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"left","headingSelector":"h2,h3","collapseDepth":3},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2,"exclude":[".no-lazy"]},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/local-search.xml","include_content_in_search":true};
+    var CONFIG = {"hostname":"chikuwacode.github.io","root":"/","version":"1.9.8","typing":{"enable":false,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h2,h3","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":false},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"left","headingSelector":"h2,h3","collapseDepth":3},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2,"exclude":[".no-lazy"]},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":"G-BZW5S6P21N"},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/local-search.xml","include_content_in_search":true};
 
     if (CONFIG.web_analytics.follow_dnt) {
       var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
@@ -621,31 +621,17 @@ Consider marking one of the beans as @Primary, updating the consumer to accept m
               
 
               
-                <div class="post-prevnext my-3">
-                  <article class="post-prev col-6">
-                    
-                    
-                      <a href="/articles/spring-boot-mongodb-introduction-and-setup/" title="【Spring Boot】第8.1課－MongoDB 介紹與準備資料庫環境">
-                        <i class="iconfont icon-arrowleft"></i>
-                        <span class="hidden-mobile">【Spring Boot】第8.1課－MongoDB 介紹與準備資料庫環境</span>
-                        <span class="visible-mobile">上一篇</span>
-                      </a>
-                    
-                  </article>
-                  <article class="post-next col-6">
-                    
-                    
-                      <a href="/articles/spring-boot-three-tier-architecture/" title="【Spring Boot】第4課－實作三層式架構的 Service 與 Repository">
-                        <span class="hidden-mobile">【Spring Boot】第4課－實作三層式架構的 Service 與 Repository</span>
-                        <span class="visible-mobile">下一篇</span>
-                        <i class="iconfont icon-arrowright"></i>
-                      </a>
-                    
-                  </article>
-                </div>
-              
             </div>
 
+            <div>
+              <script src="https://utteranc.es/client.js"
+                repo="chikuwacode/chikuwacode.github.io"
+                issue-term="pathname"
+                theme="github-light"
+                crossorigin="anonymous"
+                async>
+              </script>
+            </div>
             
           </article>
         </div>
@@ -654,211 +640,6 @@ Consider marking one of the beans as @Primary, updating the consumer to accept m
 
     <div class="side-col d-none d-lg-block col-lg-2">
       
-  <aside class="sidebar category-bar" style="margin-left: -1rem">
-    
-
-
-
-
-
-<div class="category-list">
-  
-  
-    
-    
-    
-    <div class="category row nomargin-x">
-      <a class="category-item 
-          list-group-item category-item-action col-10 col-md-11 col-xm-11" title="Spring Boot"
-        id="heading-d2b84a7bb8d211a07fd6ecbf4db9d426" role="tab" data-toggle="collapse" href="#collapse-d2b84a7bb8d211a07fd6ecbf4db9d426"
-        aria-expanded="true"
-      >
-        Spring Boot
-        <span class="list-group-count">(18)</span>
-        <i class="iconfont icon-arrowright"></i>
-      </a>
-      
-      <div class="category-collapse collapse show" id="collapse-d2b84a7bb8d211a07fd6ecbf4db9d426"
-           role="tabpanel" aria-labelledby="heading-d2b84a7bb8d211a07fd6ecbf4db9d426">
-        
-        
-          
-  <div class="category-post-list">
-    
-    
-      
-      
-        <a href="/articles/spring-boot-jpa-many-to-many-relationship-and-intermediary-table/" title="【Spring Boot】第9.6課－使用 JPA 建立多對多關聯，並配置中間表"
-           class="list-group-item list-group-item-action
-           ">
-          <span class="category-post">【Spring Boot】第9.6課－使用 JPA 建立多對多關聯，並配置中間表</span>
-        </a>
-      
-    
-      
-      
-        <a href="/articles/spring-boot-jpa-one-to-many-relationship-and-bidirectional-association/" title="【Spring Boot】第9.5課－使用 JPA 建立一對多關聯，並配置雙向關聯"
-           class="list-group-item list-group-item-action
-           ">
-          <span class="category-post">【Spring Boot】第9.5課－使用 JPA 建立一對多關聯，並配置雙向關聯</span>
-        </a>
-      
-    
-      
-      
-        <a href="/articles/spring-boot-jpa-one-to-one-relationship/" title="【Spring Boot】第9.4課－使用 JPA 配置資料表關聯（以一對一關聯為例）"
-           class="list-group-item list-group-item-action
-           ">
-          <span class="category-post">【Spring Boot】第9.4課－使用 JPA 配置資料表關聯（以一對一關聯為例）</span>
-        </a>
-      
-    
-      
-      
-        <a href="/articles/spring-boot-mysql-using-jpa-repository/" title="【Spring Boot】第9.3課－使用 JPA Repository 存取 MySQL 資料庫"
-           class="list-group-item list-group-item-action
-           ">
-          <span class="category-post">【Spring Boot】第9.3課－使用 JPA Repository 存取 MySQL 資料庫</span>
-        </a>
-      
-    
-      
-      
-        <a href="/articles/spring-boot-mysql-column-definition-with-jpa/" title="【Spring Boot】第9.2課－使用 JPA 設計實體類別與 MySQL 資料表欄位"
-           class="list-group-item list-group-item-action
-           ">
-          <span class="category-post">【Spring Boot】第9.2課－使用 JPA 設計實體類別與 MySQL 資料表欄位</span>
-        </a>
-      
-    
-      
-      
-        <a href="/articles/spring-boot-setup-mysql-and-introduce-jpa/" title="【Spring Boot】第9.1課－準備 MySQL 資料庫與認識 Spring Data JPA"
-           class="list-group-item list-group-item-action
-           ">
-          <span class="category-post">【Spring Boot】第9.1課－準備 MySQL 資料庫與認識 Spring Data JPA</span>
-        </a>
-      
-    
-      
-      
-        <a href="/articles/spring-boot-data-mongodb-repository-crud/" title="【Spring Boot】第8.2課－使用 Spring Data 存取 MongoDB 資料庫，進行基本 CRUD 操作"
-           class="list-group-item list-group-item-action
-           ">
-          <span class="category-post">【Spring Boot】第8.2課－使用 Spring Data 存取 MongoDB 資料庫，進行基本 CRUD 操作</span>
-        </a>
-      
-    
-      
-      
-        <a href="/articles/spring-boot-construct-bean-programmatically/" title="【Spring Boot】第7課－手動進行元件的初始化"
-           class="list-group-item list-group-item-action
-           ">
-          <span class="category-post">【Spring Boot】第7課－手動進行元件的初始化</span>
-        </a>
-      
-    
-      
-      
-        <a href="/articles/spring-boot-application-properties-configuration/" title="【Spring Boot】第6課－在 application.properties 配置檔提供設定值（以 Java Mail 為例）"
-           class="list-group-item list-group-item-action
-           ">
-          <span class="category-post">【Spring Boot】第6課－在 application.properties 配置檔提供設定值（以 Java Mail 為例）</span>
-        </a>
-      
-    
-      
-      
-        <a href="/articles/spring-boot-mockmvc-integration-test/" title="【Spring Boot】第10.1課 - 使用 MockMvc 進行 API 整合測試"
-           class="list-group-item list-group-item-action
-           ">
-          <span class="category-post">【Spring Boot】第10.1課 - 使用 MockMvc 進行 API 整合測試</span>
-        </a>
-      
-    
-      
-      
-        <a href="/articles/spring-boot-mongo-repository-customize-query/" title="【Spring Boot】第8.3課－在 MongoRepository 定義查詢條件與排序方式"
-           class="list-group-item list-group-item-action
-           ">
-          <span class="category-post">【Spring Boot】第8.3課－在 MongoRepository 定義查詢條件與排序方式</span>
-        </a>
-      
-    
-      
-      
-        <a href="/articles/spring-boot-mongodb-introduction-and-setup/" title="【Spring Boot】第8.1課－MongoDB 介紹與準備資料庫環境"
-           class="list-group-item list-group-item-action
-           ">
-          <span class="category-post">【Spring Boot】第8.1課－MongoDB 介紹與準備資料庫環境</span>
-        </a>
-      
-    
-      
-      
-        <a href="/articles/spring-boot-bean-ioc-di-and-swap/" title="【Spring Boot】第5課－元件的控制反轉、依賴注入與抽換"
-           class="list-group-item list-group-item-action
-           active">
-          <span class="category-post">【Spring Boot】第5課－元件的控制反轉、依賴注入與抽換</span>
-        </a>
-      
-    
-      
-      
-        <a href="/articles/spring-boot-three-tier-architecture/" title="【Spring Boot】第4課－實作三層式架構的 Service 與 Repository"
-           class="list-group-item list-group-item-action
-           ">
-          <span class="category-post">【Spring Boot】第4課－實作三層式架構的 Service 與 Repository</span>
-        </a>
-      
-    
-      
-      
-        <a href="/articles/spring-boot-use-query-string-and-header-in-controller/" title="【Spring Boot】第3.2課－在 Controller 接收 query string 與操作 header"
-           class="list-group-item list-group-item-action
-           ">
-          <span class="category-post">【Spring Boot】第3.2課－在 Controller 接收 query string 與操作 header</span>
-        </a>
-      
-    
-      
-      
-        <a href="/articles/spring-boot-implement-restful-api-in-controller/" title="【Spring Boot】第3.1課－在 Controller 實作 RESTful API"
-           class="list-group-item list-group-item-action
-           ">
-          <span class="category-post">【Spring Boot】第3.1課－在 Controller 實作 RESTful API</span>
-        </a>
-      
-    
-      
-      
-        <a href="/articles/spring-boot-restful-api/" title="【Spring Boot】第2課－認識 RESTful API 與前後端的資料交換"
-           class="list-group-item list-group-item-action
-           ">
-          <span class="category-post">【Spring Boot】第2課－認識 RESTful API 與前後端的資料交換</span>
-        </a>
-      
-    
-      
-      
-        <a href="/articles/spring-boot-create-project/" title="【Spring Boot】第1課－從環境準備、建立專案、打包到啟動程式"
-           class="list-group-item list-group-item-action
-           ">
-          <span class="category-post">【Spring Boot】第1課－從環境準備、建立專案、打包到啟動程式</span>
-        </a>
-      
-    
-  </div>
-
-        
-      </div>
-    </div>
-  
-</div>
-
-
-  </aside>
-
 
     </div>
   </div>
