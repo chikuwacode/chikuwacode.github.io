@@ -5,7 +5,7 @@
 # Site
 title: 吉古拉的程式拾光
 subtitle: 這裡分享擔任軟體工程師時，在工作上或自學所用到的東西。
-description: 提供程式開發相關文章，以後端領域為主。希望讓讀者能藉此補充專業能力！
+description: 在學習各個領域的知識時，你我都是新手。這裡提供的文章，是擔任軟體工程師時，自學和工作上用到的東西，以 Spring Boot 等後端領域為大宗。希望能讓學生、新鮮人或初學者補充專業知識，也對一些技術有所了解！
 keywords:
 author: Vincent
 language: zh-TW
@@ -13,8 +13,9 @@ timezone: ''
 
 # URL
 ## Set your site url here. For example, if you use GitHub Page, set url as 'https://username.github.io/project'
-#url: http://example.com
-url: http://localhost:4000
+
+# url: http://localhost:4000
+url: https://chikuwacode.github.io
 permalink: articles/:title/
 permalink_defaults:
 pretty_urls:
@@ -91,6 +92,7 @@ pagination_dir: page
 # Include / Exclude file(s)
 ## include:/exclude: options only apply to the 'source/' folder
 include:
+  - .nojekyll
 exclude:
 ignore:
 
@@ -103,5 +105,28 @@ theme: fluid
 ## Docs: https://hexo.io/docs/one-command-deployment
 deploy:
   type: git
-  repo: https://github.com/ntub46010/ntub46010.github.io.git
-  branch: gh-pages
+  repo: https://github.com/chikuwacode/chikuwacode.github.io.git
+  branch: main
+  ignore_hidden: false
+
+sitemap:
+  path: sitemap.xml
+  rel: false
+  tags: false
+  categories: false
+
+robots:
+  user_agent: "*"
+  allow:
+    - / 
+  disallow:
+    # - /js/
+    # - /css/
+    - /images/
+    - /archives/
+    - /page/
+    - /schedule/
+    - /tags/
+    - /categories/
+  sitemaps:
+    - https://chikuwacode.github.io/sitemap.xml
