@@ -507,6 +507,6 @@ public class RepositoryConfig {
 -----
 
 
-本文的完成後專案，請<a href="https://github.com/ntub46010/SpringBootTutorial/tree/Ch10.1-mockmvc-integration-test" target="_blank">點我</a>。
+本文的完成後專案，請[點我](https://github.com/ntub46010/SpringBootTutorial/tree/Ch10.1-mockmvc-integration-test)。
 
 上一課：<a href="/articles/spring-boot-jpa-many-to-many-relationship-and-intermediary-table" target="_blank">【Spring Boot】第9.6課－使用 JPA 建立多對多關聯，並配置中間表</a>
