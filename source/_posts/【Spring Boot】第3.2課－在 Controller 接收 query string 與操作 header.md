@@ -8,7 +8,7 @@ categories:
   - ["Spring Boot"]
 ---
 
-完成<a href="/articles/spring-boot-implement-restful-api-in-controller" target="_blank">第 3.1 課</a>後，相信讀者已經知道如何在 Controller 設計 API。本文將繼續介紹其他可以實作的細節。
+完成<a href="/articles/spring-boot-implement-restful-api-in-controller/" target="_blank">第 3.1 課</a>後，相信讀者已經知道如何在 Controller 設計 API。本文將繼續介紹其他可以實作的細節。
 
 首先是接收查詢字串（query string），進行條件篩選與排序，回傳多筆資料。接著是標頭（header）的處理，包含接收指定名稱的 request header，以及回傳 Location。最後提供幾項實用的做法，讓 Controller 的程式碼更簡潔。
 
@@ -144,7 +144,7 @@ public class ProductController {
 
 ## 三、接收與回傳標頭
 ### （一）回傳 Location 標頭
-在<a href="/articles/spring-boot-restful-api" target="_blank">第 2 課</a>有介紹過，如果 API 的功能是建立資源，那麼後端可額外回傳「Location」這個標頭（header），提供指向該資源的 endpoint。
+在<a href="/articles/spring-boot-restful-api/" target="_blank">第 2 課</a>有介紹過，如果 API 的功能是建立資源，那麼後端可額外回傳「Location」這個標頭（header），提供指向該資源的 endpoint。
 
 在練習用專案中，尚有另一個 API 是「POST /products」，用途是建立新的產品資料。其對應的 API 處理方法為「createProduct」，本節就在這個 API 提供此 header。
 ``` java
@@ -195,7 +195,7 @@ public ResponseEntity<Foo> getFoo(
 這裡使用了 `@RequestHeader` 注解，並於注解的參數提供要接收 header 的名稱。
 
 ## 四、簡化 Controller 的程式
-完成<a href="/articles/spring-boot-implement-restful-api-in-controller" target="_blank">第 3.1 課</a>與第 3.2 課後，讀者在 Controller 將擁有五支 RESTful API。本節將補充一些寫法，讓程式能簡潔好讀一些。
+完成<a href="/articles/spring-boot-implement-restful-api-in-controller/" target="_blank">第 3.1 課</a>與第 3.2 課後，讀者在 Controller 將擁有五支 RESTful API。本節將補充一些寫法，讓程式能簡潔好讀一些。
 
 ### （一）套用 Endpoint 前綴
 這些跟產品有關的 API，在 `@GetMapping`、`@PostMapping` 等注解中，其 endpoint 的開頭都要寫上「/products」，感覺重複性有點高。
@@ -296,7 +296,7 @@ public class ProductController {
 
 透過 `@ModelAttribute` 注解，可以將 query string 都收集起來，之後再分別取出做運用。
 
-我們在 Controller 寫了好幾支程式，內容也越來越龐大。<a href="/articles/spring-boot-three-tier-architecture" target="_blank">第 4 課</a>將介紹「三層式架構」，將不同目的的程式碼片段，分開撰寫在其他地方。
+我們在 Controller 寫了好幾支程式，內容也越來越龐大。<a href="/articles/spring-boot-three-tier-architecture/" target="_blank">第 4 課</a>將介紹「三層式架構」，將不同目的的程式碼片段，分開撰寫在其他地方。
 
 
 -----
@@ -304,6 +304,6 @@ public class ProductController {
 
 本文的完成後專案，請[點我](https://github.com/ntub46010/SpringBootTutorial/tree/Ch03.2-use-query-string-and-header-in-controller)。
 
-上一課：<a href="/articles/spring-boot-implement-restful-api-in-controller" target="_blank">【Spring Boot】第3.1課－在 Controller 實作 RESTful API</a>
+上一課：<a href="/articles/spring-boot-implement-restful-api-in-controller/" target="_blank">【Spring Boot】第3.1課－在 Controller 實作 RESTful API</a>
 
-下一課：<a href="/articles/spring-boot-three-tier-architecture" target="_blank">【Spring Boot】第4課－實作三層式架構的 Service 與 Repository</a>
+下一課：<a href="/articles/spring-boot-three-tier-architecture/" target="_blank">【Spring Boot】第4課－實作三層式架構的 Service 與 Repository</a>

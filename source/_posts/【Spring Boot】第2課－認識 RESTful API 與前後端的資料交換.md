@@ -10,7 +10,7 @@ categories:
 
 在認識前端與後端的差別後，本文將介紹它們之間的溝通媒介，即 Web API，其中又以 RESTful API 的類型最為常見。另外也會介紹查詢字串、負載（payload）、標頭及 HTTP 狀態碼，這些都是前後端所交換的資料。最後透過 Postman 這項工具，存取實際的 API。
 
-若讀者未曾接觸後端領域，建議先從本文建立 Web API 的觀念。如此在<a href="/articles/spring-boot-implement-restful-api-in-controller" target="_blank">第 3 課</a>開始撰寫 Spring Boot 程式，以及工作時設計 API 時，才能更加得心應手。
+若讀者未曾接觸後端領域，建議先從本文建立 Web API 的觀念。如此在<a href="/articles/spring-boot-implement-restful-api-in-controller/" target="_blank">第 3 課</a>開始撰寫 Spring Boot 程式，以及工作時設計 API 時，才能更加得心應手。
 
 
 -----
@@ -159,6 +159,6 @@ JSON 資料的內容，都是以 欄位: 值 的格式來撰寫。而物件寫�
 -----
 
 
-上一課：<a href="/articles/spring-boot-create-project" target="_blank">【Spring Boot】第1課－從環境準備、建立專案、打包到啟動程式</a>
+上一課：<a href="/articles/spring-boot-create-project/" target="_blank">【Spring Boot】第1課－從環境準備、建立專案、打包到啟動程式</a>
 
-下一課：<a href="/articles/spring-boot-implement-restful-api-in-controller" target="_blank">【Spring Boot】第3.1課－在 Controller 實作 RESTful API</a>
+下一課：<a href="/articles/spring-boot-implement-restful-api-in-controller/" target="_blank">【Spring Boot】第3.1課－在 Controller 實作 RESTful API</a>

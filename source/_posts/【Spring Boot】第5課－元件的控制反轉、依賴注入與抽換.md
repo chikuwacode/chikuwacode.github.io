@@ -8,7 +8,7 @@ categories:
   - ["Spring Boot"]
 ---
 
-控制反轉（IoC）與依賴注入（DI）是 Spring Boot 中的重要觀念。而筆者選擇在<a href="/articles/spring-boot-three-tier-architecture" target="_blank">第 4 課（三層式架構）</a>結束，練習用專案的架構成形後，才開始介紹。
+控制反轉（IoC）與依賴注入（DI）是 Spring Boot 中的重要觀念。而筆者選擇在<a href="/articles/spring-boot-three-tier-architecture/" target="_blank">第 4 課（三層式架構）</a>結束，練習用專案的架構成形後，才開始介紹。
 
 本文首先透過範例專案，讓讀者知道裡頭那些用來封裝程式邏輯的物件，其實存在著依賴關係。接著說明在後端程式運行期間，為何要求這些物件只能存在唯一一個，以及如何做到。
 
@@ -199,10 +199,10 @@ public class ProductRepository {
 那要如何讓 Spring Boot 建立單例物件呢？做法是在類別冠上特定的注解（annotation）。Spring Boot 啟動時，會透過 Java 的「反射」（reflection）機制，掃描專案中的哪些類別具有這些注解。
 
 可使用的注解如下，它們有不同的涵義。
-* `@Controller`：代表提供 Web API 的表現層。`@RestController` 注解便是繼承於它。於<a href="/articles/spring-boot-implement-restful-api-in-controller" target="_blank">第 3.1 課</a>介紹。
+* `@Controller`：代表提供 Web API 的表現層。`@RestController` 注解便是繼承於它。於<a href="/articles/spring-boot-implement-restful-api-in-controller/" target="_blank">第 3.1 課</a>介紹。
 * `@Service`：代表商業邏輯層。
 * `@Repository`：代表資料存取層。
-* `@Configuration`：代表這裡搭配 `@Value` 注解，存放了「application.properties」配置檔的值。於<a href="/articles/spring-boot-application-properties-configuration" target="_blank">第 6 課</a>介紹。或者搭配 `@Bean` 注解，控制元件的初始化過程。於<a href="/articles/spring-boot-construct-bean-programmatically" target="_blank">第 7 課</a>介紹。
+* `@Configuration`：代表這裡搭配 `@Value` 注解，存放了「application.properties」配置檔的值。於<a href="/articles/spring-boot-application-properties-configuration/" target="_blank">第 6 課</a>介紹。或者搭配 `@Bean` 注解，控制元件的初始化過程。於<a href="/articles/spring-boot-construct-bean-programmatically/" target="_blank">第 7 課</a>介紹。
 * `@Component`：以上 4 項皆繼承自此注解，是泛用的選擇。
 
 接著，我們在範例專案中的元件類別，冠上適當的注解。
@@ -465,6 +465,6 @@ public class ProductService {
 
 本文的完成後專案，請[點我](https://github.com/ntub46010/SpringBootTutorial/tree/Ch05-bean-ioc-di-and-swap)。
 
-上一課：<a href="/articles/spring-boot-three-tier-architecture" target="_blank">【Spring Boot】第4課－實作三層式架構的 Service 與 Repository</a>
+上一課：<a href="/articles/spring-boot-three-tier-architecture/" target="_blank">【Spring Boot】第4課－實作三層式架構的 Service 與 Repository</a>
 
-下一課：<a href="/articles/spring-boot-application-properties-configuration" target="_blank">【Spring Boot】第6課－在 application.properties 配置檔提供設定值（以 Java Mail 為例）</a>
+下一課：<a href="/articles/spring-boot-application-properties-configuration/" target="_blank">【Spring Boot】第6課－在 application.properties 配置檔提供設定值（以 Java Mail 為例）</a>

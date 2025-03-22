@@ -94,7 +94,7 @@ public class Certificate {
 </dependency>
 ```
 
-在<a href="/articles/spring-boot-bean-ioc-di-and-swap" target="_blank">第 5 課</a>，我們有練習建立一個「ProductRepository」介面，將其注入到商業邏輯中。該介面有 2 種實作類別，分別用 List 與 Map 結構來儲存測試資料。
+在<a href="/articles/spring-boot-bean-ioc-di-and-swap/" target="_blank">第 5 課</a>，我們有練習建立一個「ProductRepository」介面，將其注入到商業邏輯中。該介面有 2 種實作類別，分別用 List 與 Map 結構來儲存測試資料。
 
 本節會建立一個特殊的介面，定位與上述的 ProductRepository 相同。但我們不必親自實作它，而是交給框架處理。
 ``` java
@@ -330,6 +330,6 @@ public class MyController {
 
 本文的完成後專案，請[點我](https://github.com/ntub46010/SpringBootTutorial/tree/Ch08.2-mongodb-repository-crud)。
 
-上一課：<a href="/articles/spring-boot-mongodb-introduction-and-setup" target="_blank">【Spring Boot】第8.1課－MongoDB 介紹與準備資料庫環境</a>
+上一課：<a href="/articles/spring-boot-mongodb-introduction-and-setup/" target="_blank">【Spring Boot】第8.1課－MongoDB 介紹與準備資料庫環境</a>
 
-下一課：<a href="/articles/spring-boot-mongo-repository-customize-query" target="_blank">【Spring Boot】第8.3課－在 MongoRepository 定義查詢條件與排序方式</a>
+下一課：<a href="/articles/spring-boot-mongo-repository-customize-query/" target="_blank">【Spring Boot】第8.3課－在 MongoRepository 定義查詢條件與排序方式</a>

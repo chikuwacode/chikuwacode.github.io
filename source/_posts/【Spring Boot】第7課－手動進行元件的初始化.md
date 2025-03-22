@@ -347,7 +347,7 @@ public class ServiceConfig {
 
 因此，我們可將這兩個 `@Bean` 注解的方法合併，再透過 if 判斷決定要建立哪一個。
 
-接下來的範例，筆者會結合<a href="/articles/spring-boot-application-properties-configuration" target="_blank">第 6 課</a>介紹的 application.properties 配置檔，提供元件初始化的一些選項。請先添加以下 2 個設定值：
+接下來的範例，筆者會結合<a href="/articles/spring-boot-application-properties-configuration/" target="_blank">第 6 課</a>介紹的 application.properties 配置檔，提供元件初始化的一些選項。請先添加以下 2 個設定值：
 ``` properties
 user-repository.storage=map
 user-repository.test-data.amount=3
@@ -399,6 +399,6 @@ public class RepositoryConfig {
 本文的完成後專案，請[點我](https://github.com/ntub46010/SpringBootTutorial/tree/Ch07-fin-construct-bean-programmatically)。
 
 
-上一課：<a href="/articles/spring-boot-application-properties-configuration" target="_blank">【Spring Boot】第6課－在 application.properties 配置檔提供設定值（以 Java Mail 為例）</a>
+上一課：<a href="/articles/spring-boot-application-properties-configuration/" target="_blank">【Spring Boot】第6課－在 application.properties 配置檔提供設定值（以 Java Mail 為例）</a>
 
-下一課：<a href="/articles/spring-boot-mongodb-introduction-and-setup" target="_blank">【Spring Boot】第8.1課－MongoDB 介紹與準備資料庫環境</a>
+下一課：<a href="/articles/spring-boot-mongodb-introduction-and-setup/" target="_blank">【Spring Boot】第8.1課－MongoDB 介紹與準備資料庫環境</a>

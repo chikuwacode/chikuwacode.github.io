@@ -8,7 +8,7 @@ categories:
   - ["Spring Boot"]
 ---
 
-在<a href="/articles/spring-boot-implement-restful-api-in-controller" target="_blank">第 3.1 課</a>與<a href="/articles/spring-boot-use-query-string-and-header-in-controller" target="_blank">第 3.2 課</a>，我們只有 Controller 這個地方，能撰寫程式來處理請求。然而若全部都寫在這裡，整個類別就會很龐大。
+在<a href="/articles/spring-boot-implement-restful-api-in-controller/" target="_blank">第 3.1 課</a>與<a href="/articles/spring-boot-use-query-string-and-header-in-controller/" target="_blank">第 3.2 課</a>，我們只有 Controller 這個地方，能撰寫程式來處理請求。然而若全部都寫在這裡，整個類別就會很龐大。
 
 本文將介紹「三層式架構」，並搭配範例專案，點出當前做法所隱含的問題。接著進行修改，進一步將程式碼片段抽離到 Service 與 Repository 兩個層次，讓讀者體會切分的過程與思路。
 
@@ -75,7 +75,7 @@ public class Product {
 
 ## 二、三層式架構的目的與做法
 ### （一）介紹
-在<a href="/articles/spring-boot-implement-restful-api-in-controller" target="_blank">第 3.1 課</a>，筆者提到 MVC 架構是為了將不同用途的程式分門別類，不要通通寫在一起。在前後端分離的系統中，V（view）屬於前端的工作。
+在<a href="/articles/spring-boot-implement-restful-api-in-controller/" target="_blank">第 3.1 課</a>，筆者提到 MVC 架構是為了將不同用途的程式分門別類，不要通通寫在一起。在前後端分離的系統中，V（view）屬於前端的工作。
 
 三層式架構的目標，是將屬於後端的 M（Model）與 C（Controller）做進一步的切分。那麼要如何進行呢？這會包含「分層」與「設計資料規格」兩項工作。
 
@@ -428,7 +428,7 @@ public class ProductService {
 
 如果讀者以前已經碰過一點 Spring Boot，看到這邊應該覺得奇怪：為何不使用 `@Autowired` 注解，而是用 new 的？
 
-原因是筆者想在<a href="/articles/spring-boot-bean-ioc-di-and-polymorphism" target="_blank">第 5 課</a>單獨用一篇文章，來介紹「控制反轉」及「依賴注入」這兩項關於 Spring 的重要觀念，故本文暫時用 new 的方式。
+原因是筆者想在<a href="/articles/spring-boot-bean-ioc-di-and-polymorphism/" target="_blank">第 5 課</a>單獨用一篇文章，來介紹「控制反轉」及「依賴注入」這兩項關於 Spring 的重要觀念，故本文暫時用 new 的方式。
 
 ### （二）取得資料
 由於代表 DB 欄位的類別為 ProductPO，若想將其變成前端需要的 ProductVO 規格，那就得先準備轉換的方法。以下就只是將兩個類別的欄位一一對應罷了。
@@ -630,6 +630,6 @@ public class ProductController {
 
 本文的完成後專案，請[點我](https://github.com/ntub46010/SpringBootTutorial/tree/Ch04-three-tier-architecture)。
 
-上一課：<a href="/articles/spring-boot-use-query-string-and-header-in-controller" target="_blank">【Spring Boot】第3.2課－在 Controller 接收 query string 與操作 header</a>
+上一課：<a href="/articles/spring-boot-use-query-string-and-header-in-controller/" target="_blank">【Spring Boot】第3.2課－在 Controller 接收 query string 與操作 header</a>
 
-下一課：<a href="/articles/spring-boot-bean-ioc-di-and-swap" target="_blank">【Spring Boot】第5課－元件的控制反轉、依賴注入與抽換</a>
+下一課：<a href="/articles/spring-boot-bean-ioc-di-and-swap/" target="_blank">【Spring Boot】第5課－元件的控制反轉、依賴注入與抽換</a>

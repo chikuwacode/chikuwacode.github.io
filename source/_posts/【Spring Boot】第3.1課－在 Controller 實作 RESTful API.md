@@ -8,7 +8,7 @@ categories:
   - ["Spring Boot"]
 ---
 
-若讀者是後端領域的初學者，看完<a href="/articles/spring-boot-restful-api" target="_blank">第 2 課</a>後，應該具備 Web API 的概念了，並且也知道前後端會透過 payload 與 HTTP 狀態碼來交換資料。
+若讀者是後端領域的初學者，看完<a href="/articles/spring-boot-restful-api/" target="_blank">第 2 課</a>後，應該具備 Web API 的概念了，並且也知道前後端會透過 payload 與 HTTP 狀態碼來交換資料。
 
 本文一開始先簡介知名的 MVC 架構，讓讀者知道 Controller 的由來。接著在 Spring Boot 中撰寫 RESTful API，將相關概念加以活用。最後會完成 4 支 API，分別能進行 CRUD。
 
@@ -27,7 +27,7 @@ categories:
 
 以生活情境來比喻，就像客人跟櫃台點餐，店員會將菜單送到廚房，之後再將餐點交給我們。此時客人、櫃台店員與廚房，分別為 View、Controller 與 Model。
 
-Controller 接收的請求，內容包括了<a href="/articles/spring-boot-restful-api" target="_blank">第 2 課</a>提到的 query string、payload 與 header。而給予的回應，在本文的實作中，則是將處理結果作為 payload，連同 HTTP 狀態碼一併回傳。
+Controller 接收的請求，內容包括了<a href="/articles/spring-boot-restful-api/" target="_blank">第 2 課</a>提到的 query string、payload 與 header。而給予的回應，在本文的實作中，則是將處理結果作為 payload，連同 HTTP 狀態碼一併回傳。
 
 若將原本屬於 Model 職責的資料處理寫在 Controller，或是有些 JSP 專案是把程式碼跟 HTML 寫在一起，那系統越做越大，程式碼就會變得臃腫又混亂。MVC 架構的思想，便是讓程式碼分門別類、各司其職。
 
@@ -231,6 +231,6 @@ public class ProductController {
 
 本文的完成後專案，請[點我](https://github.com/ntub46010/SpringBootTutorial/tree/Ch03.1-implement-restful-api-in-controller)。
 
-上一課：<a href="/articles/spring-boot-restful-api" target="_blank">【Spring Boot】第2課－認識 RESTful API 與前後端的資料交換</a>
+上一課：<a href="/articles/spring-boot-restful-api/" target="_blank">【Spring Boot】第2課－認識 RESTful API 與前後端的資料交換</a>
 
-下一課：<a href="/articles/spring-boot-use-query-string-and-header-in-controller" target="_blank">【Spring Boot】第3.2課－在 Controller 接收 query string 與操作 header</a>
+下一課：<a href="/articles/spring-boot-use-query-string-and-header-in-controller/" target="_blank">【Spring Boot】第3.2課－在 Controller 接收 query string 與操作 header</a>

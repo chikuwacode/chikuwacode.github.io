@@ -5,7 +5,8 @@ permalink: articles/spring-boot-security-authentication-and-authorization
 index_img: /img/index_img/spring-boot.jpg
 excerpt: Spring Security 能幫助我們開發有關認證與授權等有關安全管理的功能。本文會進行初始設置，搭配 in-memory 的測試帳號，登入存取 API，藉此建立認證的概念。至於授權，則是透過設計帳號權限，並定義 API 要開放給哪些權限來達成。
 categories:
-  - ["Spring Boot", "Spring Security"]
+  - ["Spring Boot"]
+  - ["Spring Security"]
 ---
 
 Spring Security 是一套框架，它能幫助我們開發有關認證與授權等有關安全管理的功能。
@@ -78,7 +79,7 @@ Using generated security password: 8698d55e-33dc-461c-80e4-a8e364b23a6c
 
 為避免讀者在學習上分心，以及文章篇幅過長，筆者在本文會使用 Spring Security 提供的「in-memory user」功能，快速建立簡易的測試帳號。
 
-待本文結束，對 Spring Security 的認證與授權有概念後，在<a href="/articles/spring-boot-security-authentication-integrating-with-mongodb-database" target="_blank">第 17.2 課</a>會抽換成使用資料庫來儲存帳密。
+待本文結束，對 Spring Security 的認證與授權有概念後，在<a href="/articles/spring-boot-security-authentication-integrating-with-mongodb-database/" target="_blank">第 17.2 課</a>會抽換成使用資料庫來儲存帳密。
 
 以下建立了一個配置類別，並冠上 `@EnableWebSecurity` 注解。有關 Spring Security 的各項設定，都能在這裡透過程式碼來自定義。
 ``` java
@@ -108,7 +109,7 @@ public class SecurityConfig {
 上面建立了 `InMemoryUserDetailsManager` 元件，它會被 Spring Security 讀取。其用途顧名思義就是在記憶體中管理帳號，建構子接收了 `UserDetails` 型態的物件。
 
 至於建立帳號的方式，則是呼叫 `User` 類別提供的靜態方法，傳入帳號與密碼。此處建立了三個使用者：
-|| 帳號 || 密碼 ||
+| 帳號 | 密碼 |
 |-|-|
 |user1|111|
 |user2|222|
@@ -118,7 +119,7 @@ public class SecurityConfig {
 
 ### （二）密碼加密
 設定密碼時，在前面加上了 `{noop}` 的字串。原因是配置 in-memory user 的密碼時，需指定密碼的加密演算法。以下舉例其中幾項：
-|| 前綴 || 演算法 || 密碼原文 || 參數寫法 ||
+| 前綴 | 演算法 | 密碼原文 | 參數寫法 |
 |-|-|-|-|
 |{noop}|不加密|123|{noop}123|
 |{bcrypt}|BCrypt|456|{bcrypt}$2a$12$YowIkLKzGwPjMt6jtCkvDuCA7Vxb/81pQaJvGgtbKjMgVYtMs2DKK|
@@ -234,7 +235,7 @@ Spring Security 會將 `HttpSecurity` 物件注入到建立元件的方法中。
 呼叫 `requestMatchers` 方法，可傳入 API 路徑與 HTTP 方法；呼叫 `anyRequests` 方法，代表要對「其餘」的 API 做設定。這是有先後順序之分的，就像 Java 語言的「if → else if → else」，是由上而下逐一判斷。
 
 提供完 API 後，接著要定義授權規則。以下舉例幾個可用的方法：
-|| 方法名稱 || 意義 ||
+| 方法名稱 | 意義 |
 |-|-|
 |permitAll|不必登入認證就能存取。|
 |hasAuthority|需具備某一個權限才能存取。|
@@ -250,7 +251,7 @@ Spring Security 會將 `HttpSecurity` 物件注入到建立元件的方法中。
 
 最後補充，定義 API 授權規則時，路徑的部份除了精確地逐一寫出來，也能透過萬用字元來「模糊匹配」。下表是用法與範例：
 
-|| 萬用字元 || 意義 || 範例寫法 || 適用 || 不適用 ||
+| 萬用字元 | 意義 | 範例寫法 | 適用 | 不適用 |
 |-|-|-|-|-|
 |*|0 到多個字元|/courses/*|/courses、/courses/123|/courses/123/draft|
 |**|0 到多個階層|/courses/**|任何「/courses」開頭的路徑|-|

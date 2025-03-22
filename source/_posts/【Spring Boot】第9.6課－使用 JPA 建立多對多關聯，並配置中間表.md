@@ -370,6 +370,6 @@ Hibernate:
 
 本文的完成後專案，請[點我](https://github.com/ntub46010/SpringBootTutorial/tree/Ch09.6-jpa-many-to-many-relationship-and-intermediary-table)。
 
-上一課：<a href="/articles/spring-boot-jpa-one-to-many-relationship-and-bidirectional-association" target="_blank">【Spring Boot】第9.5課－使用 JPA 建立一對多關聯，並配置雙向關聯</a>
+上一課：<a href="/articles/spring-boot-jpa-one-to-many-relationship-and-bidirectional-association/" target="_blank">【Spring Boot】第9.5課－使用 JPA 建立一對多關聯，並配置雙向關聯</a>
 
-下一課：<a href="/articles/spring-boot-mockmvc-integration-test" target="_blank">【Spring Boot】第10.1課 - 使用 MockMvc 進行 API 整合測試</a>
+下一課：<a href="/articles/spring-boot-mockmvc-integration-test/" target="_blank">【Spring Boot】第10.1課 - 使用 MockMvc 進行 API 整合測試</a>

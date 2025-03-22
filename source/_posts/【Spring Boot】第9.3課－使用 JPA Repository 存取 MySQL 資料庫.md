@@ -82,7 +82,7 @@ public class Contact {
 }
 ```
 
-以下是<a href="/articles/spring-boot-mysql-column-definition-with-jpa" target="_blank">上一篇</a>提到的 `AuditorAware` 元件。用途是當插入或更新資料時，能在實體類別中具有 `@CreatedBy` 或 `@LastModifiedBy` 注解的欄位，自動填入使用者資訊，此處以隨機字串代替。
+以下是<a href="/articles/spring-boot-mysql-column-definition-with-jpa/" target="_blank">上一篇</a>提到的 `AuditorAware` 元件。用途是當插入或更新資料時，能在實體類別中具有 `@CreatedBy` 或 `@LastModifiedBy` 注解的欄位，自動填入使用者資訊，此處以隨機字串代替。
 ``` java
 @Component
 public class AuditorAwareImpl implements AuditorAware<String> {
@@ -97,7 +97,7 @@ public class AuditorAwareImpl implements AuditorAware<String> {
 
 ## 二、認識 Spring Data 的 Repository 介面
 ### （一）建立 Repository 介面
-在<a href="/articles/spring-boot-bean-ioc-di-and-swap" target="_blank">第 5 課</a>，我們有練習過建立一個「ProductRepository」介面，將其注入到商業邏輯中。還提供兩種實作類別，分別用 List 與 Map 結構來儲存範例資料。
+在<a href="/articles/spring-boot-bean-ioc-di-and-swap/" target="_blank">第 5 課</a>，我們有練習過建立一個「ProductRepository」介面，將其注入到商業邏輯中。還提供兩種實作類別，分別用 List 與 Map 結構來儲存範例資料。
 
 本節會使用一個特殊的介面，它是由 Spring Data JPA 所提供，其定位與上述的 ProductRepository 相同。但我們不必親自實作它，而是交給框架處理。
 ``` java
@@ -264,7 +264,7 @@ public class MyController {
 ## 四、自定義查詢條件
 我們能在 repository 中，依照特定的方法命名規則，設計自己的查詢條件。
 
-筆者在<a href="/articles/spring-boot-mongo-repository-customize-query" target="_blank">第 8.3 課</a>已經設計過各種查詢 MongoDB 的方法，以及排序的方式。雖然是另一款資料庫，但 Spring Data 提供的 repository，其使用方式大致都相同。
+筆者在<a href="/articles/spring-boot-mongo-repository-customize-query/" target="_blank">第 8.3 課</a>已經設計過各種查詢 MongoDB 的方法，以及排序的方式。雖然是另一款資料庫，但 Spring Data 提供的 repository，其使用方式大致都相同。
 
 本節僅挑選一部份做快速的示範。更多命名方式，讀者可參考 Spring Data JPA 官方文件。
 
@@ -497,6 +497,6 @@ public class MyController {
 
 本文的完成後專案，請[點我](https://github.com/ntub46010/SpringBootTutorial/tree/Ch09.3-mysql-using-jpa-repository)。
 
-上一課：<a href="/articles/spring-boot-mysql-column-definition-with-jpa" target="_blank">【Spring Boot】第9.2課－使用 JPA 設計實體類別與 MySQL 資料表欄位</a>
+上一課：<a href="/articles/spring-boot-mysql-column-definition-with-jpa/" target="_blank">【Spring Boot】第9.2課－使用 JPA 設計實體類別與 MySQL 資料表欄位</a>
 
-下一課：<a href="/articles/spring-boot-jpa-one-to-one-relationship" target="_blank">【Spring Boot】第9.4課－使用 JPA 配置資料表關聯（以一對一關聯為例）</a>
+下一課：<a href="/articles/spring-boot-jpa-one-to-one-relationship/" target="_blank">【Spring Boot】第9.4課－使用 JPA 配置資料表關聯（以一對一關聯為例）</a>

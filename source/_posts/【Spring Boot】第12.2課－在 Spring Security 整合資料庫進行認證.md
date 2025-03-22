@@ -1,11 +1,12 @@
 ---
-title: 【Spring Boot】第17.2課－在 Spring Security 整合資料庫進行認證
+title: 【Spring Boot】第12.2課－在 Spring Security 整合資料庫進行認證
 date: 2023-11-03 13:21:00
 permalink: articles/spring-boot-security-authentication-integrating-with-mongodb-database
 index_img: /img/index_img/spring-boot.jpg
 excerpt: 實務開發中，我們是透過資料庫來儲存使用者的帳號與密碼。本文首先會將專案串接上資料庫。接著向讀者介紹 Spring Security 認證的相關介面，並實作自定義的認證程式。藉此將資料庫所儲存的帳號、密碼與權限資料，整合到認證流程中。最後介紹加密密碼的方式，以提高安全性。
 categories:
-  - ["Spring Boot", "Spring Security"]
+  - ["Spring Boot"]
+  - ["Spring Security"]
 ---
 
 在上一篇，我們建立了 Spring Security 認證與授權的概念，並利用 in-memory user 的功能準備測試帳號。然而實務開發中，是透過資料庫來儲存使用者的帳號與密碼。
@@ -80,11 +81,11 @@ public interface MemberRepository extends MongoRepository<Member, String> {
 
 在 `MongoRepository` 介面中，已經內含 `findById`、`deleteById` 等多個方法。此處我們自行宣告了叫做「findByUsername」的方法，代表要查詢 username 欄位相等的資料。
 
-Spring Data 會在啟動 Spring Boot 時，自動解讀方法名稱，背地產生能實現這些目的的程式。更多介紹可參考筆者的「<a href="/articles/spring-boot-data-mongodb-repository-crud" target="_blank">【Spring Boot】第8.2課－使用 Spring Data 存取 MongoDB 資料庫，進行基本 CRUD 操作</a>」文章。
+Spring Data 會在啟動 Spring Boot 時，自動解讀方法名稱，背地產生能實現這些目的的程式。更多介紹可參考筆者的「<a href="/articles/spring-boot-data-mongodb-repository-crud/" target="_blank">【Spring Boot】第8.2課－使用 Spring Data 存取 MongoDB 資料庫，進行基本 CRUD 操作</a>」文章。
 
 ## 二、準備 RESTful API
 本節會在 Controller 建立多支 RESTful API，目的是為了在本文第六節測試不同權限的帳號，能否被 Spring Security 授權存取。如下表：
-|| API || 用途 || 授權對象 ||
+| API | 用途 | 授權對象 |
 |-|-|-|
 |POST /members|建立使用者，並回傳 id|所有人，無論是否登入|
 |GET /members|取得所有使用者|管理員|
@@ -301,7 +302,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 
 權限資料是透過 `GrantedAuthority` 介面來傳遞。Spring Security 內建了一個叫做 `SimpleGrantedAuthority` 的實作類別，此處在建構子中傳入權限的名稱，如本文第一節所設計的學生、老師與管理員。
 
-以生活情境來比喻撰寫這段程式的過程，就像是求職時，即便我們準備了自製的履歷（Member 類別），但依然要填寫公司內部的制式履歷（UserDetails 介面），因公司只認制式的人事資料。
+以生活情境來比喻撰寫這段程式的過程，就像是求職時，即便我們準備了自製的履歷（Member 類別），但依然要填寫公司內部的制式履歷（`UserDetails` 介面），因公司只認制式的人事資料。
 
 ## 六、密碼加密
 ### （一）PasswordEncoder 元件

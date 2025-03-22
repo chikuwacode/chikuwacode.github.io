@@ -428,6 +428,6 @@ mail:
 
 本文的完成後專案，請[點我](https://github.com/ntub46010/SpringBootTutorial/tree/Ch06-fin-application-properties-configuration)。
 
-上一課：<a href="/articles/spring-boot-bean-ioc-di-and-swap" target="_blank">【Spring Boot】第5課－元件的控制反轉、依賴注入與抽換</a>
+上一課：<a href="/articles/spring-boot-bean-ioc-di-and-swap/" target="_blank">【Spring Boot】第5課－元件的控制反轉、依賴注入與抽換</a>
 
-下一課：<a href="/articles/spring-boot-construct-bean-programmatically" target="_blank">【Spring Boot】第7課－手動進行元件的初始化</a>
+下一課：<a href="/articles/spring-boot-construct-bean-programmatically/" target="_blank">【Spring Boot】第7課－手動進行元件的初始化</a>

@@ -1,11 +1,12 @@
 ---
-title: 【Spring Boot】第17.3課－在 Spring Security 使用 HTTP Basic 認證
+title: 【Spring Boot】第12.3課－在 Spring Security 使用 HTTP Basic 認證
 date: 2024-05-08 14:00:00
 permalink: articles/spring-boot-security-http-basic-authentication
 index_img: /img/index_img/spring-boot.jpg
 excerpt: 在學習 Spring Security 時，經常透過內建的登入畫面來認證。但在前後端分離時，我們需獨立於 Spring Boot 之外來存取 API，也就是透過前端程式或 Postman。本文會介紹 HTTP Basic 認證，在 request header 攜帶帳密，以取代登入畫面。
 categories:
-  - ["Spring Boot", "Spring Security"]
+  - ["Spring Boot"]
+  - ["Spring Security"]
 ---
 
 在前兩篇文章，我們都是在 Spring Security 的登入畫面通過認證後，利用瀏覽器存取 Controller 的 GET API。但其他如 POST、PUT 與 DELETE 方法的請求，就無法透過這種方式了。特別是在前後端分離的系統，是完全要獨立於 Spring Boot 來存取。
@@ -18,7 +19,7 @@ categories:
 
 ## 一、準備 RESTful API
 本節會在 Controller 設計多支 RESTful API，目的是用來測試不同權限的帳號，能否被 Spring Security 授權存取。列出如下：
-|| API || 用途 || 授權對象 ||
+| API | 用途 | 授權對象 |
 |-|-|-|
 |GET /home|回傳「系統首頁」字串|所有人，包含尚未通過認證的人|
 |GET /courses|回傳「課程列表」字串|所有通過認證的人|
@@ -96,7 +97,7 @@ public class SecurityConfig {
 
 ### （二）準備測試使用者
 以下準備了 2 個測試使用者。
-|| 帳號 || 密碼 || 權限 ||
+| 帳號 | 密碼 | 權限 |
 |-|-|-|
 |user1|111|學生|
 |user2|222|老師|

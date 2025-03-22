@@ -68,7 +68,7 @@ Spring Boot 官方在網路上提供了實用的工具，叫做「[Spring Initia
 若更動了 pom.xml 檔，IntelliJ 右下方會出現「Maven projects need to be imported」的訊息。屆時請按下「Import Changes」，讓開發工具重新整理，或把函式庫下載回來。
 
 ### （二）application.properties 配置檔
-簡單來說，這份檔案可以存放一些「設定值」，例如資料庫的 IP 位址，或串接服務的帳號密碼等。這樣一來，我們就不必硬寫（hard code）在程式碼中。在<a href="/articles/spring-boot-application-properties-configuration" target="_blank">第 7 課</a>會專門介紹。
+簡單來說，這份檔案可以存放一些「設定值」，例如資料庫的 IP 位址，或串接服務的帳號密碼等。這樣一來，我們就不必硬寫（hard code）在程式碼中。在<a href="/articles/spring-boot-application-properties-configuration/" target="_blank">第 7 課</a>會專門介紹。
 
 另外，Spring Boot 本身也有自己的設定值。例如「server.port」可指定要運行在哪個埠號（port），預設是 8080。
 ``` properties
@@ -108,4 +108,4 @@ server.port=8080
 
 本文的完成後專案，請[點我](https://github.com/ntub46010/SpringBootTutorial/tree/Ch01-create-project)。
 
-下一課：<a href="/articles/spring-boot-restful-api" target="_blank">【Spring Boot】第2課－認識 RESTful API 與前後端的資料交換</a>
+下一課：<a href="/articles/spring-boot-restful-api/" target="_blank">【Spring Boot】第2課－認識 RESTful API 與前後端的資料交換</a>
