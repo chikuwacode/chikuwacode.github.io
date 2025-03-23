@@ -224,7 +224,7 @@ Spring Security 內建了一個實作 `UserDetails` 介面的類別，那就是 
 ### （二）UserDetailsService 介面
 若觀看 `InMemoryUserDetailsManager` 類別的原始碼，會發現它頂層實作了 `UserDetailsService` 介面。
 
-該介面是 Spring Security 用來進行認證的重要元件。它提供一個叫做 `loadUserByUsername` 的方法，用途是接收帳號的值，並回傳內含使用者資料的 UserDetails 介面物件。
+該介面是 Spring Security 用來進行認證的重要元件。它提供一個叫做 `loadUserByUsername` 的方法，用途是接收帳號的值，並回傳內含使用者資料的 `UserDetails` 介面物件。
 
 繼續追蹤 `InMemoryUserDetailsManager` 的原始碼，會發現它是用 Map 資料結構來儲存使用者。
 ``` java

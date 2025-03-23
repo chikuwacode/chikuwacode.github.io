@@ -127,7 +127,7 @@ public class SecurityConfig {
 }
 ```
 
-附帶一提，`InMemoryUserDetailsManager` 本身就有實作 `UserDetailsService` 介面。若讀者想改為串接真實的資料庫，只要基於此介面進行抽換即可，做法可參考<a href="/articles/spring-boot-security-authentication-integrating-with-mongodb-database/" target="_blank">第12.2課</a>。
+附帶一提，`InMemoryUserDetailsManager` 本身就有實作 `UserDetailsService` 介面。若讀者想改為串接真實的資料庫，只要基於此介面進行抽換即可，做法可參考<a href="/articles/spring-boot-security-authentication-integrating-with-mongodb-database/" target="_blank">第 12.2 課</a>。
 
 ## 三、HTTP Basic 認證方式
 ### （一）簡介
