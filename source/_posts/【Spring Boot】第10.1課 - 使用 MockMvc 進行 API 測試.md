@@ -31,7 +31,7 @@ categories:
 
 ### （二）寫測試的缺點
 雖說撰寫測試程式，能夠幫助我們在未來更有效率地測試，但也要權衡利弊：
-* 寫測試畢竟也是一種寫程式的動作，有時花費的時間可能還會大於開發業務邏輯的時間呢！當工作時程緊湊，可能會沒時間寫。除非團隊能將測試時間納人開發時程，杏則若硬要做，勢必會很有壓力。
+* 寫測試畢竟也是一種寫程式的動作，有時花費的時間可能還會大於開發業務邏輯的時間呢！當工作時程緊湊，可能會沒時間寫。除非團隊能將測試時間納人開發時程，否則若硬要做，勢必會很有壓力。
 * 有些團隊會有 code review（程式碼審查）的流程，同事得多花時間看這些測試程式。
 * 未來需求如果改變，測試程式也要隨之修改，要多花額外的時間來維護。
 
@@ -78,7 +78,7 @@ public interface IProductRepository {
     default Comparator<Product> getSortComparator(ProductRequestParameter param) {
         Comparator<Product> comparator;
         if ("name".equalsIgnoreCase(param.getSortField())) {
-            comparator = Comparator.comparing(Product::getName);
+            comparator = Comparator.comparing(p -> p.getName().toLowerCase());
         } else if ("price".equalsIgnoreCase(param.getSortField())) {
             comparator = Comparator.comparing(Product::getPrice);
         } else {
@@ -160,7 +160,7 @@ public class ProductController {
     @PostMapping
     public ResponseEntity<Void> create(@RequestBody Product product) {
         if (product.getName() == null || product.getPrice() < 0) {
-            return ResponseEntity.unprocessableEntity().build();
+            return ResponseEntity.badRequest().build();
         }
 
         productRepository.insert(product);
@@ -174,7 +174,7 @@ public class ProductController {
 }
 ```
 
-取得一筆資料時，若找不到，會回傳 404 狀態碼；新增資料時，若名稱與價格不合法，會回傳 422 狀態碼。
+取得一筆資料時，若找不到，會回傳 404 狀態碼；新增資料時，若名稱與價格不合法，會回傳 400 狀態碼。
 
 ## 三、開始撰寫測試
 ### （一）準備測試類別
@@ -501,7 +501,7 @@ public class RepositoryConfig {
 
 完成後，讀者可分別啟動 Spring Boot 和測試程式。從 Console 窗格中，能夠發現它們確實使用了不同實作方式的 repository。
 
-雖然本文並未串接真實的資料庫，但讀者可理解成，正式環境與測試程式所用的資料庫，並不會是同一個，已經分離開來了。
+雖然本文並未串接真實的資料庫，但讀者可理解成，正式環境與測試程式所用的 repository，並不會是同一個，已經分離開來了。
 
 
 -----
