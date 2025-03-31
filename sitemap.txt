@@ -24,3 +24,4 @@ https://chikuwacode.github.io/articles/spring-boot-security-http-basic-authentic
 https://chikuwacode.github.io/articles/spring-boot-security-context-authentication-info/
 https://chikuwacode.github.io/articles/spring-boot-security-implement-login-api-with-jwt/
 https://chikuwacode.github.io/articles/spring-boot-security-implement-authentication-filter-with-jwt/
+https://chikuwacode.github.io/articles/spring-boot-validate-request-body-and-query-string/
