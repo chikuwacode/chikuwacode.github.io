@@ -630,6 +630,6 @@ public class ProductController {
 
 本文的完成後專案，請[點我](https://github.com/ntub46010/SpringBootTutorial/tree/Ch04-three-tier-architecture)。
 
-上一課：<a href="/articles/spring-boot-use-query-string-and-header-in-controller/" target="_blank">【Spring Boot】第3.2課－在 Controller 接收 query string 與操作 header</a>
+上一課：<a href="/articles/spring-boot-validate-request-body-and-query-string/" target="_blank">【Spring Boot】第3.3課－在 Controller 驗證 request body 與 query string 的資料</a>
 
 下一課：<a href="/articles/spring-boot-bean-ioc-di-and-swap/" target="_blank">【Spring Boot】第5課－元件的控制反轉、依賴注入與抽換</a>

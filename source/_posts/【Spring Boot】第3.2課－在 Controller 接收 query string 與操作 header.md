@@ -306,4 +306,4 @@ public class ProductController {
 
 上一課：<a href="/articles/spring-boot-implement-restful-api-in-controller/" target="_blank">【Spring Boot】第3.1課－在 Controller 實作 RESTful API</a>
 
-下一課：<a href="/articles/spring-boot-three-tier-architecture/" target="_blank">【Spring Boot】第4課－實作三層式架構的 Service 與 Repository</a>
+下一課：<a href="/articles/spring-boot-validate-request-body-and-query-string/" target="_blank">【Spring Boot】第3.3課－在 Controller 驗證 request body 與 query string 的資料</a>
