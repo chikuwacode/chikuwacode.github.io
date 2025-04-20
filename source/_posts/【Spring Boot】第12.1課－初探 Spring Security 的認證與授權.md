@@ -79,7 +79,7 @@ Using generated security password: 8698d55e-33dc-461c-80e4-a8e364b23a6c
 
 為避免讀者在學習上分心，以及文章篇幅過長，筆者在本文會使用 Spring Security 提供的「in-memory user」功能，快速建立簡易的測試帳號。
 
-待本文結束，對 Spring Security 的認證與授權有概念後，在<a href="/articles/spring-boot-security-authentication-integrating-with-mongodb-database/" target="_blank">第 17.2 課</a>會抽換成使用資料庫來儲存帳密。
+待本文結束，對 Spring Security 的認證與授權有概念後，在<a href="/articles/spring-boot-security-authentication-integrating-with-mongodb-database/" target="_blank">第 12.2 課</a>會抽換成使用資料庫來儲存帳密。
 
 以下建立了一個配置類別，並冠上 `@EnableWebSecurity` 注解。有關 Spring Security 的各項設定，都能在這裡透過程式碼來自定義。
 ``` java

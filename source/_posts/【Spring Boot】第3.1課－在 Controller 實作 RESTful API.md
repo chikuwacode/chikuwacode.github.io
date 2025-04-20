@@ -31,7 +31,7 @@ Controller 接收的請求，內容包括了<a href="/articles/spring-boot-restf
 
 若將原本屬於 Model 職責的資料處理寫在 Controller，或是有些 JSP 專案是把程式碼跟 HTML 寫在一起，那系統越做越大，程式碼就會變得臃腫又混亂。MVC 架構的思想，便是讓程式碼分門別類、各司其職。
 
-### 二、配置 Controller
+## 二、配置 Controller
 ### （一）測試資料
 在實作前，讓我們先準備測試資料，這樣後端才有東西可以回傳。
 

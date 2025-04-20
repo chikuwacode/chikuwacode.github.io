@@ -77,7 +77,7 @@ public class ProductController {
     }
 	
 	@GetMapping
-    public ResponseEntity<Void> getProducts(@ModelAttribute BaseParameter param) {
+    public ResponseEntity<List<Product>> getProducts(@ModelAttribute BaseParameter param) {
         return ResponseEntity.ok().build();
     }
 }
@@ -108,7 +108,7 @@ public class ProductController {
     }
 	
 	@GetMapping
-    public ResponseEntity<Void> getProducts(@Valid @ModelAttribute BaseParameter param) {
+    public ResponseEntity<List<Product>> getProducts(@Valid @ModelAttribute BaseParameter param) {
         return ResponseEntity.ok().build();
     }
 }
@@ -116,7 +116,7 @@ public class ProductController {
 
 讀者可能還會找到另一個注解叫 `@Validated`，它是 Spring Boot 自帶的。雖然兩者都能用，但差別在於 `@Validated` 無法冠在欄位上。
 
-這邊提醒一點 `@Valid` 注解只會針對類別中的第一層欄位進行驗證。因此在上述的 Product 類別中，price 欄位的內部資料並不會被驗證。這部份我們留到第七節再來處理。下一節先讓我們一一認識各種驗證注解。
+這邊提醒一點，`@Valid` 注解只會針對類別中的第一層欄位進行驗證。因此在上述的 Product 類別中，price 欄位的內部資料並不會被驗證。這部份我們留到第七節再來處理。下一節先讓我們一一認識各種驗證注解。
 
 ## 三，驗證空與非空
 使用 `@NotNull`，可規定該欄位為「必填」，也就是不能為 null 值。

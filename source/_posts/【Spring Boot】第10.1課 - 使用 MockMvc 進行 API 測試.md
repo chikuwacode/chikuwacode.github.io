@@ -1,5 +1,5 @@
 ---
-title: 【Spring Boot】第10.1課 - 使用 MockMvc 進行 API 整合測試
+title: 【Spring Boot】第10課 - 使用 MockMvc 進行 API 整合測試
 date: 2019-07-07 16:53:47
 permalink: articles/spring-boot-mockmvc-integration-test
 index_img: /img/index_img/spring-boot.jpg
