@@ -1,0 +1,886 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-TW" >
+
+
+
+<head>
+  <meta charset="UTF-8">
+
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/logo.png">
+  <link rel="icon" href="/img/logo.png">
+  
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#a05926">
+  <meta name="author" content="Vincent">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="為了在 Spring Boot 專案中存取 MySQL 資料庫，我們可借助 Spring Data JPA 提供的 repository 介面。本文除了透過內建的 CRUD 方法進行存取，也會設計自己的查詢條件，包含透過方法名稱及原生語法。最後說明如何排序與分頁。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="【Spring Boot】第9.3課－使用 JPA Repository 存取 MySQL 資料庫">
+<meta property="og:url" content="https://ntub46010.github.io/articles/spring-boot-mysql-using-jpa-repository/">
+<meta property="og:site_name" content="吉古拉的程式拾光">
+<meta property="og:description" content="為了在 Spring Boot 專案中存取 MySQL 資料庫，我們可借助 Spring Data JPA 提供的 repository 介面。本文除了透過內建的 CRUD 方法進行存取，也會設計自己的查詢條件，包含透過方法名稱及原生語法。最後說明如何排序與分頁。">
+<meta property="og:locale" content="zh_TW">
+<meta property="og:image" content="https://ntub46010.github.io/img/index_img/spring-boot.jpg">
+<meta property="article:published_time" content="2024-05-30T00:30:00.000Z">
+<meta property="article:modified_time" content="2025-03-22T10:33:37.985Z">
+<meta property="article:author" content="Vincent">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://ntub46010.github.io/img/index_img/spring-boot.jpg">
+  
+  
+  
+  <title>【Spring Boot】第9.3課－使用 JPA Repository 存取 MySQL 資料庫 | 吉古拉的程式拾光</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1736178_k526ubmyhba.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"ntub46010.github.io","root":"/","version":"1.9.8","typing":{"enable":false,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h2,h3","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":false},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"left","headingSelector":"h2,h3","collapseDepth":3},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2,"exclude":[".no-lazy"]},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":"G-BZW5S6P21Naa"},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 40vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>吉古拉的程式拾光</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>文章分類</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>關於本站</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/banner.jpg') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        
+          <div class="h2">
+            
+              <span id="subtitle">【Spring Boot】第9.3課－使用 JPA Repository 存取 MySQL 資料庫</span>
+            
+          </div>
+        
+
+        
+          
+  <div class="mt-3">
+    
+    
+  </div>
+
+  <div class="mt-1">
+    
+
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="padding-left: 2rem; margin-right: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目錄</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">【Spring Boot】第9.3課－使用 JPA Repository 存取 MySQL 資料庫</h1>
+            
+              <p id="updated-time" class="note note-warning" style="">
+                
+                  
+                    本文最後更新於：2025-03-22
+                  
+                
+              </p>
+            
+            
+              <div class="markdown-body">
+                
+                <p>為了在 Spring Boot 專案中存取 MySQL 資料庫，我們可借助 Spring Data JPA 框架所提供的 repository 介面。</p>
+<p>本文除了透過內建的 CRUD 方法進行存取，也會設計自己的查詢條件，包含透過方法名稱及原生語法。最後說明如何排序與分頁。</p>
+<hr>
+<p>本文的練習用專案，請<a target="_blank" rel="noopener" href="https://github.com/ntub46010/SpringBootTutorial/tree/Ch09.2-mysql-column-definition-with-jpa">點我</a>。</p>
+<h2 id="一、實體類別介紹"><a href="#一、實體類別介紹" class="headerlink" title="一、實體類別介紹"></a>一、實體類別介紹</h2><p>讓我們快速回顧上一篇的實體類別。以下的「Student」類別描述了學生資料，會儲存到資料庫中。</p>
+<div class="code-wrapper"><pre><code class="hljs java"><span class="hljs-meta">@Entity</span>
+<span class="hljs-meta">@Table(name = &quot;student&quot;)</span>
+<span class="hljs-meta">@EntityListeners(AuditingEntityListener.class)</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">Student</span> &#123;
+
+    <span class="hljs-meta">@Id</span>
+    <span class="hljs-meta">@GeneratedValue(strategy = GenerationType.IDENTITY)</span>
+    <span class="hljs-keyword">private</span> Long id;
+    
+    <span class="hljs-meta">@Column(name = &quot;grade&quot;)</span>
+    <span class="hljs-keyword">private</span> <span class="hljs-type">int</span> grade;
+
+    <span class="hljs-meta">@Column(name = &quot;blood_type&quot;)</span>
+    <span class="hljs-meta">@Enumerated(EnumType.STRING)</span>
+    <span class="hljs-keyword">private</span> BloodType bloodType;
+
+    <span class="hljs-meta">@Column(name = &quot;birthday&quot;, nullable = false)</span>
+    <span class="hljs-keyword">private</span> LocalDate birthday;
+    
+    <span class="hljs-meta">@Enumerated(EnumType.STRING)</span>
+    <span class="hljs-keyword">private</span> BloodType bloodType;
+    
+    <span class="hljs-meta">@Embedded</span>
+    <span class="hljs-meta">@AttributeOverride(name = &quot;email&quot;, column = @Column(name = &quot;contact_email&quot;))</span>
+    <span class="hljs-meta">@AttributeOverride(name = &quot;phone&quot;, column = @Column(name = &quot;contact_phone&quot;))</span>
+    <span class="hljs-keyword">private</span> Contact contact;
+    
+    <span class="hljs-meta">@CreatedDate</span>
+    <span class="hljs-keyword">private</span> LocalDateTime createdTime;
+
+    <span class="hljs-meta">@LastModifiedDate</span>
+    <span class="hljs-keyword">private</span> LocalDateTime updatedTime;
+
+    <span class="hljs-meta">@CreatedBy</span>
+    <span class="hljs-keyword">private</span> String createdBy;
+
+    <span class="hljs-meta">@LastModifiedBy</span>
+    <span class="hljs-keyword">private</span> String updatedBy;
+
+    <span class="hljs-comment">// getter, setter ...</span>
+&#125;</code></pre></div>
+
+<p>以下的「BloodType」是個列舉類別，包含 4 種血型。</p>
+<div class="code-wrapper"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">enum</span> <span class="hljs-title class_">BloodType</span> &#123;
+    A, B, O, AB
+&#125;</code></pre></div>
+
+<p>以下的「Contact」類別是描述聯繫方式，包含信箱與電話這 2 個欄位。</p>
+<div class="code-wrapper"><pre><code class="hljs java"><span class="hljs-meta">@Embeddable</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">Contact</span> &#123;
+    <span class="hljs-keyword">private</span> String email;
+    <span class="hljs-keyword">private</span> String phone;
+
+    <span class="hljs-comment">// getter, setter ...</span>
+&#125;</code></pre></div>
+
+<p>以下是<a href="/articles/spring-boot-mysql-column-definition-with-jpa/" target="_blank">上一篇</a>提到的 <code>AuditorAware</code> 元件。用途是當插入或更新資料時，能在實體類別中具有 <code>@CreatedBy</code> 或 <code>@LastModifiedBy</code> 注解的欄位，自動填入使用者資訊，此處以隨機字串代替。</p>
+<div class="code-wrapper"><pre><code class="hljs java"><span class="hljs-meta">@Component</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">AuditorAwareImpl</span> <span class="hljs-keyword">implements</span> <span class="hljs-title class_">AuditorAware</span>&lt;String&gt; &#123;
+
+    <span class="hljs-meta">@Override</span>
+    <span class="hljs-keyword">public</span> Optional&lt;String&gt; <span class="hljs-title function_">getCurrentAuditor</span><span class="hljs-params">()</span> &#123;
+        <span class="hljs-type">String</span> <span class="hljs-variable">randomId</span> <span class="hljs-operator">=</span> UUID.randomUUID().toString();
+        <span class="hljs-keyword">return</span> Optional.of(randomId);
+    &#125;
+&#125;</code></pre></div>
+
+<h2 id="二、認識-Spring-Data-的-Repository-介面"><a href="#二、認識-Spring-Data-的-Repository-介面" class="headerlink" title="二、認識 Spring Data 的 Repository 介面"></a>二、認識 Spring Data 的 Repository 介面</h2><h3 id="（一）建立-Repository-介面"><a href="#（一）建立-Repository-介面" class="headerlink" title="（一）建立 Repository 介面"></a>（一）建立 Repository 介面</h3><p>在<a href="/articles/spring-boot-bean-ioc-di-and-swap/" target="_blank">第 5 課</a>，我們有練習過建立一個「ProductRepository」介面，將其注入到商業邏輯中。還提供兩種實作類別，分別用 List 與 Map 結構來儲存範例資料。</p>
+<p>本節會使用一個特殊的介面，它是由 Spring Data JPA 所提供，其定位與上述的 ProductRepository 相同。但我們不必親自實作它，而是交給框架處理。</p>
+<div class="code-wrapper"><pre><code class="hljs java"><span class="hljs-meta">@Repository</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">interface</span> <span class="hljs-title class_">StudentRepository</span> <span class="hljs-keyword">extends</span> <span class="hljs-title class_">JpaRepository</span>&lt;Student, Long&gt; &#123;
+&#125;</code></pre></div>
+
+<p>我們建立了叫做「StudentRepository」的介面，並繼承 <code>JpaRepository</code> 介面。繼承時，需在泛型分別傳入實體類別與主鍵類別。</p>
+<h3 id="（二）查詢語法與物件對映"><a href="#（二）查詢語法與物件對映" class="headerlink" title="（二）查詢語法與物件對映"></a>（二）查詢語法與物件對映</h3><p>使用 Spring Data 時，我們最直接感受到的好處，就是「產生查詢語法」與「物件對映」。</p>
+<p>在 <code>JpaRepository</code> 介面，以及它的父介面中，已經有內建一些基本方法。舉例來說，我們可以將 Student 物件傳入 repository 的 <code>save</code> 方法。</p>
+<p>僅僅一個方法呼叫，Spring Data 就會產生類似下面的 MySQL 指令：</p>
+<div class="code-wrapper"><pre><code class="hljs sql"><span class="hljs-keyword">INSERT</span> <span class="hljs-keyword">INTO</span> `student` (`name`, `grade`, `blood_type`, `birthday`)
+<span class="hljs-keyword">VALUE</span> (&quot;Vincent&quot;, <span class="hljs-number">4</span>, &quot;A&quot;, &quot;1996-01-01&quot;);</code></pre></div>
+
+<p>此時該方法會回傳插入成功的資料，而且會包含由 MySQL 產生的 id。</p>
+<p>又或者是呼叫 <code>findById</code> 方法，則會產生如下的指令：</p>
+<div class="code-wrapper"><pre><code class="hljs sql"><span class="hljs-keyword">SELECT</span> <span class="hljs-operator">*</span>
+<span class="hljs-keyword">FROM</span> `student`
+<span class="hljs-keyword">WHERE</span> `id` <span class="hljs-operator">=</span> <span class="hljs-number">1</span>;</code></pre></div>
+
+<p>此時該方法除了回傳符合條件的結果，更重要的是資料會被轉換成 Java 物件，也就是 Student。資料庫中的資料，與程式物件互相轉換，這項技術在關聯式資料庫稱為「物件關聯對映」（Object-Relational Mapping，ORM）。</p>
+<p>從上面這兩個例子，我們可看出 Spring Data 會解讀 repository 的方法名稱、傳入參數，以及回傳值型態，產生對應的資料庫語法。</p>
+<p>這段過程是透過底層的 ORM 框架來完成，Spring Data JPA 預設是採用「Hibernate」。</p>
+<h2 id="三、使用-JPA-Repository-進行-CRUD"><a href="#三、使用-JPA-Repository-進行-CRUD" class="headerlink" title="三、使用 JPA Repository 進行 CRUD"></a>三、使用 JPA Repository 進行 CRUD</h2><p>本節讓我們來實際使用 JPA Repository 提供的內建方法。</p>
+<p>為了在程式中有地方呼叫 StudentRepository，讀者可在 Controller 準備 API，屆時便能搭配如 Postman 之類的工具，對後端發送 request。</p>
+<h3 id="（一）插入資料"><a href="#（一）插入資料" class="headerlink" title="（一）插入資料"></a>（一）插入資料</h3><p>以下提供一支 API，用來建立學生資料。</p>
+<div class="code-wrapper"><pre><code class="hljs java"><span class="hljs-meta">@RestController</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">MyController</span> &#123;
+
+    <span class="hljs-meta">@Autowired</span>
+    <span class="hljs-keyword">private</span> StudentRepository studentRepository;
+
+    <span class="hljs-meta">@PostMapping(&quot;/students&quot;)</span>
+    <span class="hljs-keyword">public</span> ResponseEntity&lt;Void&gt; <span class="hljs-title function_">createStudent</span><span class="hljs-params">(<span class="hljs-meta">@RequestBody</span> Student student)</span> &#123;
+        student.setId(<span class="hljs-literal">null</span>);
+        studentRepository.save(student);
+
+        <span class="hljs-type">URI</span> <span class="hljs-variable">uri</span> <span class="hljs-operator">=</span> ServletUriComponentsBuilder
+                .fromCurrentRequestUri()
+                .path(<span class="hljs-string">&quot;/&#123;id&#125;&quot;</span>)
+                .build(Map.of(<span class="hljs-string">&quot;id&quot;</span>, student.getId()));
+
+        <span class="hljs-keyword">return</span> ResponseEntity.created(uri).build();
+    &#125;
+&#125;</code></pre></div>
+
+<p>呼叫 repository 的 <code>save</code> 方法即可。若 Student 物件的 id 欄位值是 null，則視為插入。反之則視為更新。</p>
+<p>插入資料時，一律由 MySQL 自行產生 id 值，我們無法自行給定。該方法最後會回傳含有 id 的資料，此處附加到 response header 中，讓 API 回傳。</p>
+<p>此時讀者也可順道確認一下，Spring Data JPA 是否有自動在 createdTime、updatedTime、createdBy 與 updatedBy 欄位填入值。</p>
+<h3 id="（二）取得資料"><a href="#（二）取得資料" class="headerlink" title="（二）取得資料"></a>（二）取得資料</h3><p>以下是查詢指定 id 的資料，呼叫 <code>findById</code> 方法即可。</p>
+<div class="code-wrapper"><pre><code class="hljs java"><span class="hljs-meta">@RestController</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">MyController</span> &#123;
+
+    <span class="hljs-meta">@Autowired</span>
+    <span class="hljs-keyword">private</span> StudentRepository studentRepository;
+
+    <span class="hljs-meta">@GetMapping(&quot;/students/&#123;id&#125;&quot;)</span>
+    <span class="hljs-keyword">public</span> ResponseEntity&lt;Student&gt; <span class="hljs-title function_">getStudent</span><span class="hljs-params">(<span class="hljs-meta">@PathVariable</span> Long id)</span> &#123;
+        Optional&lt;Student&gt; studentOp = studentRepository.findById(id);
+        <span class="hljs-keyword">return</span> studentOp.isPresent()
+                ? ResponseEntity.ok(studentOp.get())
+                : ResponseEntity.notFound().build();
+    &#125;
+&#125;</code></pre></div>
+
+<p>以下是給予字串 List，查詢多筆指定 id 的資料。呼叫 <code>findAllById</code> 方法即可。</p>
+<div class="code-wrapper"><pre><code class="hljs java"><span class="hljs-meta">@RestController</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">MyController</span> &#123;
+
+    <span class="hljs-meta">@Autowired</span>
+    <span class="hljs-keyword">private</span> StudentRepository studentRepository;
+        
+    <span class="hljs-meta">@GetMapping(&quot;/students/ids&quot;)</span>
+    <span class="hljs-keyword">public</span> ResponseEntity&lt;List&lt;Student&gt;&gt; <span class="hljs-title function_">getStudents</span><span class="hljs-params">(<span class="hljs-meta">@RequestParam</span> List&lt;Long&gt; idList)</span> &#123;
+        List&lt;Student&gt; students = studentRepository.findAllById(idList);
+        <span class="hljs-keyword">return</span> ResponseEntity.ok(students);
+    &#125;
+&#125;</code></pre></div>
+
+<p>攜帶 query string 存取此 API 的方式，示意如下：</p>
+<div class="code-wrapper"><pre><code class="hljs text">GET /students/ids?idList=111,222,333</code></pre></div>
+
+<h3 id="（三）更新資料"><a href="#（三）更新資料" class="headerlink" title="（三）更新資料"></a>（三）更新資料</h3><p>以下是更新指定 id 的資料。</p>
+<div class="code-wrapper"><pre><code class="hljs java"><span class="hljs-meta">@RestController</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">MyController</span> &#123;
+
+    <span class="hljs-meta">@Autowired</span>
+    <span class="hljs-keyword">private</span> StudentRepository studentRepository;
+
+    <span class="hljs-meta">@PutMapping(&quot;/students/&#123;id&#125;&quot;)</span>
+    <span class="hljs-keyword">public</span> ResponseEntity&lt;Void&gt; <span class="hljs-title function_">updateStudent</span><span class="hljs-params">(</span>
+<span class="hljs-params">            <span class="hljs-meta">@PathVariable</span> Long id, <span class="hljs-meta">@RequestBody</span> Student request</span>
+<span class="hljs-params">    )</span> &#123;
+        Optional&lt;Student&gt; studentOp = studentRepository.findById(id);
+        <span class="hljs-keyword">if</span> (studentOp.isEmpty()) &#123;
+            <span class="hljs-keyword">return</span> ResponseEntity.notFound().build();
+        &#125;
+
+        <span class="hljs-type">Student</span> <span class="hljs-variable">student</span> <span class="hljs-operator">=</span> studentOp.get();
+        student.setName(request.getName());
+        student.setGrade(request.getGrade());
+        student.setBloodType(request.getBloodType());
+        student.setBirthday(request.getBirthday());
+        student.setContact(request.getContact());
+        studentRepository.save(student);
+
+        <span class="hljs-keyword">return</span> ResponseEntity.noContent().build();
+    &#125;
+&#125;</code></pre></div>
+
+<p>在邏輯中，我們先判斷該筆資料是否存在。是的話，就將 request 中的資料更新上去，再呼叫 <code>save</code> 方法儲存。由於呼叫該方法時，table 已有該 id 的資料，因此會執行更新操作，而非插入。</p>
+<h3 id="（四）刪除資料"><a href="#（四）刪除資料" class="headerlink" title="（四）刪除資料"></a>（四）刪除資料</h3><p>以下是刪除指定 id 的資料，呼叫 <code>deleteById</code> 方法即可。</p>
+<div class="code-wrapper"><pre><code class="hljs java"><span class="hljs-meta">@RestController</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">MyController</span> &#123;
+
+    <span class="hljs-meta">@Autowired</span>
+    <span class="hljs-keyword">private</span> StudentRepository studentRepository;
+
+    <span class="hljs-meta">@DeleteMapping(&quot;/students/&#123;id&#125;&quot;)</span>
+    <span class="hljs-keyword">public</span> ResponseEntity&lt;Void&gt; <span class="hljs-title function_">deleteStudent</span><span class="hljs-params">(<span class="hljs-meta">@PathVariable</span> Long id)</span> &#123;
+        studentRepository.deleteById(id);
+        <span class="hljs-keyword">return</span> ResponseEntity.noContent().build();
+    &#125;
+&#125;</code></pre></div>
+
+<p>其他內建方法尚有 <code>saveAll</code>、<code>deleteAllById</code>、<code>existsById</code>、<code>count</code> 等，讀者可自行探索。</p>
+<h2 id="四、自定義查詢條件"><a href="#四、自定義查詢條件" class="headerlink" title="四、自定義查詢條件"></a>四、自定義查詢條件</h2><p>我們能在 repository 中，依照特定的方法命名規則，設計自己的查詢條件。</p>
+<p>筆者在<a href="/articles/spring-boot-mongo-repository-customize-query/" target="_blank">第 8.3 課</a>已經設計過各種查詢 MongoDB 的方法，以及排序的方式。雖然是另一款資料庫，但 Spring Data 提供的 repository，其使用方式大致都相同。</p>
+<p>本節僅挑選一部份做快速的示範。更多命名方式，讀者可參考 Spring Data JPA 官方文件。</p>
+<h3 id="（一）相等條件"><a href="#（一）相等條件" class="headerlink" title="（一）相等條件"></a>（一）相等條件</h3><p>以下方法是以名字做為查詢條件。</p>
+<div class="code-wrapper"><pre><code class="hljs java"><span class="hljs-meta">@Repository</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">interface</span> <span class="hljs-title class_">StudentRepository</span> <span class="hljs-keyword">extends</span> <span class="hljs-title class_">JpaRepository</span>&lt;Student, Long&gt; &#123;
+    Student <span class="hljs-title function_">findByName</span><span class="hljs-params">(String name)</span>;
+&#125;</code></pre></div>
+
+<p>方法名稱中，在 <code>findBy</code> 關鍵字後面緊接著實體類別的欄位名稱即可。</p>
+<p>以下方法是查詢內部欄位，分別是將聯繫方式的信箱與電話當作條件。只要在方法名稱將欄位的「路徑」寫出即可。</p>
+<div class="code-wrapper"><pre><code class="hljs java"><span class="hljs-meta">@Repository</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">interface</span> <span class="hljs-title class_">StudentRepository</span> <span class="hljs-keyword">extends</span> <span class="hljs-title class_">JpaRepository</span>&lt;Student, Long&gt; &#123;
+    Student <span class="hljs-title function_">findByContactEmail</span><span class="hljs-params">(String email)</span>;
+    Student <span class="hljs-title function_">findByContactPhone</span><span class="hljs-params">(String phone)</span>;
+&#125;</code></pre></div>
+
+<h3 id="（二）範圍條件"><a href="#（二）範圍條件" class="headerlink" title="（二）範圍條件"></a>（二）範圍條件</h3><p>以下 2 個方法，分別是查詢年級大於等於，和小於等於某個值的資料。</p>
+<div class="code-wrapper"><pre><code class="hljs java"><span class="hljs-meta">@Repository</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">interface</span> <span class="hljs-title class_">StudentRepository</span> <span class="hljs-keyword">extends</span> <span class="hljs-title class_">JpaRepository</span>&lt;Student, Long&gt; &#123;
+    List&lt;Student&gt; <span class="hljs-title function_">findByGradeGreaterThanEqual</span><span class="hljs-params">(<span class="hljs-type">int</span> from)</span>;
+    List&lt;Student&gt; <span class="hljs-title function_">findByGradeLessThanEqual</span><span class="hljs-params">(<span class="hljs-type">int</span> to)</span>;
+&#125;</code></pre></div>
+
+<p>數值欄位可使用 <code>GreaterThanEqual</code>、<code>GreaterThan</code>、<code>LessThanEqual</code> 與 <code>LessThan</code> 關鍵字。</p>
+<p>以下 2 個方法，分別是查詢生日在某天之後，和之前的資料。</p>
+<div class="code-wrapper"><pre><code class="hljs java"><span class="hljs-meta">@Repository</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">interface</span> <span class="hljs-title class_">StudentRepository</span> <span class="hljs-keyword">extends</span> <span class="hljs-title class_">JpaRepository</span>&lt;Student, Long&gt; &#123;
+    List&lt;Student&gt; <span class="hljs-title function_">findByBirthdayAfter</span><span class="hljs-params">(LocalDate from)</span>;
+    List&lt;Student&gt; <span class="hljs-title function_">findByBirthdayBefore</span><span class="hljs-params">(LocalDate to)</span>;
+&#125;</code></pre></div>
+
+<p>日期欄位是使用 <code>After</code> 與 <code>Before</code> 關鍵字。</p>
+<h3 id="（三）組合多個條件"><a href="#（三）組合多個條件" class="headerlink" title="（三）組合多個條件"></a>（三）組合多個條件</h3><p>查詢條件可透過 <code>And</code> 或 <code>Or</code> 的邏輯組合起來。</p>
+<p>以下的條件，是聯繫方式的信箱等於某個值，或電話等於某個值。</p>
+<div class="code-wrapper"><pre><code class="hljs java"><span class="hljs-meta">@Repository</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">interface</span> <span class="hljs-title class_">StudentRepository</span> <span class="hljs-keyword">extends</span> <span class="hljs-title class_">JpaRepository</span>&lt;Student, Long&gt; &#123;
+    List&lt;Student&gt; <span class="hljs-title function_">findByContactEmailOrContactPhone</span><span class="hljs-params">(String email, String phone)</span>;
+&#125;</code></pre></div>
+
+<h3 id="（四）原生語法"><a href="#（四）原生語法" class="headerlink" title="（四）原生語法"></a>（四）原生語法</h3><p>Spring Data 也支援我們直接撰寫原生語法，而方法可隨意取名。</p>
+<div class="code-wrapper"><pre><code class="hljs java"><span class="hljs-meta">@Repository</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">interface</span> <span class="hljs-title class_">StudentRepository</span> <span class="hljs-keyword">extends</span> <span class="hljs-title class_">JpaRepository</span>&lt;Student, Long&gt; &#123;
+
+    <span class="hljs-meta">@Query(</span>
+<span class="hljs-meta">            nativeQuery = true,</span>
+<span class="hljs-meta">            value = &quot;&quot;&quot;</span>
+<span class="hljs-meta">                SELECT *</span>
+<span class="hljs-meta">                FROM `student`</span>
+<span class="hljs-meta">                WHERE `contact_email` = ?1 OR `contact_phone` = ?2</span>
+<span class="hljs-meta">            &quot;&quot;&quot;</span>
+<span class="hljs-meta">    )</span>
+    List&lt;Student&gt; <span class="hljs-title function_">findByContact</span><span class="hljs-params">(String email, String phone)</span>;
+&#125;</code></pre></div>
+
+<p>使用 <code>@Query</code> 注解，可以傳入字串提供語法。而當中的「?1」、「?2」等符號，代表要取用方法的第幾個參數（位置從 1 開始算）。並且 <code>nativeQuery</code> 參數需給予 true 值，代表這是原生語法。</p>
+<p>要注意的是，SQL 語法結尾請不要加分號 ;，避免被認為語法有誤。例如上述的「?2」代表第二個參數，但 JPA 會看成「?2;」，並認為我們寫錯了，拋出「Ordinal parameter label was not an integer」的例外訊息。</p>
+<p>又或者是本文第五節的排序，假設原生語法寫成 <code>SELECT * FROM student;</code>，則 JPA 會將排序語法直接附加在後，變成：</p>
+<div class="code-wrapper"><pre><code class="hljs sql"><span class="hljs-keyword">SELECT</span> <span class="hljs-operator">*</span>
+<span class="hljs-keyword">FROM</span> `student`;
+<span class="hljs-keyword">ORDER</span> <span class="hljs-keyword">BY</span> `grade` <span class="hljs-keyword">ASC</span></code></pre></div>
+
+<p>此時底層的 Hibernate 在執行時，勢必會拋出語法錯誤的例外。</p>
+<h2 id="五、排序與分頁"><a href="#五、排序與分頁" class="headerlink" title="五、排序與分頁"></a>五、排序與分頁</h2><h3 id="（一）排序"><a href="#（一）排序" class="headerlink" title="（一）排序"></a>（一）排序</h3><p>要透過 repository 的方法進行排序，首先得建立 <code>Sort</code> 物件。</p>
+<div class="code-wrapper"><pre><code class="hljs java"><span class="hljs-meta">@RestController</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">MyController</span> &#123;
+    <span class="hljs-comment">// ...</span>
+
+    <span class="hljs-keyword">private</span> Sort <span class="hljs-title function_">createSort</span><span class="hljs-params">(String field, String direction)</span> &#123;
+        <span class="hljs-keyword">if</span> (field == <span class="hljs-literal">null</span> &amp;&amp; direction == <span class="hljs-literal">null</span>) &#123;
+            <span class="hljs-keyword">return</span> Sort.unsorted();
+        &#125;
+
+        <span class="hljs-keyword">if</span> (field == <span class="hljs-literal">null</span> ^ direction == <span class="hljs-literal">null</span>) &#123;
+            <span class="hljs-keyword">return</span> Sort.unsorted();
+        &#125;
+
+        Sort.Order order;
+        <span class="hljs-keyword">if</span> (<span class="hljs-string">&quot;asc&quot;</span>.equalsIgnoreCase(direction)) &#123;
+            order = Sort.Order.asc(field);
+        &#125; <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (<span class="hljs-string">&quot;desc&quot;</span>.equalsIgnoreCase(direction)) &#123;
+            order = Sort.Order.desc(field);
+        &#125; <span class="hljs-keyword">else</span> &#123;
+            <span class="hljs-keyword">return</span> Sort.unsorted();
+        &#125;
+
+        <span class="hljs-keyword">return</span> Sort.by(List.of(order));
+    &#125;
+&#125;</code></pre></div>
+
+<p>排序的欄位與方向必須一起提供，或兩者都不提供。若有不合理的值，便呼叫 <code>Sort.unsorted</code> 方法，視為不排序。</p>
+<p>呼叫 <code>Sort.Order.asc</code> 或 <code>Sort.Order.desc</code> 方法，傳入欄位名稱，分別可建立遞增或遞減的排序方式，其型態為 <code>Order</code>。</p>
+<p>將一至多個 <code>Order</code> 物件傳入 <code>Sort.by</code> 方法，可得到 <code>Sort</code> 物件。它代表整體的排序規則，實現多重排序也不成問題。</p>
+<p>建立出 <code>Sort</code> 物件後，傳入 repository 的 <code>findAll</code> 方法即可。</p>
+<div class="code-wrapper"><pre><code class="hljs java"><span class="hljs-meta">@RestController</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">MyController</span> &#123;
+
+    <span class="hljs-meta">@Autowired</span>
+    <span class="hljs-keyword">private</span> StudentRepository studentRepository;
+    
+    <span class="hljs-meta">@GetMapping(&quot;/students&quot;)</span>
+    <span class="hljs-keyword">public</span> ResponseEntity&lt;List&lt;Student&gt;&gt; <span class="hljs-title function_">getStudents</span><span class="hljs-params">(</span>
+<span class="hljs-params">            <span class="hljs-meta">@RequestParam(required = false)</span> String sortField,</span>
+<span class="hljs-params">            <span class="hljs-meta">@RequestParam(required = false)</span> String sortDirection</span>
+<span class="hljs-params">    )</span> &#123;
+        <span class="hljs-type">Sort</span> <span class="hljs-variable">sort</span> <span class="hljs-operator">=</span> createSort(sortField, sortDirection);
+        List&lt;Student&gt; students = studentRepository.findAll(sort);
+
+        <span class="hljs-keyword">return</span> ResponseEntity.ok(students);
+    &#125;
+    
+    <span class="hljs-keyword">private</span> Sort <span class="hljs-title function_">createSort</span><span class="hljs-params">(String field, String direction)</span> &#123;
+        <span class="hljs-comment">// ...</span>
+    &#125;
+&#125;</code></pre></div>
+
+<h3 id="（二）分頁"><a href="#（二）分頁" class="headerlink" title="（二）分頁"></a>（二）分頁</h3><p>當資料量太多，實務上會在排序之後，藉由「分頁」（pagination）的做法，分批從資料庫取得資料，避免造成系統負擔。</p>
+<p>要透過 repository 的方法進行排序與分頁，需在方法傳入 <code>Pageable</code> 型態的參數，提供分頁的方式。</p>
+<div class="code-wrapper"><pre><code class="hljs java"><span class="hljs-meta">@Repository</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">interface</span> <span class="hljs-title class_">StudentRepository</span> <span class="hljs-keyword">extends</span> <span class="hljs-title class_">JpaRepository</span>&lt;Student, Long&gt; &#123;
+
+    <span class="hljs-meta">@Query(</span>
+<span class="hljs-meta">            nativeQuery = true,</span>
+<span class="hljs-meta">            value = &quot;SELECT * FROM `student`&quot;</span>
+<span class="hljs-meta">    )</span>
+    List&lt;Student&gt; <span class="hljs-title function_">find</span><span class="hljs-params">(Pageable pageable)</span>;
+&#125;</code></pre></div>
+
+<p>以下是建立 <code>Pageable</code> 物件的方式。</p>
+<div class="code-wrapper"><pre><code class="hljs java"><span class="hljs-meta">@RestController</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">MyController</span> &#123;
+    <span class="hljs-comment">// ...</span>
+
+    <span class="hljs-keyword">private</span> Pageable <span class="hljs-title function_">createPageable</span><span class="hljs-params">(Integer page, Integer size, Sort sort)</span> &#123;
+        <span class="hljs-keyword">if</span> (page == <span class="hljs-literal">null</span> &amp;&amp; size == <span class="hljs-literal">null</span>) &#123;
+            <span class="hljs-keyword">return</span> Pageable.unpaged(sort);
+        &#125;
+
+        <span class="hljs-keyword">if</span> (page == <span class="hljs-literal">null</span> ^ size == <span class="hljs-literal">null</span>) &#123;
+            <span class="hljs-keyword">return</span> Pageable.unpaged(sort);
+        &#125;
+
+        <span class="hljs-keyword">return</span> PageRequest.of(page, size, sort);
+    &#125;
+&#125;</code></pre></div>
+
+<p>這個 <code>Pageable</code> 是一個介面，而 Spring Data 內建了叫做 <code>PageRequest</code> 的實作類別。</p>
+<p>分頁的頁數與每頁筆數必須一起提供，或兩者都不提供。若有不合理的值，便呼叫 <code>Pageable.unpaged</code> 方法，視為不分頁。</p>
+<p>呼叫 <code>PageRequest.of</code> 方法，依序傳入「第幾頁」、「每頁筆數」，以及前面提到的 <code>Sort</code> 物件，就能建立出 <code>PageRequest</code> 物件。</p>
+<p>最後將 <code>Pageable</code> 物件傳入 repository 的方法即可。</p>
+<div class="code-wrapper"><pre><code class="hljs java"><span class="hljs-meta">@RestController</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">MyController</span> &#123;
+
+    <span class="hljs-meta">@Autowired</span>
+    <span class="hljs-keyword">private</span> StudentRepository studentRepository;
+    
+    <span class="hljs-meta">@GetMapping(&quot;/students&quot;)</span>
+    <span class="hljs-keyword">public</span> ResponseEntity&lt;List&lt;Student&gt;&gt; <span class="hljs-title function_">getStudents</span><span class="hljs-params">(</span>
+<span class="hljs-params">            <span class="hljs-meta">@RequestParam(required = false)</span> String sortField,</span>
+<span class="hljs-params">            <span class="hljs-meta">@RequestParam(required = false)</span> String sortDirection,</span>
+<span class="hljs-params">            <span class="hljs-meta">@RequestParam(required = false)</span> Integer page,</span>
+<span class="hljs-params">            <span class="hljs-meta">@RequestParam(required = false)</span> Integer size</span>
+<span class="hljs-params">    )</span> &#123;
+        <span class="hljs-type">Sort</span> <span class="hljs-variable">sort</span> <span class="hljs-operator">=</span> createSort(sortField, sortDirection);
+        <span class="hljs-type">Pageable</span> <span class="hljs-variable">pageable</span> <span class="hljs-operator">=</span> createPageable(page, size, sort);
+        List&lt;Student&gt; students = studentRepository.find(pageable);
+
+        <span class="hljs-keyword">return</span> ResponseEntity.ok(students);
+    &#125;
+    
+    <span class="hljs-keyword">private</span> Sort <span class="hljs-title function_">createSort</span><span class="hljs-params">(String field, String direction)</span> &#123;
+        <span class="hljs-comment">// ...</span>
+    &#125;
+    
+    <span class="hljs-keyword">private</span> Pageable <span class="hljs-title function_">createPageable</span><span class="hljs-params">(Integer page, Integer size, Sort sort)</span> &#123;
+        <span class="hljs-comment">// ...</span>
+    &#125;
+&#125;</code></pre></div>
+
+<p>本文示範了使用 JPA Repository 對單一 table 進行 CRUD。接下來讓我們進入 2 張 table 的範疇，學習如何配置資料表的關聯。</p>
+<hr>
+<p>本文的完成後專案，請<a target="_blank" rel="noopener" href="https://github.com/ntub46010/SpringBootTutorial/tree/Ch09.3-mysql-using-jpa-repository">點我</a>。</p>
+<p>上一課：<a href="/articles/spring-boot-mysql-column-definition-with-jpa/" target="_blank">【Spring Boot】第9.2課－使用 JPA 設計實體類別與 MySQL 資料表欄位</a></p>
+<p>下一課：<a href="/articles/spring-boot-jpa-one-to-one-relationship/" target="_blank">【Spring Boot】第9.4課－使用 JPA 配置資料表關聯（以一對一關聯為例）</a></p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/Spring-Boot/" class="category-chain-item">Spring Boot</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+</div>
+
+
+              
+
+              
+            </div>
+
+            <div style="padding-top: 30px;">
+              <b style="font-size: 1.5rem;">張貼留言</b>
+              <script src="https://utteranc.es/client.js"
+                repo="chikuwacode/chikuwacode.github.io"
+                issue-term="pathname"
+                theme="github-light"
+                crossorigin="anonymous"
+                async>
+              </script>
+            </div>
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+
+
+    
+
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜尋</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">關鍵字</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/5.0.0/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允許 JavaScript 運行的環境下瀏覽效果更佳</div>
+  </noscript>
+</body>
+</html>

@@ -1,0 +1,911 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-TW" >
+
+
+
+<head>
+  <meta charset="UTF-8">
+
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/logo.png">
+  <link rel="icon" href="/img/logo.png">
+  
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#a05926">
+  <meta name="author" content="Vincent">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="在先前文章的練習中，若要進行測試，都是先啟動程式，再使用 Postman 這項工具呼叫 API，隨後確認結果。但手動測試非常麻煩，因此本文將利用 Spring Boot 提供的 MockMvc，幫助我們以程式化的方式進行測試。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="【Spring Boot】第10.1課 - 使用 MockMvc 進行 API 整合測試">
+<meta property="og:url" content="https://ntub46010.github.io/articles/spring-boot-mockmvc-integration-test/">
+<meta property="og:site_name" content="吉古拉的程式拾光">
+<meta property="og:description" content="在先前文章的練習中，若要進行測試，都是先啟動程式，再使用 Postman 這項工具呼叫 API，隨後確認結果。但手動測試非常麻煩，因此本文將利用 Spring Boot 提供的 MockMvc，幫助我們以程式化的方式進行測試。">
+<meta property="og:locale" content="zh_TW">
+<meta property="og:image" content="https://ntub46010.github.io/img/index_img/spring-boot.jpg">
+<meta property="article:published_time" content="2019-07-07T08:53:47.000Z">
+<meta property="article:modified_time" content="2025-04-20T09:37:06.729Z">
+<meta property="article:author" content="Vincent">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://ntub46010.github.io/img/index_img/spring-boot.jpg">
+  
+  
+  
+  <title>【Spring Boot】第10.1課 - 使用 MockMvc 進行 API 整合測試 | 吉古拉的程式拾光</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1736178_k526ubmyhba.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"ntub46010.github.io","root":"/","version":"1.9.8","typing":{"enable":false,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h2,h3","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":false},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"left","headingSelector":"h2,h3","collapseDepth":3},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2,"exclude":[".no-lazy"]},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":"G-BZW5S6P21Naa"},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 40vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>吉古拉的程式拾光</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>文章分類</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>關於本站</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/banner.jpg') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        
+          <div class="h2">
+            
+              <span id="subtitle">【Spring Boot】第10.1課 - 使用 MockMvc 進行 API 整合測試</span>
+            
+          </div>
+        
+
+        
+          
+  <div class="mt-3">
+    
+    
+  </div>
+
+  <div class="mt-1">
+    
+
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="padding-left: 2rem; margin-right: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目錄</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">【Spring Boot】第10.1課 - 使用 MockMvc 進行 API 整合測試</h1>
+            
+              <p id="updated-time" class="note note-warning" style="">
+                
+                  
+                    本文最後更新於：2025-04-20
+                  
+                
+              </p>
+            
+            
+              <div class="markdown-body">
+                
+                <p>在先前文章的練習中，若要進行測試，都是先啟動程式，再使用 Postman 這項工具呼叫 API，隨後確認結果。</p>
+<p>但隨著功能越來越多，手動測試會非常麻煩。因此本文將利用 Spring Boot 提供的 MockMvc，幫助我們以程式化的方式進行測試。</p>
+<hr>
+<h2 id="一、測試的概念"><a href="#一、測試的概念" class="headerlink" title="一、測試的概念"></a>一、測試的概念</h2><h3 id="（一）為什麼要寫測試"><a href="#（一）為什麼要寫測試" class="headerlink" title="（一）為什麼要寫測試"></a>（一）為什麼要寫測試</h3><p>測試的目的是確認功能可以正常運作，例如先前的文章對後端 API 進行測試時，會手動操作 Postman 這項工具。然而逐一測試會很費時，因此我們可以透過撰寫「測試程式」來自動化。</p>
+<p>每當開發新功能，或修復 Bug 時，我們可針對該次的改動撰寫測試程式，並與舊有的測試一起執行。除了證明該次交付的程式能達成目的，也要確保不會影響現有的功能，讓 bug 能盡早被發現。</p>
+<p>根據測試的範圍，可分為以下幾種。</p>
+<ul>
+<li>單元測試（unit test）：測試的對象是程式中的一個方法（method）。若該方法會使用到其他依賴的元件或外部服務（如資料庫），這部份會透過「模擬」（mock）的手法來處理，而不是真的進去執行。</li>
+<li>整合測試（integration test）：與單元測試相比，整合測試會真正去使用所依賴的元件或服務，確保整體運作上沒有問題。</li>
+<li>端對端測試（end to end test）：就像使用者操作前端畫面那樣。範圍包含前端發送 HTTP request 到後端，收到 response 後再驗證畫面上的結果。</li>
+</ul>
+<p>本文所要介紹的是整合測試，這會利用 Spring Boot 提供的 MockMvc。它和 Postman 一樣，可以指定 HTTP 方法與 API 路徑，並攜帶 request header、body 與 query string。</p>
+<h3 id="（二）寫測試的缺點"><a href="#（二）寫測試的缺點" class="headerlink" title="（二）寫測試的缺點"></a>（二）寫測試的缺點</h3><p>雖說撰寫測試程式，能夠幫助我們在未來更有效率地測試，但也要權衡利弊：</p>
+<ul>
+<li>寫測試畢竟也是一種寫程式的動作，有時花費的時間可能還會大於開發業務邏輯的時間呢！當工作時程緊湊，可能會沒時間寫。除非團隊能將測試時間納人開發時程，否則若硬要做，勢必會很有壓力。</li>
+<li>有些團隊會有 code review（程式碼審查）的流程，同事得多花時間看這些測試程式。</li>
+<li>未來需求如果改變，測試程式也要隨之修改，要多花額外的時間來維護。</li>
+</ul>
+<p>基於這些工作上可能遇到的情況，讀者不妨自己斟酌測試的量。比方說優先測試重要的情境，行有餘力再考慮其他的。</p>
+<h2 id="二、程式專案介紹"><a href="#二、程式專案介紹" class="headerlink" title="二、程式專案介紹"></a>二、程式專案介紹</h2><p>本節筆者將介紹程式專案，該專案在 Controller 提供了 RESTful API，以便進行測試。</p>
+<p>以下是產品資料的類別，包含 id、名稱與價格。</p>
+<div class="code-wrapper"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">Product</span> &#123;
+    <span class="hljs-keyword">private</span> String id;
+    <span class="hljs-keyword">private</span> String name;
+    <span class="hljs-keyword">private</span> <span class="hljs-type">int</span> price;
+
+    <span class="hljs-comment">// getter, setter ...</span>
+&#125;</code></pre></div>
+
+<p>以下類別是用來在 Controller 接收 query string，包含排序的欄位與方向。</p>
+<div class="code-wrapper"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">ProductRequestParameter</span> &#123;
+    <span class="hljs-keyword">private</span> String sortField;
+    <span class="hljs-keyword">private</span> String sortDirection;
+
+    <span class="hljs-comment">// getter, setter ...</span>
+&#125;</code></pre></div>
+
+<p>以下是儲存產品資料的 repository 介面，提供取得、新增與刪除資料的方法。至於其他 default 方法，則是用來產生 id 和建立排序比較器。</p>
+<div class="code-wrapper"><pre><code class="hljs java"><span class="hljs-keyword">import</span> java.util.UUID;
+
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">interface</span> <span class="hljs-title class_">IProductRepository</span> &#123;
+    Product <span class="hljs-title function_">findById</span><span class="hljs-params">(String id)</span>;
+    List&lt;Product&gt; <span class="hljs-title function_">findAll</span><span class="hljs-params">(ProductRequestParameter param)</span>;
+    Product <span class="hljs-title function_">insert</span><span class="hljs-params">(Product product)</span>;
+    <span class="hljs-keyword">void</span> <span class="hljs-title function_">deleteAll</span><span class="hljs-params">()</span>;
+
+    <span class="hljs-keyword">default</span> String <span class="hljs-title function_">generateId</span><span class="hljs-params">()</span> &#123;
+        <span class="hljs-keyword">return</span> UUID.randomUUID().toString();
+    &#125;
+
+    <span class="hljs-keyword">default</span> Comparator&lt;Product&gt; <span class="hljs-title function_">getSortComparator</span><span class="hljs-params">(ProductRequestParameter param)</span> &#123;
+        Comparator&lt;Product&gt; comparator;
+        <span class="hljs-keyword">if</span> (<span class="hljs-string">&quot;name&quot;</span>.equalsIgnoreCase(param.getSortField())) &#123;
+            comparator = Comparator.comparing(p -&gt; p.getName().toLowerCase());
+        &#125; <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (<span class="hljs-string">&quot;price&quot;</span>.equalsIgnoreCase(param.getSortField())) &#123;
+            comparator = Comparator.comparing(Product::getPrice);
+        &#125; <span class="hljs-keyword">else</span> &#123;
+            comparator = (p1, p2) -&gt; <span class="hljs-number">0</span>;
+        &#125;
+
+        <span class="hljs-keyword">if</span> (<span class="hljs-string">&quot;desc&quot;</span>.equalsIgnoreCase(param.getSortDirection())) &#123;
+            comparator = comparator.reversed();
+        &#125;
+
+        <span class="hljs-keyword">return</span> comparator;
+    &#125;
+&#125;</code></pre></div>
+
+<p>本文並未串接真實的資料庫。以下的 repository 實作，是用 Map 資料結構來儲存資料。第八節還會準備以 List 來儲存的實作。</p>
+<div class="code-wrapper"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">MapProductRepository</span> <span class="hljs-keyword">implements</span> <span class="hljs-title class_">IProductRepository</span> &#123;
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> Map&lt;String, Product&gt; productMap = <span class="hljs-keyword">new</span> <span class="hljs-title class_">HashMap</span>&lt;&gt;();
+
+    <span class="hljs-keyword">public</span> Product <span class="hljs-title function_">findById</span><span class="hljs-params">(String id)</span> &#123;
+        <span class="hljs-keyword">return</span> productMap.get(id);
+    &#125;
+
+    <span class="hljs-keyword">public</span> List&lt;Product&gt; <span class="hljs-title function_">findAll</span><span class="hljs-params">(ProductRequestParameter param)</span> &#123;
+        <span class="hljs-type">var</span> <span class="hljs-variable">comparator</span> <span class="hljs-operator">=</span> getSortComparator(param);
+        <span class="hljs-keyword">return</span> productMap.values()
+                .stream()
+                .sorted(comparator)
+                .toList();
+    &#125;
+
+    <span class="hljs-keyword">public</span> Product <span class="hljs-title function_">insert</span><span class="hljs-params">(Product product)</span> &#123;
+        product.setId(generateId());
+        productMap.put(product.getId(), product);
+
+        <span class="hljs-keyword">return</span> product;
+    &#125;
+
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">deleteAll</span><span class="hljs-params">()</span> &#123;
+        productMap.clear();
+    &#125;
+&#125;</code></pre></div>
+<div class="code-wrapper"><pre><code class="hljs java"><span class="hljs-meta">@Configuration</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">RepositoryConfig</span> &#123;
+
+    <span class="hljs-meta">@Bean</span>
+    <span class="hljs-keyword">public</span> IProductRepository <span class="hljs-title function_">productRepository</span><span class="hljs-params">()</span> &#123;
+        <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">MapProductRepository</span>();
+    &#125;
+&#125;</code></pre></div>
+
+<p>最後是 Controller，提供取得一筆、取得多筆，和新增資料的 API。</p>
+<div class="code-wrapper"><pre><code class="hljs java"><span class="hljs-meta">@RestController</span>
+<span class="hljs-meta">@RequestMapping(value = &quot;/products&quot;, produces = MediaType.APPLICATION_JSON_VALUE)</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">ProductController</span> &#123;
+
+    <span class="hljs-meta">@Autowired</span>
+    <span class="hljs-keyword">private</span> IProductRepository productRepository;
+
+    <span class="hljs-meta">@GetMapping(&quot;/&#123;id&#125;&quot;)</span>
+    <span class="hljs-keyword">public</span> ResponseEntity&lt;Product&gt; <span class="hljs-title function_">getOne</span><span class="hljs-params">(<span class="hljs-meta">@PathVariable(&quot;id&quot;)</span> String id)</span> &#123;
+        <span class="hljs-type">var</span> <span class="hljs-variable">product</span> <span class="hljs-operator">=</span> productRepository.findById(id);
+        <span class="hljs-keyword">return</span> product == <span class="hljs-literal">null</span>
+                ? ResponseEntity.notFound().build()
+                : ResponseEntity.ok(product);
+    &#125;
+
+    <span class="hljs-meta">@GetMapping</span>
+    <span class="hljs-keyword">public</span> ResponseEntity&lt;List&lt;Product&gt;&gt; <span class="hljs-title function_">getMany</span><span class="hljs-params">(<span class="hljs-meta">@ModelAttribute</span> ProductRequestParameter param)</span> &#123;
+        <span class="hljs-type">var</span> <span class="hljs-variable">products</span> <span class="hljs-operator">=</span> productRepository.findAll(param);
+        <span class="hljs-keyword">return</span> ResponseEntity.ok(products);
+    &#125;
+
+    <span class="hljs-meta">@PostMapping</span>
+    <span class="hljs-keyword">public</span> ResponseEntity&lt;Void&gt; <span class="hljs-title function_">create</span><span class="hljs-params">(<span class="hljs-meta">@RequestBody</span> Product product)</span> &#123;
+        <span class="hljs-keyword">if</span> (product.getName() == <span class="hljs-literal">null</span> || product.getPrice() &lt; <span class="hljs-number">0</span>) &#123;
+            <span class="hljs-keyword">return</span> ResponseEntity.badRequest().build();
+        &#125;
+
+        productRepository.insert(product);
+
+        <span class="hljs-type">var</span> <span class="hljs-variable">uri</span> <span class="hljs-operator">=</span> ServletUriComponentsBuilder
+                .fromCurrentRequestUri()
+                .path(<span class="hljs-string">&quot;/&#123;id&#125;&quot;</span>)
+                .build(Map.of(<span class="hljs-string">&quot;id&quot;</span>, product.getId()));
+        <span class="hljs-keyword">return</span> ResponseEntity.created(uri).build();
+    &#125;
+&#125;</code></pre></div>
+
+<p>取得一筆資料時，若找不到，會回傳 404 狀態碼；新增資料時，若名稱與價格不合法，會回傳 400 狀態碼。</p>
+<h2 id="三、開始撰寫測試"><a href="#三、開始撰寫測試" class="headerlink" title="三、開始撰寫測試"></a>三、開始撰寫測試</h2><h3 id="（一）準備測試類別"><a href="#（一）準備測試類別" class="headerlink" title="（一）準備測試類別"></a>（一）準備測試類別</h3><p>準備好程式專案和 RESTful API 後，就能準備測試了。</p>
+<p>假設讀者這次練習，是在「com.example.demo」的 package 下寫程式，那麼請在程式專案的「src&#x2F;test&#x2F;java&#x2F;com&#x2F;example&#x2F;demo」路徑下，建立一個類別，專門用來撰寫測試程式。</p>
+<div class="code-wrapper"><pre><code class="hljs java"><span class="hljs-meta">@SpringBootTest</span>
+<span class="hljs-meta">@AutoConfigureMockMvc</span>
+<span class="hljs-keyword">class</span> <span class="hljs-title class_">ProductTests</span> &#123;
+
+    <span class="hljs-meta">@Autowired</span>
+    <span class="hljs-keyword">private</span> MockMvc mockMvc;
+
+    <span class="hljs-meta">@Autowired</span>
+    <span class="hljs-keyword">private</span> IProductRepository productRepository;
+
+    <span class="hljs-keyword">private</span> Product <span class="hljs-title function_">insertProduct</span><span class="hljs-params">(String name, <span class="hljs-type">int</span> price)</span> &#123;
+        <span class="hljs-type">var</span> <span class="hljs-variable">product</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">Product</span>();
+        product.setName(name);
+        product.setPrice(price);
+
+        <span class="hljs-keyword">return</span> productRepository.insert(product);
+    &#125;
+
+    <span class="hljs-comment">// TODO</span>
+&#125;</code></pre></div>
+
+<p>此類別冠上了 2 個注解。<code>@SpringBootTest</code> 會在執行測試時，啟動 Spring Boot 環境，所以我們可在此注入元件。<code>@AutoConfigureMockMvc</code> 能自動建立 <code>MockMvc</code> 的元件，我們會利用它來對 Controller 發出 request。</p>
+<p>另外還提供了一個用來在 repository 新增產品測試資料的方法。</p>
+<h3 id="（二）指定-API-路徑並發出-request"><a href="#（二）指定-API-路徑並發出-request" class="headerlink" title="（二）指定 API 路徑並發出 request"></a>（二）指定 API 路徑並發出 request</h3><p>以下是一支測試程式，冠上了 <code>@Test</code> 注解。其情境是透過產品 id 取得資料。</p>
+<div class="code-wrapper"><pre><code class="hljs java"><span class="hljs-keyword">import</span> org.junit.jupiter.api.Test;
+<span class="hljs-keyword">import</span> org.springframework.test.web.servlet.RequestBuilder;
+<span class="hljs-keyword">import</span> <span class="hljs-keyword">static</span> org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+<span class="hljs-keyword">import</span> <span class="hljs-keyword">static</span> org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+<span class="hljs-keyword">import</span> <span class="hljs-keyword">static</span> org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+<span class="hljs-meta">@SpringBootTest</span>
+<span class="hljs-meta">@AutoConfigureMockMvc</span>
+<span class="hljs-keyword">class</span> <span class="hljs-title class_">ProductTests</span> &#123;
+
+    <span class="hljs-meta">@Autowired</span>
+    <span class="hljs-keyword">private</span> MockMvc mockMvc;
+
+    <span class="hljs-meta">@Test</span>
+    <span class="hljs-keyword">void</span> <span class="hljs-title function_">testGetOneProduct</span><span class="hljs-params">()</span> <span class="hljs-keyword">throws</span> Exception &#123;
+        <span class="hljs-type">Product</span> <span class="hljs-variable">product</span> <span class="hljs-operator">=</span> insertProduct(<span class="hljs-string">&quot;Hamburger&quot;</span>, <span class="hljs-number">50</span>);
+
+        <span class="hljs-type">String</span> <span class="hljs-variable">apiPath</span> <span class="hljs-operator">=</span> <span class="hljs-string">&quot;/products/&quot;</span> + product.getId();
+        <span class="hljs-type">RequestBuilder</span> <span class="hljs-variable">requestBuilder</span> <span class="hljs-operator">=</span> MockMvcRequestBuilders.get(apiPath);
+
+        mockMvc.perform(requestBuilder)
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath(<span class="hljs-string">&quot;$.id&quot;</span>).value(product.getId()))
+                .andExpect(jsonPath(<span class="hljs-string">&quot;$.name&quot;</span>).value(product.getName()))
+                .andExpect(jsonPath(<span class="hljs-string">&quot;$.price&quot;</span>).value(product.getPrice()));
+    &#125;
+
+    <span class="hljs-comment">// ...</span>
+&#125;</code></pre></div>
+
+<p>首先在 repository 新增一筆資料。</p>
+<p>然後透過 <code>MockMvcRequestBuilders</code> 的方法構建 request 內容，此處呼叫 <code>get</code> 方法指定 <code>GET /products/&#123;id&#125;</code> 這支 API，並得到了 <code>RequestBuilder</code> 介面的物件。最後呼叫 <code>MockMvc</code> 的 <code>perform</code> 方法，即可發出 request。</p>
+<p>隨後我們可進行一些後續的動作。使用 <code>andExpect</code> 方法，可傳入各式各樣的規則來驗證 response。比方說 <code>status()</code> 方法可驗證 HTTP 狀態碼，有 200（OK）、201（Created）、404（Not Found）等許多選項可用。</p>
+<p>使用 <code>jsonPath().value()</code> 方法，可驗證 response body 的欄位值。<code>jsonPath</code> 方法的欄位路徑寫法，會以「$」符號作為第一層，並以「.」符號，指向該層的欄位。更深層的欄位，就以「.」繼續串接欄位名稱。而 <code>value</code> 方法則傳入預期的欄位值。</p>
+<p>使用 <code>andDo(print())</code> 方法，可以將 request 和 response 的資訊印在 Console 窗格。</p>
+<h3 id="（三）執行測試"><a href="#（三）執行測試" class="headerlink" title="（三）執行測試"></a>（三）執行測試</h3><p>撰寫好測試程式後，左鍵按下方法名稱旁邊的綠色圖案即可執行，有 Run 和 Debug 兩個選項。<br><img src="https://ntub46010.github.io/articles/spring-boot-mockmvc-integration-test/spring-boot-run-test-menu.png" srcset="/img/loading.gif" lazyload></p>
+<p>執行完後，在左下方窗格可看到測試方法名稱旁的綠色勾勾，代表通過。而黃色圖案代表驗證失敗，紅色代表發生例外。在右方的 Console 窗格，可看到印出的 request 與 response 資訊。<br><img src="https://ntub46010.github.io/articles/spring-boot-mockmvc-integration-test/spring-boot-test-request-info.png" srcset="/img/loading.gif" lazyload><br><img src="https://ntub46010.github.io/articles/spring-boot-mockmvc-integration-test/spring-boot-test-response-info.png" srcset="/img/loading.gif" lazyload></p>
+<p>若讀者想一次執行多個測試，可以左鍵點擊測試類別名稱旁的綠色圖案。或者在專案瀏覽窗格中，右鍵點擊含有測試類別的資料夾。一樣都有 Run 和 Debug 可選擇。<br><img src="https://ntub46010.github.io/articles/spring-boot-mockmvc-integration-test/spring-boot-batch-run-tests-menu.png" srcset="/img/loading.gif" lazyload></p>
+<h2 id="四、測試執行前與後的處理"><a href="#四、測試執行前與後的處理" class="headerlink" title="四、測試執行前與後的處理"></a>四、測試執行前與後的處理</h2><p>在撰寫下一支測試程式前，讀者要先知道一件事：每個測試情境所用的資料都是獨立的，不應該被其他殘留資料干擾。</p>
+<p>舉例來說，下一節我們會撰寫取得多個產品的測試。若沒有將 repository 的資料清空，那麼 API 回傳的資料筆數可能就會不如預期。</p>
+<p>本節將介紹如何在測試程式執行前與後，進行想要的動作。根據上述的例子，請宣告一個方法，用來清空 repository。</p>
+<div class="code-wrapper"><pre><code class="hljs java"><span class="hljs-meta">@SpringBootTest</span>
+<span class="hljs-meta">@AutoConfigureMockMvc</span>
+<span class="hljs-keyword">class</span> <span class="hljs-title class_">ProductTests</span> &#123;
+
+    <span class="hljs-meta">@BeforeEach</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">clearRepo</span><span class="hljs-params">()</span> &#123;
+        productRepository.deleteAll();
+    &#125;
+
+    <span class="hljs-comment">// ...</span>
+&#125;</code></pre></div>
+
+<p>該方法冠上了 <code>@BeforeEach</code> 注解，代表會在每支測試程式執行前執行。另外也有 <code>@AfterEach</code> 注解可用。要注意的是，方法必須宣告為 public。</p>
+<p>我們也能以測試類別為單位，在所有測試程式執行前與後，做想要的事情。下面的例子，是在 repository 新增產品時進行計數，並在最後印出該測試類別新增的產品數量。</p>
+<div class="code-wrapper"><pre><code class="hljs java"><span class="hljs-meta">@SpringBootTest</span>
+<span class="hljs-meta">@AutoConfigureMockMvc</span>
+<span class="hljs-keyword">class</span> <span class="hljs-title class_">ProductTests</span> &#123;
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> <span class="hljs-type">int</span> <span class="hljs-variable">productCount</span> <span class="hljs-operator">=</span> <span class="hljs-number">0</span>;
+
+    <span class="hljs-meta">@AfterAll</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">printProductCount</span><span class="hljs-params">()</span> &#123;
+        System.out.println(<span class="hljs-string">&quot;Inserted product amount: &quot;</span> + productCount);
+    &#125;
+
+    <span class="hljs-keyword">private</span> Product <span class="hljs-title function_">insertProduct</span><span class="hljs-params">(String name, <span class="hljs-type">int</span> price)</span> &#123;
+        <span class="hljs-comment">// ...</span>
+
+        productCount++;
+        <span class="hljs-keyword">return</span> productRepository.insert(product);
+    &#125;
+
+    <span class="hljs-comment">// ...</span>
+&#125;</code></pre></div>
+
+<p>該方法冠上了 <code>@AfterAll</code> 注解，代表會在所有測試執行完才執行。另外也有 <code>@BeforeAll</code> 注解可用。要注意的是，方法必須宣告為 public static。</p>
+<h2 id="五、攜帶-query-string-與驗證陣列元素"><a href="#五、攜帶-query-string-與驗證陣列元素" class="headerlink" title="五、攜帶 query string 與驗證陣列元素"></a>五、攜帶 query string 與驗證陣列元素</h2><p>以下的測試情境，是攜帶 query string，對產品資料做排序。</p>
+<div class="code-wrapper"><pre><code class="hljs java"><span class="hljs-meta">@SpringBootTest</span>
+<span class="hljs-meta">@AutoConfigureMockMvc</span>
+<span class="hljs-keyword">class</span> <span class="hljs-title class_">ProductTests</span> &#123;
+    <span class="hljs-comment">// ...</span>
+
+    <span class="hljs-meta">@Test</span>
+    <span class="hljs-keyword">void</span> <span class="hljs-title function_">testSortProductsByPrice</span><span class="hljs-params">()</span> <span class="hljs-keyword">throws</span> Exception &#123;
+        <span class="hljs-type">Product</span> <span class="hljs-variable">product1</span> <span class="hljs-operator">=</span> insertProduct(<span class="hljs-string">&quot;Hamburger&quot;</span>, <span class="hljs-number">50</span>);
+        <span class="hljs-type">Product</span> <span class="hljs-variable">product2</span> <span class="hljs-operator">=</span> insertProduct(<span class="hljs-string">&quot;Coke&quot;</span>, <span class="hljs-number">20</span>);
+        <span class="hljs-type">Product</span> <span class="hljs-variable">product3</span> <span class="hljs-operator">=</span> insertProduct(<span class="hljs-string">&quot;Sandwich&quot;</span>, <span class="hljs-number">40</span>);
+
+        <span class="hljs-type">RequestBuilder</span> <span class="hljs-variable">requestBuilder</span> <span class="hljs-operator">=</span> MockMvcRequestBuilders
+                .get(<span class="hljs-string">&quot;/products&quot;</span>)
+                .param(<span class="hljs-string">&quot;sortField&quot;</span>, <span class="hljs-string">&quot;price&quot;</span>)
+                .param(<span class="hljs-string">&quot;sortDirection&quot;</span>, <span class="hljs-string">&quot;desc&quot;</span>);
+
+        mockMvc.perform(requestBuilder)
+                .andExpect(jsonPath(<span class="hljs-string">&quot;$&quot;</span>, hasSize(<span class="hljs-number">3</span>)))
+                .andExpect(jsonPath(<span class="hljs-string">&quot;$[0].id&quot;</span>).value(product1.getId()))
+                .andExpect(jsonPath(<span class="hljs-string">&quot;$[1].id&quot;</span>).value(product3.getId()))
+                .andExpect(jsonPath(<span class="hljs-string">&quot;$[2].id&quot;</span>).value(product2.getId()));
+    &#125;
+&#125;</code></pre></div>
+<p>使用 <code>MockMvcRequestBuilders</code> 的 <code>param</code> 方法，可傳入 query string。第一個參數為名稱，第二個參數為值。</p>
+<p>發出 request 後，可透過 <code>hasSize</code> 方法，驗證一下 response 中的資料筆數。</p>
+<p>若要對陣列元素的欄位值做驗證，在 <code>jsonPath</code> 方法中，可透過「欄位名稱 + 中括號 + 數字」，來表示指定位置的元素。此處由於 response body 本身就是陣列，所以直接在「$」後方寫上中括號。</p>
+<h2 id="六、將-response-轉換成物件再驗證"><a href="#六、將-response-轉換成物件再驗證" class="headerlink" title="六、將 response 轉換成物件再驗證"></a>六、將 response 轉換成物件再驗證</h2><p>除了透過 <code>andExpect</code> 方法來驗證欄位值，也可以將 response body 轉換為物件，再進行想要的驗證。當我們不在意資料的先後順序，這種手法就派得上用場。</p>
+<p>而且還有另一項好處，就是當欄位名稱變更，也不必特地回來修改當初傳入 <code>jsonPath</code> 方法的欄位路徑字串，畢竟開發工具是可以連動更改 getter 方法。</p>
+<p>以下的測試情境，一樣是取得多筆產品資料，但重點是不排序。</p>
+<div class="code-wrapper"><pre><code class="hljs java"><span class="hljs-meta">@SpringBootTest</span>
+<span class="hljs-meta">@AutoConfigureMockMvc</span>
+<span class="hljs-keyword">class</span> <span class="hljs-title class_">ProductTests</span> &#123;
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> <span class="hljs-keyword">static</span> <span class="hljs-type">ObjectMapper</span> <span class="hljs-variable">objectMapper</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">ObjectMapper</span>();
+
+    <span class="hljs-meta">@Test</span>
+    <span class="hljs-keyword">void</span> <span class="hljs-title function_">testGetManyProduct</span><span class="hljs-params">()</span> <span class="hljs-keyword">throws</span> Exception &#123;
+        <span class="hljs-type">Product</span> <span class="hljs-variable">product1</span> <span class="hljs-operator">=</span> insertProduct(<span class="hljs-string">&quot;Hamburger&quot;</span>, <span class="hljs-number">50</span>);
+        <span class="hljs-type">Product</span> <span class="hljs-variable">product2</span> <span class="hljs-operator">=</span> insertProduct(<span class="hljs-string">&quot;Coke&quot;</span>, <span class="hljs-number">20</span>);
+
+        <span class="hljs-type">RequestBuilder</span> <span class="hljs-variable">requestBuilder</span> <span class="hljs-operator">=</span> MockMvcRequestBuilders.get(<span class="hljs-string">&quot;/products&quot;</span>);
+        <span class="hljs-type">MvcResult</span> <span class="hljs-variable">mvcResult</span> <span class="hljs-operator">=</span> mockMvc.perform(requestBuilder).andReturn();
+        <span class="hljs-type">MockHttpServletResponse</span> <span class="hljs-variable">httpResponse</span> <span class="hljs-operator">=</span> mvcResult.getResponse();
+
+        assertEquals(HttpStatus.OK.value(), httpResponse.getStatus());
+
+        <span class="hljs-type">String</span> <span class="hljs-variable">responseBody</span> <span class="hljs-operator">=</span> httpResponse.getContentAsString();
+        List&lt;Product&gt; actualProducts = objectMapper.readValue(responseBody, <span class="hljs-keyword">new</span> <span class="hljs-title class_">TypeReference</span>&lt;List&lt;Product&gt;&gt;() &#123;&#125;);
+        List&lt;String&gt; actualIds = actualProducts.stream()
+                .map(Product::getId)
+                .toList();
+        List&lt;String&gt; expectedIds = List.of(product1.getId(), product2.getId());
+
+        assertTrue(actualIds.containsAll(expectedIds));
+        assertTrue(expectedIds.containsAll(actualIds));
+    &#125;
+&#125;</code></pre></div>
+
+<p>透過 <code>MockMvc</code> 發送 request 後，接續呼叫 <code>andReturn</code> 與 <code>getResponse</code> 方法，可得到 <code>MockHttpServletResponse</code> 物件。</p>
+<p>我們可從 <code>MockHttpServletResponse</code> 物件取得 HTTP 狀態碼、header 與 body 等資料。其中，透過 <code>getContentAsString</code> 方法，可得到 body 的 JSON 字串。</p>
+<p>接下來會用到一個叫 <code>ObjectMapper</code> 的物件，它能夠將 JSON 字串與指定類别的物件互相轉換。此處透過它的 <code>readValue</code> 方法，將 response body 轉換成 <code>List&lt;Product&gt;</code>。</p>
+<p>最後將實際結果的產品 id 收集起來，確認是否如預期。</p>
+<p>附帶一提，使用 <code>ObjectMapper</code> 時，若想將 JSON 字串轉換成帶有泛型的 List 或 Map 時，再搭配使用 <code>TypeReference</code> 就好。一般情況可直接傳入類別名稱，如 <code>objectMapper.readValue(responseBody, Product.class)</code>。</p>
+<h2 id="七、攜帶-request-body-與-header"><a href="#七、攜帶-request-body-與-header" class="headerlink" title="七、攜帶 request body 與 header"></a>七、攜帶 request body 與 header</h2><p>本節的測試情境是新增產品資料，這會攜帶 request body 與 header。</p>
+<div class="code-wrapper"><pre><code class="hljs java"><span class="hljs-meta">@SpringBootTest</span>
+<span class="hljs-meta">@AutoConfigureMockMvc</span>
+<span class="hljs-keyword">class</span> <span class="hljs-title class_">ProductTests</span> &#123;
+    <span class="hljs-comment">// ...</span>
+
+    <span class="hljs-meta">@Test</span>
+    <span class="hljs-keyword">void</span> <span class="hljs-title function_">testCreateProduct</span><span class="hljs-params">()</span> <span class="hljs-keyword">throws</span> Exception &#123;
+        <span class="hljs-type">Product</span> <span class="hljs-variable">productRequest</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">Product</span>();
+        productRequest.setName(<span class="hljs-string">&quot;Coke&quot;</span>);
+        productRequest.setPrice(<span class="hljs-number">20</span>);
+        <span class="hljs-type">String</span> <span class="hljs-variable">requestBody</span> <span class="hljs-operator">=</span> objectMapper.writeValueAsString(productRequest);
+
+        <span class="hljs-type">RequestBuilder</span> <span class="hljs-variable">requestBuilder</span> <span class="hljs-operator">=</span> MockMvcRequestBuilders
+                .post(<span class="hljs-string">&quot;/products&quot;</span>)
+                .content(requestBody)
+                .contentType(MediaType.APPLICATION_JSON);
+        <span class="hljs-type">MockHttpServletResponse</span> <span class="hljs-variable">httpResponse</span> <span class="hljs-operator">=</span> mockMvc.perform(requestBuilder)
+                .andExpect(status().isCreated())
+                .andReturn()
+                .getResponse();
+
+        <span class="hljs-type">String</span> <span class="hljs-variable">location</span> <span class="hljs-operator">=</span> httpResponse.getHeader(HttpHeaders.LOCATION);
+        assertNotNull(location);
+
+        <span class="hljs-type">String</span> <span class="hljs-variable">productId</span> <span class="hljs-operator">=</span> location.substring(location.lastIndexOf(<span class="hljs-string">&quot;/&quot;</span>) + <span class="hljs-number">1</span>);
+        <span class="hljs-type">Product</span> <span class="hljs-variable">resultProduct</span> <span class="hljs-operator">=</span> productRepository.findById(productId);
+
+        assertEquals(productRequest.getName(), resultProduct.getName());
+        assertEquals(productRequest.getPrice(), resultProduct.getPrice());
+    &#125;
+&#125;</code></pre></div>
+
+<p>首先建立一個產品物件，用途是讓 <code>ObjectMapper</code> 將其解析成字串，做為 request body。</p>
+<p>構建 request 時，透過 <code>MockMvcRequestBuilders</code> 的 <code>content</code> 方法，可傳人 request body 的字串。另外也要透過 <code>header</code> 方法，在 header 給予「Content-Type」欄位值，代表資料格式。</p>
+<p>發出 request 後，我們會想要知道儲存到 repository 中的資料是否如預期。此處可從 response header 取出「Location」欄位值，擷取出產品 id，隨後從 repository 查詢出來進行驗證。</p>
+<h2 id="八、測試專屬的配置檔"><a href="#八、測試專屬的配置檔" class="headerlink" title="八、測試專屬的配置檔"></a>八、測試專屬的配置檔</h2><p>筆者在<a href="/articles/spring-boot-application-properties-configuration/" target="_blank">第 6 課</a>介紹過 application.properties 配置檔，裡面可以填寫關於資料庫連線、郵件服務等各種設定值。</p>
+<p>在進行整合測試時，建議使用獨立的配置檔，而不要與正式環境使用同一個。一來可以專注於當下的測試資料，不會受到其他資料干擾。二來也能避免測試程式沒寫好，誤刪或留下了髒資料。</p>
+<p>請讀者在程式專案的「src\test\resources」路徑下，也準備一個 application.properties 配置檔。</p>
+<div class="code-wrapper"><pre><code class="hljs properties"><span class="hljs-attr">product-repository.storage</span>=<span class="hljs-string">list</span></code></pre></div>
+
+<p>別忘了在正式環境的配置檔也添加相同 key 的設定值。</p>
+<div class="code-wrapper"><pre><code class="hljs properties"><span class="hljs-attr">product-repository.storage</span>=<span class="hljs-string">map</span></code></pre></div>
+
+<p>本節會實作一個用 List 資料結構來儲存產品資料的 repository。這個自定義的設定值，就是為了讓不同環境存取不同的服務。</p>
+<div class="code-wrapper"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">ListProductRepository</span> <span class="hljs-keyword">implements</span> <span class="hljs-title class_">IProductRepository</span> &#123;
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> List&lt;Product&gt; productList = <span class="hljs-keyword">new</span> <span class="hljs-title class_">ArrayList</span>&lt;&gt;();
+
+    <span class="hljs-keyword">public</span> Product <span class="hljs-title function_">findById</span><span class="hljs-params">(String id)</span> &#123;
+        <span class="hljs-keyword">return</span> productList.stream()
+                .filter(p -&gt; p.getId().equals(id))
+                .findFirst()
+                .orElse(<span class="hljs-literal">null</span>);
+    &#125;
+
+    <span class="hljs-keyword">public</span> List&lt;Product&gt; <span class="hljs-title function_">findAll</span><span class="hljs-params">(ProductRequestParameter param)</span> &#123;
+        <span class="hljs-type">var</span> <span class="hljs-variable">comparator</span> <span class="hljs-operator">=</span> getSortComparator(param);
+        <span class="hljs-keyword">return</span> productList.stream()
+                .sorted(comparator)
+                .toList();
+    &#125;
+
+    <span class="hljs-keyword">public</span> Product <span class="hljs-title function_">insert</span><span class="hljs-params">(Product product)</span> &#123;
+        product.setId(generateId());
+        productList.add(product);
+
+        <span class="hljs-keyword">return</span> product;
+    &#125;
+
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">deleteAll</span><span class="hljs-params">()</span> &#123;
+        productList.clear();
+    &#125;
+&#125;</code></pre></div>
+<div class="code-wrapper"><pre><code class="hljs java"><span class="hljs-meta">@Configuration</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">RepositoryConfig</span> &#123;
+
+    <span class="hljs-meta">@Bean</span>
+    <span class="hljs-keyword">public</span> IProductRepository <span class="hljs-title function_">productRepository</span><span class="hljs-params">(</span>
+<span class="hljs-params">            <span class="hljs-meta">@Value(&quot;$&#123;product-repository.storage&#125;&quot;)</span> String storageType</span>
+<span class="hljs-params">    )</span> &#123;
+        <span class="hljs-keyword">if</span> (<span class="hljs-string">&quot;map&quot;</span>.equalsIgnoreCase(storageType)) &#123;
+            System.out.println(<span class="hljs-string">&quot;Create MapProductRepository.&quot;</span>);
+            <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">MapProductRepository</span>();
+        &#125; <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (<span class="hljs-string">&quot;list&quot;</span>.equalsIgnoreCase(storageType)) &#123;
+            System.out.println(<span class="hljs-string">&quot;Create ListProductRepository.&quot;</span>);
+            <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">ListProductRepository</span>();
+        &#125; <span class="hljs-keyword">else</span> &#123;
+            <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">IllegalArgumentException</span>(<span class="hljs-string">&quot;Provided product repository storage type is unsupported.&quot;</span>);
+        &#125;
+    &#125;
+&#125;</code></pre></div>
+
+<p>完成後，讀者可分別啟動 Spring Boot 和測試程式。從 Console 窗格中，能夠發現它們確實使用了不同實作方式的 repository。</p>
+<p>雖然本文並未串接真實的資料庫，但讀者可理解成，正式環境與測試程式所用的 repository，並不會是同一個，已經分離開來了。</p>
+<hr>
+<p>本文的完成後專案，請<a target="_blank" rel="noopener" href="https://github.com/ntub46010/SpringBootTutorial/tree/Ch10.1-mockmvc-integration-test">點我</a>。</p>
+<p>上一課：<a href="/articles/spring-boot-jpa-many-to-many-relationship-and-intermediary-table/" target="_blank">【Spring Boot】第9.6課－使用 JPA 建立多對多關聯，並配置中間表</a></p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/Spring-Boot/" class="category-chain-item">Spring Boot</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+</div>
+
+
+              
+
+              
+            </div>
+
+            <div style="padding-top: 30px;">
+              <b style="font-size: 1.5rem;">張貼留言</b>
+              <script src="https://utteranc.es/client.js"
+                repo="chikuwacode/chikuwacode.github.io"
+                issue-term="pathname"
+                theme="github-light"
+                crossorigin="anonymous"
+                async>
+              </script>
+            </div>
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+
+
+    
+
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜尋</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">關鍵字</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/5.0.0/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允許 JavaScript 運行的環境下瀏覽效果更佳</div>
+  </noscript>
+</body>
+</html>

@@ -1,0 +1,844 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-TW" >
+
+
+
+<head>
+  <meta charset="UTF-8">
+
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/logo.png">
+  <link rel="icon" href="/img/logo.png">
+  
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#a05926">
+  <meta name="author" content="Vincent">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="在開發商業邏輯時，我們經常需要知道 API 存取方的身份是誰。本文將以 HTTP Basic 認證方式為例，示範如何從「Security Context」取得 API 存取方的使用者資訊。最後透過觀察原始碼，認識 Spring Security 進行 HTTP Basic 認證的原理。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="【Spring Boot】第12.4課－從 Security Context 取得 API 存取方的認證資訊">
+<meta property="og:url" content="https://ntub46010.github.io/articles/spring-boot-security-context-authentication-info/">
+<meta property="og:site_name" content="吉古拉的程式拾光">
+<meta property="og:description" content="在開發商業邏輯時，我們經常需要知道 API 存取方的身份是誰。本文將以 HTTP Basic 認證方式為例，示範如何從「Security Context」取得 API 存取方的使用者資訊。最後透過觀察原始碼，認識 Spring Security 進行 HTTP Basic 認證的原理。">
+<meta property="og:locale" content="zh_TW">
+<meta property="og:image" content="https://ntub46010.github.io/img/index_img/spring-boot.jpg">
+<meta property="article:published_time" content="2023-11-03T05:28:00.000Z">
+<meta property="article:modified_time" content="2025-03-23T08:58:02.652Z">
+<meta property="article:author" content="Vincent">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://ntub46010.github.io/img/index_img/spring-boot.jpg">
+  
+  
+  
+  <title>【Spring Boot】第12.4課－從 Security Context 取得 API 存取方的認證資訊 | 吉古拉的程式拾光</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1736178_k526ubmyhba.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"ntub46010.github.io","root":"/","version":"1.9.8","typing":{"enable":false,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h2,h3","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":false},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"left","headingSelector":"h2,h3","collapseDepth":3},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2,"exclude":[".no-lazy"]},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":"G-BZW5S6P21Naa"},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 40vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>吉古拉的程式拾光</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>文章分類</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>關於本站</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/banner.jpg') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        
+          <div class="h2">
+            
+              <span id="subtitle">【Spring Boot】第12.4課－從 Security Context 取得 API 存取方的認證資訊</span>
+            
+          </div>
+        
+
+        
+          
+  <div class="mt-3">
+    
+    
+  </div>
+
+  <div class="mt-1">
+    
+
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="padding-left: 2rem; margin-right: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目錄</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">【Spring Boot】第12.4課－從 Security Context 取得 API 存取方的認證資訊</h1>
+            
+              <p id="updated-time" class="note note-warning" style="">
+                
+                  
+                    本文最後更新於：2025-03-23
+                  
+                
+              </p>
+            
+            
+              <div class="markdown-body">
+                
+                <p>在開發商業邏輯時，我們經常需要知道 API 存取方的身份。舉例來說，在網路發表文章、按讚和留言，理論上都要在資料庫中紀錄「誰發的文」、「誰按的讚」和「誰留的言」，亦即資料的建立者。</p>
+<p>本文將以 HTTP Basic 認證方式為例，示範如何從「Security Context」取得 API 存取方的使用者資料。接著準備自定義的使用者類別，以便在程式邏輯中能有更多的資料可運用。</p>
+<p>最後透過觀察原始碼，認識 Spring Security 進行 HTTP Basic 認證的原理，讓讀者知道該認證資訊從何而來。</p>
+<hr>
+<h2 id="一、配置-Spring-Security"><a href="#一、配置-Spring-Security" class="headerlink" title="一、配置 Spring Security"></a>一、配置 Spring Security</h2><h3 id="（一）一般配置"><a href="#（一）一般配置" class="headerlink" title="（一）一般配置"></a>（一）一般配置</h3><p>本節進行 Spring Security 的配置，請確認 pom.xml 檔案已經添加以下依賴。</p>
+<div class="code-wrapper"><pre><code class="hljs xml"><span class="hljs-tag">&lt;<span class="hljs-name">dependency</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">groupId</span>&gt;</span>org.springframework.boot<span class="hljs-tag">&lt;/<span class="hljs-name">groupId</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">artifactId</span>&gt;</span>spring-boot-starter-security<span class="hljs-tag">&lt;/<span class="hljs-name">artifactId</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-name">dependency</span>&gt;</span></code></pre></div>
+
+<p>以下是進行 Spring Security 相關配置的類別。</p>
+<div class="code-wrapper"><pre><code class="hljs java"><span class="hljs-meta">@Configuration</span>
+<span class="hljs-meta">@EnableWebSecurity</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">SecurityConfig</span> &#123;
+
+    <span class="hljs-meta">@Bean</span>
+    <span class="hljs-keyword">public</span> SecurityFilterChain <span class="hljs-title function_">securityFilterChain</span><span class="hljs-params">(HttpSecurity httpSecurity)</span> <span class="hljs-keyword">throws</span> Exception &#123;
+        <span class="hljs-keyword">return</span> httpSecurity
+                .httpBasic(Customizer.withDefaults())
+                .csrf(csrf -&gt; csrf.disable())
+                .authorizeHttpRequests(requests -&gt; requests.anyRequest().permitAll())
+                .build();
+    &#125;
+&#125;</code></pre></div>
+
+<p>呼叫 <code>httpBasic</code> 方法，可啟用「HTTP Basic」的認證方式。這樣在發送 request 時，就能在「Authorization」這個 header 攜帶帳密，讓 Spring Security 知道我們的身份。詳情可參考<a href="/articles/spring-boot-security-http-basic-authentication/" target="_blank">第 12.3 課</a>。</p>
+<p>呼叫 <code>csrf</code> 方法，可進一步停用對於 CSRF 攻擊的保護機制，讓 Postman 工具能順利存取 API。</p>
+<p>呼叫 <code>authorizeHttpRequests</code> 方法，可進一步定義各個 RESTful API 的授權規則。此處設定為 API 不需通過認證也可存取。</p>
+<h3 id="（二）準備使用者"><a href="#（二）準備使用者" class="headerlink" title="（二）準備使用者"></a>（二）準備使用者</h3><p>以下準備了 1 個測試使用者，帳號為「user1」，密碼為「111」，權限為「學生」與「助理」。</p>
+<div class="code-wrapper"><pre><code class="hljs java"><span class="hljs-meta">@Configuration</span>
+<span class="hljs-meta">@EnableWebSecurity</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">SecurityConfig</span> &#123;
+    <span class="hljs-comment">// ...</span>
+
+    <span class="hljs-meta">@Bean</span>
+    <span class="hljs-keyword">public</span> UserDetailsService <span class="hljs-title function_">inMemoryUserDetailsManager</span><span class="hljs-params">()</span> &#123;
+        <span class="hljs-type">UserDetails</span> <span class="hljs-variable">userDetails</span> <span class="hljs-operator">=</span> User
+                .withUsername(<span class="hljs-string">&quot;user1&quot;</span>)
+                .password(<span class="hljs-string">&quot;&#123;noop&#125;111&quot;</span>)
+                .authorities(<span class="hljs-string">&quot;STUDENT&quot;</span>, <span class="hljs-string">&quot;ASSISTANT&quot;</span>)
+                .build();
+        <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">InMemoryUserDetailsManager</span>(List.of(userDetails));
+    &#125;
+&#125;</code></pre></div>
+
+<p>附帶一提，<code>InMemoryUserDetailsManager</code> 本身就有實作 <code>UserDetailsService</code> 介面。若讀者想改為串接真實的資料庫，只要基於此介面進行抽換即可，做法可參考<a href="/articles/spring-boot-security-authentication-integrating-with-mongodb-database/" target="_blank">第 12.2 課</a>。</p>
+<h2 id="二、取得-Security-Context-的認證資訊"><a href="#二、取得-Security-Context-的認證資訊" class="headerlink" title="二、取得 Security Context 的認證資訊"></a>二、取得 Security Context 的認證資訊</h2><p>以下是在 Controller 中準備一支 RESTful API，用途是存取時，能得到自身的使用者資料。</p>
+<div class="code-wrapper"><pre><code class="hljs java"><span class="hljs-meta">@RestController</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">MyController</span> &#123;
+
+    <span class="hljs-meta">@GetMapping(&quot;/home&quot;)</span>
+    <span class="hljs-keyword">public</span> String <span class="hljs-title function_">home</span><span class="hljs-params">()</span> &#123;
+        <span class="hljs-type">SecurityContext</span> <span class="hljs-variable">context</span> <span class="hljs-operator">=</span> SecurityContextHolder.getContext();
+        <span class="hljs-type">Authentication</span> <span class="hljs-variable">auth</span> <span class="hljs-operator">=</span> context.getAuthentication();
+        <span class="hljs-type">Object</span> <span class="hljs-variable">principal</span> <span class="hljs-operator">=</span> auth.getPrincipal();
+
+        <span class="hljs-keyword">if</span> (<span class="hljs-string">&quot;anonymousUser&quot;</span>.equals(principal)) &#123;
+            <span class="hljs-keyword">return</span> <span class="hljs-string">&quot;你尚未經過身份認證&quot;</span>;
+        &#125;
+        
+        <span class="hljs-type">UserDetails</span> <span class="hljs-variable">userDetails</span> <span class="hljs-operator">=</span> (UserDetails) principal;
+        <span class="hljs-keyword">return</span> String.format(
+                <span class="hljs-string">&quot;你好，%s，你的權限是：%s&quot;</span>,
+                userDetails.getUsername(),
+                userDetails.getAuthorities()
+        );
+    &#125;
+&#125;</code></pre></div>
+
+<p>在 API 的程式邏輯中，第一行呼叫了 <code>SecurityContextHolder</code> 類別的靜態方法，取得了 <code>SecurityContext</code> 物件。第二行從 <code>SecurityContext</code> 物件取得 <code>Authentication</code> 物件。</p>
+<p>呼叫 <code>Authentication.getPrincipal</code> 方法，可得到 API 存取方的使用者資料。但該值會隨著認證情況的不同而有差異，所以回傳值型態是 <code>Object</code>。</p>
+<p>若尚未通過認證，principal 的值固定會是「anonymousUser」字串。若通過認證，則為 <code>UserDetails</code> 物件。在範例程式中，我們取出帳號與權限的值進行運用。</p>
+<p>下圖是使用 Postman，以 HTTP Basic 認證方式在 request header 攜帶帳密後存取 API。<br><img src="https://ntub46010.github.io/articles/spring-boot-security-context-authentication-info/spring-security-context-postman-get-simple-info.png" srcset="/img/loading.gif" lazyload></p>
+<p>而下圖是以未認證的身份，匿名存取 API。<br><img src="https://ntub46010.github.io/articles/spring-boot-security-context-authentication-info/spring-security-context-postman-get-anonymous-user.png" srcset="/img/loading.gif" lazyload></p>
+<p>上面見到了許多類別與介面，到了本文第五節，筆者會介紹相關的原始碼，讓讀者了解原理。</p>
+<h2 id="三、自定義使用者資料"><a href="#三、自定義使用者資料" class="headerlink" title="三、自定義使用者資料"></a>三、自定義使用者資料</h2><h3 id="（一）設計使用者類別"><a href="#（一）設計使用者類別" class="headerlink" title="（一）設計使用者類別"></a>（一）設計使用者類別</h3><p>上一節的範例程式，取用了使用者的帳號與權限這兩項資料。然而在實務上，「使用者」這種資料通常還會有更多欄位，例如 id、名字或信箱等。</p>
+<p>接下來讓我們準備自定義的使用者類別，取名為「Member」。它除了基本的帳號、密碼與權限，還包含了 id、暱稱與信箱，共 6 個欄位。</p>
+<div class="code-wrapper"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">Member</span> &#123;
+    <span class="hljs-keyword">private</span> String id;
+    <span class="hljs-keyword">private</span> String username;
+    <span class="hljs-keyword">private</span> String password;
+    <span class="hljs-keyword">private</span> String nickname;
+    <span class="hljs-keyword">private</span> String email;
+    <span class="hljs-keyword">private</span> List&lt;MemberAuthority&gt; authorities = <span class="hljs-keyword">new</span> <span class="hljs-title class_">ArrayList</span>&lt;&gt;();
+    
+    <span class="hljs-comment">// getter, setter ...</span>
+&#125;</code></pre></div>
+<div class="code-wrapper"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">enum</span> <span class="hljs-title class_">MemberAuthority</span> &#123;
+    STUDENT, ASSISTANT
+&#125;</code></pre></div>
+
+<p>在 Spring Security 中，會以 <code>UserDetails</code> 介面來傳遞使用者資料。若想攜帶自定義的資料，我們也需準備一個實作該介面的類別。</p>
+<div class="code-wrapper"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">MemberUserDetails</span> <span class="hljs-keyword">implements</span> <span class="hljs-title class_">UserDetails</span> &#123;
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> Member member;
+
+    <span class="hljs-keyword">public</span> <span class="hljs-title function_">MemberUserDetails</span><span class="hljs-params">(Member member)</span> &#123;
+        <span class="hljs-built_in">this</span>.member = member;
+    &#125;
+
+    <span class="hljs-keyword">public</span> Member <span class="hljs-title function_">getMember</span><span class="hljs-params">()</span> &#123;
+        <span class="hljs-keyword">return</span> member;
+    &#125;
+
+    <span class="hljs-comment">// 回傳自定義內容</span>
+    <span class="hljs-keyword">public</span> String <span class="hljs-title function_">getId</span><span class="hljs-params">()</span> &#123;
+        <span class="hljs-keyword">return</span> member.getId();
+    &#125;
+
+    <span class="hljs-keyword">public</span> String <span class="hljs-title function_">getNickname</span><span class="hljs-params">()</span> &#123;
+        <span class="hljs-keyword">return</span> member.getNickname();
+    &#125;
+
+    <span class="hljs-keyword">public</span> String <span class="hljs-title function_">getEmail</span><span class="hljs-params">()</span> &#123;
+        <span class="hljs-keyword">return</span> member.getEmail();
+    &#125;
+
+    <span class="hljs-comment">// 實作介面規範的方法</span>
+    <span class="hljs-keyword">public</span> String <span class="hljs-title function_">getUsername</span><span class="hljs-params">()</span> &#123;
+        <span class="hljs-keyword">return</span> member.getUsername();
+    &#125;
+
+    <span class="hljs-keyword">public</span> String <span class="hljs-title function_">getPassword</span><span class="hljs-params">()</span> &#123;
+        <span class="hljs-keyword">return</span> member.getPassword();
+    &#125;
+
+    <span class="hljs-keyword">public</span> Collection&lt;? <span class="hljs-keyword">extends</span> <span class="hljs-title class_">GrantedAuthority</span>&gt; getAuthorities() &#123;
+        <span class="hljs-keyword">return</span> member.getAuthorities()
+                .stream()
+                .map(Enum::name)
+                .map(SimpleGrantedAuthority::<span class="hljs-keyword">new</span>)
+                .toList();
+    &#125;
+
+    <span class="hljs-keyword">public</span> <span class="hljs-type">boolean</span> <span class="hljs-title function_">isEnabled</span><span class="hljs-params">()</span> &#123;
+        <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>;
+    &#125;
+
+    <span class="hljs-keyword">public</span> <span class="hljs-type">boolean</span> <span class="hljs-title function_">isAccountNonExpired</span><span class="hljs-params">()</span> &#123;
+        <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>;
+    &#125;
+
+    <span class="hljs-keyword">public</span> <span class="hljs-type">boolean</span> <span class="hljs-title function_">isAccountNonLocked</span><span class="hljs-params">()</span> &#123;
+        <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>;
+    &#125;
+
+    <span class="hljs-keyword">public</span> <span class="hljs-type">boolean</span> <span class="hljs-title function_">isCredentialsNonExpired</span><span class="hljs-params">()</span> &#123;
+        <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>;
+    &#125;
+&#125;</code></pre></div>
+
+<p>這個「MemberUserDetails」類別實作了 <code>UserDetails</code> 介面，並完成介面所規範的方法。此外還提供其他自定義的方法，以取得使用者的 id、暱稱與信箱。這些資料都源自於從建構子傳入的 Member 物件。</p>
+<h3 id="（二）實作認證程式"><a href="#（二）實作認證程式" class="headerlink" title="（二）實作認證程式"></a>（二）實作認證程式</h3><p>本文第一節的 <code>InMemoryUserDetailsManager</code> 所「回傳」的 <code>UserDetails</code>，它的實作類別固定是內建的 <code>User</code>，我們無法使它回傳先前設計好的 MemberUserDetails。</p>
+<p>因此請讀者準備另一個實作 <code>UserDetailsService</code> 介面的類別來代替，讓它在 Spring Security 進行認證時被使用。</p>
+<div class="code-wrapper"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">UserDetailsServiceImpl</span> <span class="hljs-keyword">implements</span> <span class="hljs-title class_">UserDetailsService</span> &#123;
+    <span class="hljs-comment">// 模擬在資料庫儲存使用者資料</span>
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> Map&lt;String, Member&gt; memberMap = <span class="hljs-keyword">new</span> <span class="hljs-title class_">HashMap</span>&lt;&gt;();
+
+    <span class="hljs-keyword">public</span> <span class="hljs-title function_">UserDetailsServiceImpl</span><span class="hljs-params">(List&lt;Member&gt; members)</span> &#123;
+        members.forEach(member -&gt; memberMap.put(member.getUsername(), member));
+    &#125;
+
+    <span class="hljs-meta">@Override</span>
+    <span class="hljs-keyword">public</span> UserDetails <span class="hljs-title function_">loadUserByUsername</span><span class="hljs-params">(String username)</span> <span class="hljs-keyword">throws</span> UsernameNotFoundException &#123;
+        <span class="hljs-type">Member</span> <span class="hljs-variable">member</span> <span class="hljs-operator">=</span> memberMap.get(username);
+        <span class="hljs-keyword">if</span> (member == <span class="hljs-literal">null</span>) &#123;
+            <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">UsernameNotFoundException</span>(<span class="hljs-string">&quot;Can&#x27;t find username: &quot;</span> + username);
+        &#125;
+
+        <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">MemberUserDetails</span>(member);
+    &#125;
+&#125;</code></pre></div>
+
+<p>接著在 Spring Security 的配置類別中，將它建立為元件。</p>
+<div class="code-wrapper"><pre><code class="hljs java"><span class="hljs-meta">@Configuration</span>
+<span class="hljs-meta">@EnableWebSecurity</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">SecurityConfig</span> &#123;
+    <span class="hljs-comment">// ...</span>
+
+    <span class="hljs-meta">@Bean</span>
+    <span class="hljs-keyword">public</span> UserDetailsService <span class="hljs-title function_">userDetailsService</span><span class="hljs-params">()</span> &#123;
+        <span class="hljs-type">Member</span> <span class="hljs-variable">member</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">Member</span>();
+        member.setId(<span class="hljs-string">&quot;1&quot;</span>);
+        member.setUsername(<span class="hljs-string">&quot;user1&quot;</span>);
+        member.setPassword(<span class="hljs-string">&quot;111&quot;</span>);
+        member.setNickname(<span class="hljs-string">&quot;One&quot;</span>);
+        member.setEmail(<span class="hljs-string">&quot;user1@gmail.com&quot;</span>);
+        member.setAuthorities(List.of(MemberAuthority.STUDENT, MemberAuthority.ASSISTANT));
+
+        <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">UserDetailsServiceImpl</span>(List.of(member));
+    &#125;
+
+    <span class="hljs-meta">@Bean</span>
+    <span class="hljs-keyword">public</span> PasswordEncoder <span class="hljs-title function_">passwordEncoder</span><span class="hljs-params">()</span> &#123;
+        <span class="hljs-keyword">return</span> NoOpPasswordEncoder.getInstance();
+    &#125;
+&#125;</code></pre></div>
+
+<p>此處同時將自定義的 Member 物件傳入，模擬出在資料庫中儲存使用者。如此就能把 <code>UserDetails</code> 介面的實作類別，換成自定義的 MemberUserDetails 了。</p>
+<p>另外也需建立 <code>PasswordEncoder</code> 元件，以指定密碼的加密方式，筆者選擇不加密。</p>
+<h2 id="四、封裝取得認證資訊的邏輯"><a href="#四、封裝取得認證資訊的邏輯" class="headerlink" title="四、封裝取得認證資訊的邏輯"></a>四、封裝取得認證資訊的邏輯</h2><p>在第二節的 Controller 範例程式中，我們呼叫 <code>SecurityContextHolder</code> 的方法取得 <code>SecurityContext</code>，接著再取得 <code>Authentication</code>，最後取得認證資訊 principal。</p>
+<p>由於太繁瑣了，因此本節的目的是將這段過程封裝成一個元件。筆者取名為「UserIdentity」，代表用途是取得身份。</p>
+<div class="code-wrapper"><pre><code class="hljs java"><span class="hljs-meta">@Component</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">UserIdentity</span> &#123;
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">final</span> <span class="hljs-type">MemberUserDetails</span> <span class="hljs-variable">ANONYMOUS_USER</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">MemberUserDetails</span>(<span class="hljs-keyword">new</span> <span class="hljs-title class_">Member</span>());
+
+    <span class="hljs-keyword">private</span> MemberUserDetails <span class="hljs-title function_">getMemberUserDetails</span><span class="hljs-params">()</span> &#123;
+        <span class="hljs-type">SecurityContext</span> <span class="hljs-variable">context</span> <span class="hljs-operator">=</span> SecurityContextHolder.getContext();
+        <span class="hljs-type">Authentication</span> <span class="hljs-variable">auth</span> <span class="hljs-operator">=</span> context.getAuthentication();
+        <span class="hljs-type">Object</span> <span class="hljs-variable">principal</span> <span class="hljs-operator">=</span> auth.getPrincipal();
+
+        <span class="hljs-keyword">return</span> <span class="hljs-string">&quot;anonymousUser&quot;</span>.equals(principal)
+                ? ANONYMOUS_USER
+                : (MemberUserDetails) principal;
+    &#125;
+
+    <span class="hljs-keyword">public</span> <span class="hljs-type">boolean</span> <span class="hljs-title function_">isAnonymous</span><span class="hljs-params">()</span> &#123;
+        <span class="hljs-keyword">return</span> getMemberUserDetails() == ANONYMOUS_USER;
+    &#125;
+
+    <span class="hljs-keyword">public</span> String <span class="hljs-title function_">getId</span><span class="hljs-params">()</span> &#123;
+        <span class="hljs-keyword">return</span> getMemberUserDetails().getId();
+    &#125;
+
+    <span class="hljs-keyword">public</span> String <span class="hljs-title function_">getUsername</span><span class="hljs-params">()</span> &#123;
+        <span class="hljs-keyword">return</span> getMemberUserDetails().getUsername();
+    &#125;
+
+    <span class="hljs-keyword">public</span> String <span class="hljs-title function_">getNickname</span><span class="hljs-params">()</span> &#123;
+        <span class="hljs-keyword">return</span> getMemberUserDetails().getNickname();
+    &#125;
+
+    <span class="hljs-keyword">public</span> String <span class="hljs-title function_">getEmail</span><span class="hljs-params">()</span> &#123;
+        <span class="hljs-keyword">return</span> getMemberUserDetails().getEmail();
+    &#125;
+
+    <span class="hljs-keyword">public</span> List&lt;MemberAuthority&gt; <span class="hljs-title function_">getAuthorities</span><span class="hljs-params">()</span> &#123;
+        <span class="hljs-keyword">return</span> getMemberUserDetails().getMember().getAuthorities();
+    &#125;
+&#125;</code></pre></div>
+
+<p>類別中宣告了「getMemberUserDetails」方法，將取得認證資訊 principal 的過程封裝起來。若認證成功，便轉型為 MemberUserDetails，供其他方法呼叫。</p>
+<p>若為匿名存取 API，則回傳空值的物件。此處運用了「Null Object Pattern」設計模式，避免其他方法取用 MemberUserDetails 物件時，意外導致「Null Pointer Exception」例外。</p>
+<p>此元件提供了取得 id、帳號、信箱、權限以及是否匿名等使用者資料的方法。讓我們將其注入到 Controller 中，在程式邏輯取得這些資料做運用。</p>
+<div class="code-wrapper"><pre><code class="hljs java"><span class="hljs-meta">@RestController</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">MyController</span> &#123;
+
+    <span class="hljs-meta">@Autowired</span>
+    <span class="hljs-keyword">private</span> UserIdentity userIdentity;
+
+    <span class="hljs-meta">@GetMapping(&quot;/home&quot;)</span>
+    <span class="hljs-keyword">public</span> String <span class="hljs-title function_">home</span><span class="hljs-params">()</span> &#123;
+        <span class="hljs-keyword">if</span> (userIdentity.isAnonymous()) &#123;
+            <span class="hljs-keyword">return</span> <span class="hljs-string">&quot;你尚未經過身份認證&quot;</span>;
+        &#125;
+
+        <span class="hljs-keyword">return</span> String.format(
+                <span class="hljs-string">&quot;嗨，你的編號是%s%n帳號：%s%n暱稱：%s%n信箱：%s%n權限：%s&quot;</span>,
+                userIdentity.getId(),
+                userIdentity.getUsername(),
+                userIdentity.getNickname(),
+                userIdentity.getEmail(),
+                userIdentity.getAuthorities()
+        );
+    &#125;
+&#125;</code></pre></div>
+
+<p>下圖是以「user1」的使用者身份存取 API。<br><img src="https://ntub46010.github.io/articles/spring-boot-security-context-authentication-info/spring-security-context-postman-get-customized-info.png" srcset="/img/loading.gif" lazyload></p>
+<p>如此一來，讀者在開發商業邏輯時，不論是要在資料庫儲存文章的建立者，還是將暱稱寫入訊息文字，又或者是寄送郵件，都能更輕鬆地取得當前 API 存取方的使用者資料。</p>
+<h2 id="五、HTTP-Basic-認證的原理"><a href="#五、HTTP-Basic-認證的原理" class="headerlink" title="五、HTTP Basic 認證的原理"></a>五、HTTP Basic 認證的原理</h2><h3 id="（一）Filter-原始碼"><a href="#（一）Filter-原始碼" class="headerlink" title="（一）Filter 原始碼"></a>（一）Filter 原始碼</h3><p>我們已經知道如何取用 <code>SecurityContext</code> 中的認證資訊，而本節將介紹該內容是從何而來。</p>
+<p>Spring Security 是透過 Java Servlet 的「Filter」，才能在 request 到達 Controller 前進行認證與授權。其中 <code>BasicAuthenticationFilter</code> 是專門處理 HTTP Basic 認證的 Filter。</p>
+<p>以下是它的部份原始碼，供讀者參考。</p>
+<div class="code-wrapper"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">BasicAuthenticationFilter</span> <span class="hljs-keyword">extends</span> <span class="hljs-title class_">OncePerRequestFilter</span> &#123;
+    <span class="hljs-keyword">private</span> <span class="hljs-type">AuthenticationConverter</span> <span class="hljs-variable">authenticationConverter</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">BasicAuthenticationConverter</span>();
+    <span class="hljs-keyword">private</span> AuthenticationManager authenticationManager;
+    <span class="hljs-keyword">private</span> <span class="hljs-type">SecurityContextHolderStrategy</span> <span class="hljs-variable">securityContextHolderStrategy</span> <span class="hljs-operator">=</span> SecurityContextHolder.getContextHolderStrategy();
+    <span class="hljs-comment">// ...</span>
+    
+    <span class="hljs-keyword">protected</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">doFilterInternal</span><span class="hljs-params">(HttpServletRequest request, HttpServletResponse response,</span>
+<span class="hljs-params">                                    FilterChain chain)</span> <span class="hljs-keyword">throws</span> IOException, ServletException &#123;
+        <span class="hljs-keyword">try</span> &#123;
+            <span class="hljs-comment">// 把 HTTP request 轉換成等待認證的資料</span>
+            <span class="hljs-type">Authentication</span> <span class="hljs-variable">authRequest</span> <span class="hljs-operator">=</span> <span class="hljs-built_in">this</span>.authenticationConverter.convert(request);
+            <span class="hljs-keyword">if</span> (authRequest == <span class="hljs-literal">null</span>) &#123;
+                <span class="hljs-comment">// ...</span>
+            &#125;
+
+            <span class="hljs-type">String</span> <span class="hljs-variable">username</span> <span class="hljs-operator">=</span> authRequest.getName();
+            <span class="hljs-keyword">if</span> (<span class="hljs-built_in">this</span>.authenticationIsRequired(username)) &#123;
+                <span class="hljs-comment">// 底層呼叫 UserDetailsService 與 PasswordEncoder 進行認證</span>
+                <span class="hljs-type">Authentication</span> <span class="hljs-variable">authResult</span> <span class="hljs-operator">=</span> <span class="hljs-built_in">this</span>.authenticationManager.authenticate(authRequest);
+                
+                <span class="hljs-comment">// 將認證成功的資訊放入 SecurityContext</span>
+                <span class="hljs-type">SecurityContext</span> <span class="hljs-variable">context</span> <span class="hljs-operator">=</span> <span class="hljs-built_in">this</span>.securityContextHolderStrategy.createEmptyContext();
+                context.setAuthentication(authResult);
+                <span class="hljs-built_in">this</span>.securityContextHolderStrategy.setContext(context);
+                
+                <span class="hljs-comment">// ...</span>
+            &#125;
+        &#125; <span class="hljs-keyword">catch</span> (AuthenticationException var8) &#123;
+            <span class="hljs-comment">// ...</span>
+        &#125;
+
+        chain.doFilter(request, response);
+    &#125;
+    
+    <span class="hljs-keyword">protected</span> <span class="hljs-type">boolean</span> <span class="hljs-title function_">authenticationIsRequired</span><span class="hljs-params">(String username)</span> &#123;
+        <span class="hljs-comment">// ...</span>
+    &#125;
+&#125;</code></pre></div>
+
+<p>本節會提到該 Filter 中的 3 個重要元件：<code>AuthenticationConverter</code>、<code>AuthenticationManager</code> 與 <code>SecurityContextHolderStrategy</code>。接下來筆者將搭配 UML 的類別圖，分別進行說明。</p>
+<h2 id="（二）AuthenticationConverter-解析帳密"><a href="#（二）AuthenticationConverter-解析帳密" class="headerlink" title="（二）AuthenticationConverter 解析帳密"></a>（二）AuthenticationConverter 解析帳密</h2><p>HTTP Basic 是一種經由在 request header 攜帶帳號與密碼，讓後端進行身份認證的方式。</p>
+<p>Filter 接收到 request 後，首先 <code>AuthenticationConverter</code> 會從 <code>HttpServletRequest</code> 取出「Authorization」這個 header 的值，進行 Base64 解碼。解析出帳密後，封裝成 <code>Authentication</code> 物件。<br><img src="https://ntub46010.github.io/articles/spring-boot-security-context-authentication-info/spring-boot-security-authentication-converter-class-diagram.jpg" srcset="/img/loading.gif" lazyload></p>
+<p>而 <code>AuthenticationConverter</code> 介面的實作類別是 <code>BasicAuthenticationConverter</code>，它會回傳 <code>Authentication</code> 介面的實作類別 <code>UsernamePasswordAuthenticationToken</code>。</p>
+<p>解析出的帳號，會放在 <code>UsernamePasswordAuthenticationToken</code> 物件的 <code>principal</code> 欄位，而密碼放在 <code>credentials</code> 欄位。</p>
+<h3 id="（三）AuthenticationManager-進行認證"><a href="#（三）AuthenticationManager-進行認證" class="headerlink" title="（三）AuthenticationManager 進行認證"></a>（三）AuthenticationManager 進行認證</h3><p>將帳號與密碼的值封裝成 <code>Authentication</code> 介面的物件後，接下來 <code>AuthenticationManager</code> 會進行身份認證，並回傳另一個新的 <code>Authentication</code> 物件。兩個物件的差別在於，新物件會包含認證後的結果，即使用者資料。</p>
+<p>這個 <code>AuthenticationManager</code> 介面，有個實作類別叫做 <code>ProviderManager</code>，它擁有多個 <code>AuthenticationProvider</code> 介面的物件，讀者可理解成「認證功能的提供者」。<br><img src="https://ntub46010.github.io/articles/spring-boot-security-context-authentication-info/spring-boot-security-authentication-manager-class-diagram.jpg" srcset="/img/loading.gif" lazyload></p>
+<p>在 HTTP Basic 認證的情況下，會由 <code>DaoAuthenticationProvider</code> 提供認證功能。它接收 <code>Authentication</code> 物件後，使用了 <code>UserDetailsService</code> 與 <code>PasswordEncoder</code> 進行帳號與密碼的認證。</p>
+<p>認證成功後，<code>DaoAuthenticationProvider</code> 會將 <code>UserDetailsService</code> 回傳的 <code>UserDetails</code> 放入 <code>UsernamePasswordAuthenticationToken</code> 物件的 <code>principal</code> 欄位中，並以 <code>Authentication</code> 介面回傳。</p>
+<h3 id="（四）SecurityContextHolderStrategy-管理認證資訊"><a href="#（四）SecurityContextHolderStrategy-管理認證資訊" class="headerlink" title="（四）SecurityContextHolderStrategy 管理認證資訊"></a>（四）SecurityContextHolderStrategy 管理認證資訊</h3><p>Spring Security 會將認證後的使用者資料儲存於記憶體，讓我們在程式邏輯中能使用。所以我們在第二節的 Controller 才能在取得 <code>UserDetails</code> 物件。</p>
+<p>負責管理認證資訊的是 <code>SecurityContextHolder</code> 類別中的 <code>SecurityContextHolderStrategy</code>。後者是一個介面，代表管理的「策略」，Spring Security 內建數種實作好的策略。</p>
+<p>而前者會在啟動程式時選擇其中一種管理策略。除此之外，就只是對外提供存取認證資訊的方法罷了。<br><img src="https://ntub46010.github.io/articles/spring-boot-security-context-authentication-info/spring-boot-security-context-holder-class-diagram.jpg" srcset="/img/loading.gif" lazyload></p>
+<p>預設的管理策略是 <code>ThreadLocalSecurityContextHolderStrategy</code>，它採用了「ThreadLocal」的技術，讓每個執行緒只能取得屬於自己的資料。因此，即便 Spring Boot 同時處理許多 request，也不會遇到執行緒安全的問題，意外地取得他人的認證資訊。</p>
+<p>回到 Filter 的邏輯。接下來會產生一個 <code>SecurityContext</code> 介面的物件，將認證後的 <code>Authentication</code> 物件封裝起來。</p>
+<p>最後將 <code>SecurityContext</code> 存回 <code>SecurityContextHolderStrategy</code>，就完成 HTTP Basic 認證的流程。</p>
+<hr>
+<p>本文的完成後專案，請<a target="_blank" rel="noopener" href="https://github.com/ntub46010/SpringBootTutorial/tree/Ch12.4-security-context-authentication-info">點我</a>。</p>
+<p>上一課：<a href="/articles/spring-boot-security-http-basic-authentication/" target="_blank">【Spring Boot】第12.3課－在 Spring Security 使用 HTTP Basic 認證</a></p>
+<p>下一課：<a href="/articles/spring-boot-security-implement-login-api-with-jwt/" target="_blank">【Spring Boot】第12.5課－將 Spring Security 與 JWT 結合，實作登入 API</a></p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/Spring-Boot/" class="category-chain-item">Spring Boot</a>
+  
+  
+
+      </span>
+    
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/Spring-Security/" class="category-chain-item">Spring Security</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+</div>
+
+
+              
+
+              
+            </div>
+
+            <div style="padding-top: 30px;">
+              <b style="font-size: 1.5rem;">張貼留言</b>
+              <script src="https://utteranc.es/client.js"
+                repo="chikuwacode/chikuwacode.github.io"
+                issue-term="pathname"
+                theme="github-light"
+                crossorigin="anonymous"
+                async>
+              </script>
+            </div>
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+
+
+    
+
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜尋</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">關鍵字</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/5.0.0/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允許 JavaScript 運行的環境下瀏覽效果更佳</div>
+  </noscript>
+</body>
+</html>

@@ -1,0 +1,888 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-TW" >
+
+
+
+<head>
+  <meta charset="UTF-8">
+
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/logo.png">
+  <link rel="icon" href="/img/logo.png">
+  
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#a05926">
+  <meta name="author" content="Vincent">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="在學習各個領域的知識時，你我都是新手。這裡提供的文章，是擔任軟體工程師時，自學和工作上用到的東西，以 Spring Boot 等後端領域為大宗。希望能讓學生、新鮮人或初學者補充專業知識，也對一些技術有所了解！">
+<meta property="og:type" content="website">
+<meta property="og:title" content="吉古拉的程式拾光">
+<meta property="og:url" content="https://ntub46010.github.io/">
+<meta property="og:site_name" content="吉古拉的程式拾光">
+<meta property="og:description" content="在學習各個領域的知識時，你我都是新手。這裡提供的文章，是擔任軟體工程師時，自學和工作上用到的東西，以 Spring Boot 等後端領域為大宗。希望能讓學生、新鮮人或初學者補充專業知識，也對一些技術有所了解！">
+<meta property="og:locale" content="zh_TW">
+<meta property="article:author" content="Vincent">
+<meta name="twitter:card" content="summary_large_image">
+  
+  
+  
+  <title>吉古拉的程式拾光</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1736178_k526ubmyhba.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"ntub46010.github.io","root":"/","version":"1.9.8","typing":{"enable":false,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h2,h3","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":false},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"left","headingSelector":"h2,h3","collapseDepth":3},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2,"exclude":[".no-lazy"]},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":"G-BZW5S6P21Naa"},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 40vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>吉古拉的程式拾光</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>文章分類</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>關於本站</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/banner.jpg') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        
+          <span style="font-size: 1.25rem;">這裡分享擔任軟體工程師時，在工作上或自學所用到的東西。</span>
+        
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      <div class="container nopadding-x-md">
+        <div id="board"
+          >
+          
+          <div class="container">
+            <div class="row">
+              <div class="col-12 col-md-10 m-auto">
+                
+
+
+  <div class="row mx-auto index-card">
+    
+    
+      <div class="col-12 col-md-4 m-auto index-img">
+        <a href="/articles/azure-create-cosmos-db-for-mongodb/" target="_blank">
+          <img src="/img/index_img/azure.jpg" srcset="/img/loading.gif" lazyload alt="在 Azure 上建立 MongoDB 資料庫，並進行連線">
+        </a>
+      </div>
+    
+    <article class="col-12 col-md-8 mx-auto index-info">
+      <h2 class="index-header">
+        
+        <a href="/articles/azure-create-cosmos-db-for-mongodb/" target="_blank">
+          在 Azure 上建立 MongoDB 資料庫，並進行連線
+        </a>
+      </h2>
+
+      
+      <a class="index-excerpt " href="/articles/azure-create-cosmos-db-for-mongodb/" target="_blank">
+        <div>
+          若能將資料庫放上雲端服務，便能簡化伺服器的管理工作。本文介紹如何在 Azure 上建立 MongoDB 資料庫，並分別在 NoSQLBooster 這款 GUI 工具，以及 Spring Boot 後端程式來連線。
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2024-12-06 14:30" pubdate>
+              2024-12-06
+            </time>
+          </div>
+        
+        
+          <div class="post-meta mr-3 d-flex align-items-center">
+            <i class="iconfont icon-category"></i>
+            
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/Azure/" class="category-chain-item">Azure</a>
+  
+  
+
+      </span>
+    
+  
+    
+  
+</span>
+
+          </div>
+        
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+      <div class="col-12 col-md-4 m-auto index-img">
+        <a href="/articles/azure-create-mysql-flexible-server/" target="_blank">
+          <img src="/img/index_img/azure.jpg" srcset="/img/loading.gif" lazyload alt="在 Azure 上建立 MySQL 資料庫，並進行連線">
+        </a>
+      </div>
+    
+    <article class="col-12 col-md-8 mx-auto index-info">
+      <h2 class="index-header">
+        
+        <a href="/articles/azure-create-mysql-flexible-server/" target="_blank">
+          在 Azure 上建立 MySQL 資料庫，並進行連線
+        </a>
+      </h2>
+
+      
+      <a class="index-excerpt " href="/articles/azure-create-mysql-flexible-server/" target="_blank">
+        <div>
+          若能將資料庫放上雲端服務，便能簡化伺服器的管理工作。本文介紹如何在 Azure 上建立 MySQL 資料庫，並分別在 Workbench 這款 GUI 工具，以及 Spring Boot 後端程式來連線。
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2024-12-06 14:14" pubdate>
+              2024-12-06
+            </time>
+          </div>
+        
+        
+          <div class="post-meta mr-3 d-flex align-items-center">
+            <i class="iconfont icon-category"></i>
+            
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/Azure/" class="category-chain-item">Azure</a>
+  
+  
+
+      </span>
+    
+  
+    
+  
+</span>
+
+          </div>
+        
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+      <div class="col-12 col-md-4 m-auto index-img">
+        <a href="/articles/spring-boot-jpa-many-to-many-relationship-and-intermediary-table/" target="_blank">
+          <img src="/img/index_img/spring-boot.jpg" srcset="/img/loading.gif" lazyload alt="【Spring Boot】第9.6課－使用 JPA 建立多對多關聯，並配置中間表">
+        </a>
+      </div>
+    
+    <article class="col-12 col-md-8 mx-auto index-info">
+      <h2 class="index-header">
+        
+        <a href="/articles/spring-boot-jpa-many-to-many-relationship-and-intermediary-table/" target="_blank">
+          【Spring Boot】第9.6課－使用 JPA 建立多對多關聯，並配置中間表
+        </a>
+      </h2>
+
+      
+      <a class="index-excerpt " href="/articles/spring-boot-jpa-many-to-many-relationship-and-intermediary-table/" target="_blank">
+        <div>
+          本文將進一步以「學生」選修「課程」為情境，建立多對多關聯，並撰寫 RESTful API 進行測試。過程中也會介紹多對多關聯特有的「中間表」（intermediary table），並說明如何在程式中正確地操作實體，讓 JPA 維護雙方的關聯。
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2024-06-12 11:30" pubdate>
+              2024-06-12
+            </time>
+          </div>
+        
+        
+          <div class="post-meta mr-3 d-flex align-items-center">
+            <i class="iconfont icon-category"></i>
+            
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/Spring-Boot/" class="category-chain-item">Spring Boot</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+          </div>
+        
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+      <div class="col-12 col-md-4 m-auto index-img">
+        <a href="/articles/spring-boot-jpa-one-to-many-relationship-and-bidirectional-association/" target="_blank">
+          <img src="/img/index_img/spring-boot.jpg" srcset="/img/loading.gif" lazyload alt="【Spring Boot】第9.5課－使用 JPA 建立一對多關聯，並配置雙向關聯">
+        </a>
+      </div>
+    
+    <article class="col-12 col-md-8 mx-auto index-info">
+      <h2 class="index-header">
+        
+        <a href="/articles/spring-boot-jpa-one-to-many-relationship-and-bidirectional-association/" target="_blank">
+          【Spring Boot】第9.5課－使用 JPA 建立一對多關聯，並配置雙向關聯
+        </a>
+      </h2>
+
+      
+      <a class="index-excerpt " href="/articles/spring-boot-jpa-one-to-many-relationship-and-bidirectional-association/" target="_blank">
+        <div>
+          上一篇已經示範過如何建立兩張資料表的關聯，並接觸加載策略與級聯的知識。本文將以此為基礎，建立一對多關聯，並撰寫 RESTful API 進行測試。過程中也會說明如何在現有的資料上添加 NOT NULL 的關聯。最後則介紹雙向關聯，讓這兩個實體類別，都能取得所關聯的另一方的資料。
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2024-06-12 08:30" pubdate>
+              2024-06-12
+            </time>
+          </div>
+        
+        
+          <div class="post-meta mr-3 d-flex align-items-center">
+            <i class="iconfont icon-category"></i>
+            
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/Spring-Boot/" class="category-chain-item">Spring Boot</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+          </div>
+        
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+      <div class="col-12 col-md-4 m-auto index-img">
+        <a href="/articles/spring-boot-jpa-one-to-one-relationship/" target="_blank">
+          <img src="/img/index_img/spring-boot.jpg" srcset="/img/loading.gif" lazyload alt="【Spring Boot】第9.4課－使用 JPA 配置資料表關聯（以一對一關聯為例）">
+        </a>
+      </div>
+    
+    <article class="col-12 col-md-8 mx-auto index-info">
+      <h2 class="index-header">
+        
+        <a href="/articles/spring-boot-jpa-one-to-one-relationship/" target="_blank">
+          【Spring Boot】第9.4課－使用 JPA 配置資料表關聯（以一對一關聯為例）
+        </a>
+      </h2>
+
+      
+      <a class="index-excerpt " href="/articles/spring-boot-jpa-one-to-one-relationship/" target="_blank">
+        <div>
+          本文將解說如何透過 Spring Data JPA，將 2 張資料表關聯起來，並撰寫 RESTful API 示範用法。剛開始進行配置時，會遇到許多新觀念。包含各種 annotation、加載策略、級聯，以及潛在的 N + 1 問題。本文會以最簡單的一對一關聯做為起點。
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2024-05-30 13:00" pubdate>
+              2024-05-30
+            </time>
+          </div>
+        
+        
+          <div class="post-meta mr-3 d-flex align-items-center">
+            <i class="iconfont icon-category"></i>
+            
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/Spring-Boot/" class="category-chain-item">Spring Boot</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+          </div>
+        
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+      <div class="col-12 col-md-4 m-auto index-img">
+        <a href="/articles/spring-boot-mysql-using-jpa-repository/" target="_blank">
+          <img src="/img/index_img/spring-boot.jpg" srcset="/img/loading.gif" lazyload alt="【Spring Boot】第9.3課－使用 JPA Repository 存取 MySQL 資料庫">
+        </a>
+      </div>
+    
+    <article class="col-12 col-md-8 mx-auto index-info">
+      <h2 class="index-header">
+        
+        <a href="/articles/spring-boot-mysql-using-jpa-repository/" target="_blank">
+          【Spring Boot】第9.3課－使用 JPA Repository 存取 MySQL 資料庫
+        </a>
+      </h2>
+
+      
+      <a class="index-excerpt " href="/articles/spring-boot-mysql-using-jpa-repository/" target="_blank">
+        <div>
+          為了在 Spring Boot 專案中存取 MySQL 資料庫，我們可借助 Spring Data JPA 提供的 repository 介面。本文除了透過內建的 CRUD 方法進行存取，也會設計自己的查詢條件，包含透過方法名稱及原生語法。最後說明如何排序與分頁。
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2024-05-30 08:30" pubdate>
+              2024-05-30
+            </time>
+          </div>
+        
+        
+          <div class="post-meta mr-3 d-flex align-items-center">
+            <i class="iconfont icon-category"></i>
+            
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/Spring-Boot/" class="category-chain-item">Spring Boot</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+          </div>
+        
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+      <div class="col-12 col-md-4 m-auto index-img">
+        <a href="/articles/spring-boot-mysql-column-definition-with-jpa/" target="_blank">
+          <img src="/img/index_img/spring-boot.jpg" srcset="/img/loading.gif" lazyload alt="【Spring Boot】第9.2課－使用 JPA 設計實體類別與 MySQL 資料表欄位">
+        </a>
+      </div>
+    
+    <article class="col-12 col-md-8 mx-auto index-info">
+      <h2 class="index-header">
+        
+        <a href="/articles/spring-boot-mysql-column-definition-with-jpa/" target="_blank">
+          【Spring Boot】第9.2課－使用 JPA 設計實體類別與 MySQL 資料表欄位
+        </a>
+      </h2>
+
+      
+      <a class="index-excerpt " href="/articles/spring-boot-mysql-column-definition-with-jpa/" target="_blank">
+        <div>
+          我們知道可藉由定義實體類別，讓 Spring Data JPA 建立出資料表。而本文會介紹各種設定欄位的方式，包含最基本的欄位名稱、長度與唯一性。此外也會重複運用具有相同設定的欄位，包含嵌入物件與繼承基底類別。最後說明如何自動在欄位填入日期時間與使用者資料。
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2024-05-29 20:00" pubdate>
+              2024-05-29
+            </time>
+          </div>
+        
+        
+          <div class="post-meta mr-3 d-flex align-items-center">
+            <i class="iconfont icon-category"></i>
+            
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/Spring-Boot/" class="category-chain-item">Spring Boot</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+          </div>
+        
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+      <div class="col-12 col-md-4 m-auto index-img">
+        <a href="/articles/spring-boot-setup-mysql-and-introduce-jpa/" target="_blank">
+          <img src="/img/index_img/spring-boot.jpg" srcset="/img/loading.gif" lazyload alt="【Spring Boot】第9.1課－準備 MySQL 資料庫與認識 Spring Data JPA">
+        </a>
+      </div>
+    
+    <article class="col-12 col-md-8 mx-auto index-info">
+      <h2 class="index-header">
+        
+        <a href="/articles/spring-boot-setup-mysql-and-introduce-jpa/" target="_blank">
+          【Spring Boot】第9.1課－準備 MySQL 資料庫與認識 Spring Data JPA
+        </a>
+      </h2>
+
+      
+      <a class="index-excerpt " href="/articles/spring-boot-setup-mysql-and-introduce-jpa/" target="_blank">
+        <div>
+          MySQL 資料庫是一種關聯式資料庫，與其他 NoSQL 相比，關聯是資料庫是職缺中更常見的要求。本文會啟動 MySQL 的服務，並在 Spring Boot 專案中配置各種設定值，確認可以連線上。最後介紹「Spring Data JPA」這套框架，了解它的由來。
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2024-05-29 16:00" pubdate>
+              2024-05-29
+            </time>
+          </div>
+        
+        
+          <div class="post-meta mr-3 d-flex align-items-center">
+            <i class="iconfont icon-category"></i>
+            
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/Spring-Boot/" class="category-chain-item">Spring Boot</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+          </div>
+        
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+      <div class="col-12 col-md-4 m-auto index-img">
+        <a href="/articles/spring-boot-data-mongodb-repository-crud/" target="_blank">
+          <img src="/img/index_img/spring-boot.jpg" srcset="/img/loading.gif" lazyload alt="【Spring Boot】第8.2課－使用 Spring Data 存取 MongoDB 資料庫，進行基本 CRUD 操作">
+        </a>
+      </div>
+    
+    <article class="col-12 col-md-8 mx-auto index-info">
+      <h2 class="index-header">
+        
+        <a href="/articles/spring-boot-data-mongodb-repository-crud/" target="_blank">
+          【Spring Boot】第8.2課－使用 Spring Data 存取 MongoDB 資料庫，進行基本 CRUD 操作
+        </a>
+      </h2>
+
+      
+      <a class="index-excerpt " href="/articles/spring-boot-data-mongodb-repository-crud/" target="_blank">
+        <div>
+          準備好 MongoDB 的環境後，就能在 Spring Boot 中存取資料庫了。本文將介紹「Spring Data」這款框架，建立 ORM / ODM 的概念。隨後透過「MongoRepository」內建的 CRUD 方法，存取資料庫。
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2024-05-20 09:00" pubdate>
+              2024-05-20
+            </time>
+          </div>
+        
+        
+          <div class="post-meta mr-3 d-flex align-items-center">
+            <i class="iconfont icon-category"></i>
+            
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/Spring-Boot/" class="category-chain-item">Spring Boot</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+          </div>
+        
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+      <div class="col-12 col-md-4 m-auto index-img">
+        <a href="/articles/spring-boot-security-http-basic-authentication/" target="_blank">
+          <img src="/img/index_img/spring-boot.jpg" srcset="/img/loading.gif" lazyload alt="【Spring Boot】第12.3課－在 Spring Security 使用 HTTP Basic 認證">
+        </a>
+      </div>
+    
+    <article class="col-12 col-md-8 mx-auto index-info">
+      <h2 class="index-header">
+        
+        <a href="/articles/spring-boot-security-http-basic-authentication/" target="_blank">
+          【Spring Boot】第12.3課－在 Spring Security 使用 HTTP Basic 認證
+        </a>
+      </h2>
+
+      
+      <a class="index-excerpt " href="/articles/spring-boot-security-http-basic-authentication/" target="_blank">
+        <div>
+          在學習 Spring Security 時，經常透過內建的登入畫面來認證。但在前後端分離時，我們需獨立於 Spring Boot 之外來存取 API，也就是透過前端程式或 Postman。本文會介紹 HTTP Basic 認證，在 request header 攜帶帳密，以取代登入畫面。
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2024-05-08 14:00" pubdate>
+              2024-05-08
+            </time>
+          </div>
+        
+        
+          <div class="post-meta mr-3 d-flex align-items-center">
+            <i class="iconfont icon-category"></i>
+            
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/Spring-Boot/" class="category-chain-item">Spring Boot</a>
+  
+  
+
+      </span>
+    
+  
+    
+  
+</span>
+
+          </div>
+        
+        
+      </div>
+    </article>
+  </div>
+
+
+
+  <nav aria-label="navigation">
+    <span class="pagination" id="pagination">
+      <span class="page-number current">1</span><a class="page-number" href="/page/2/#board">2</a><a class="page-number" href="/page/3/#board">3</a><a class="extend next" rel="next" href="/page/2/#board"><i class="iconfont icon-arrowright"></i></a>
+    </span>
+  </nav>
+
+
+
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    
+
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜尋</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">關鍵字</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允許 JavaScript 運行的環境下瀏覽效果更佳</div>
+  </noscript>
+</body>
+</html>

@@ -1,0 +1,12 @@
+User-agent: *
+
+Allow: /
+
+Disallow: /images/
+Disallow: /archives/
+Disallow: /page/
+Disallow: /schedule/
+Disallow: /tags/
+Disallow: /categories/
+
+Sitemap: https://ntub46010.github.io/sitemap.xml

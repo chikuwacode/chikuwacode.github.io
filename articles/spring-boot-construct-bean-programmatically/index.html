@@ -1,0 +1,827 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-TW" >
+
+
+
+<head>
+  <meta charset="UTF-8">
+
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/logo.png">
+  <link rel="icon" href="/img/logo.png">
+  
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#a05926">
+  <meta name="author" content="Vincent">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="我們知道在類別冠上 @Service、@Repository 等注解，就能讓 Spring Boot 建立出元件。但假設我們想讓元件透過 List 或 Map 等成員，來儲存自己的資料或狀態，那該如何對它們進行初始化呢？本文將介紹 @Bean 注解，透過程式碼手動進行元件的建立過程。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="【Spring Boot】第7課－手動進行元件的初始化">
+<meta property="og:url" content="https://ntub46010.github.io/articles/spring-boot-construct-bean-programmatically/">
+<meta property="og:site_name" content="吉古拉的程式拾光">
+<meta property="og:description" content="我們知道在類別冠上 @Service、@Repository 等注解，就能讓 Spring Boot 建立出元件。但假設我們想讓元件透過 List 或 Map 等成員，來儲存自己的資料或狀態，那該如何對它們進行初始化呢？本文將介紹 @Bean 注解，透過程式碼手動進行元件的建立過程。">
+<meta property="og:locale" content="zh_TW">
+<meta property="og:image" content="https://ntub46010.github.io/img/index_img/spring-boot.jpg">
+<meta property="article:published_time" content="2020-03-03T06:34:49.000Z">
+<meta property="article:modified_time" content="2025-03-25T14:42:58.964Z">
+<meta property="article:author" content="Vincent">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://ntub46010.github.io/img/index_img/spring-boot.jpg">
+  
+  
+  
+  <title>【Spring Boot】第7課－手動進行元件的初始化 | 吉古拉的程式拾光</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1736178_k526ubmyhba.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"ntub46010.github.io","root":"/","version":"1.9.8","typing":{"enable":false,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h2,h3","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":false},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"left","headingSelector":"h2,h3","collapseDepth":3},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2,"exclude":[".no-lazy"]},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":"G-BZW5S6P21Naa"},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 40vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>吉古拉的程式拾光</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>文章分類</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>關於本站</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/banner.jpg') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        
+          <div class="h2">
+            
+              <span id="subtitle">【Spring Boot】第7課－手動進行元件的初始化</span>
+            
+          </div>
+        
+
+        
+          
+  <div class="mt-3">
+    
+    
+  </div>
+
+  <div class="mt-1">
+    
+
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="padding-left: 2rem; margin-right: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目錄</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">【Spring Boot】第7課－手動進行元件的初始化</h1>
+            
+              <p id="updated-time" class="note note-warning" style="">
+                
+                  
+                    本文最後更新於：2025-03-25
+                  
+                
+              </p>
+            
+            
+              <div class="markdown-body">
+                
+                <p>在 Spring Boot 的 IOC 容器中，存放著各種元件。元件除了依賴其他元件，它們也可以擁有自己的資料成員。比方說建立 List、Map 或其它物件的全域變數，來儲存自己的資料，或者說狀態。</p>
+<p>但這些用來儲存元件狀態的全域變數，可能需要先完成初始化，才能開始使用。本文將介紹 <code>@Bean</code> 注解，讓我們透過程式碼手動控制元件的初始化。</p>
+<hr>
+<p>本文的練習用專案，請<a target="_blank" rel="noopener" href="https://github.com/ntub46010/SpringBootTutorial/tree/Ch07-start-construct-bean-programmatically">點我</a>。</p>
+<h2 id="一、範例程式介紹"><a href="#一、範例程式介紹" class="headerlink" title="一、範例程式介紹"></a>一、範例程式介紹</h2><p>在本文的練習用專案，能找到筆者事先準備好的範例程式。</p>
+<p>簡單來說，就是讓 controller 去呼叫 repository，存取使用者資料。而 repository 層又提供 2 種實作方式，分別透過 Map 與 List 資料結構來儲存資料。</p>
+<p>以下是使用者的類別。</p>
+<div class="code-wrapper"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">User</span> &#123;
+    <span class="hljs-keyword">private</span> String id;
+    <span class="hljs-keyword">private</span> String name;
+
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> User <span class="hljs-title function_">of</span><span class="hljs-params">(String id, String name)</span> &#123;
+        <span class="hljs-type">var</span> <span class="hljs-variable">u</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">User</span>();
+        u.id = id;
+        u.name = name;
+
+        <span class="hljs-keyword">return</span> u;
+    &#125;
+
+    <span class="hljs-comment">// getter, setter ...</span>
+&#125;</code></pre></div>
+
+<p>以下是 repository 層的介面，提供新增、取得與刪除的方法。此介面會有 2 個類別分別去實作。</p>
+<div class="code-wrapper"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">interface</span> <span class="hljs-title class_">IUserRepository</span> &#123;
+    <span class="hljs-keyword">void</span> <span class="hljs-title function_">insert</span><span class="hljs-params">(User user)</span>;
+    User <span class="hljs-title function_">findById</span><span class="hljs-params">(String id)</span>;
+    <span class="hljs-keyword">void</span> <span class="hljs-title function_">deleteById</span><span class="hljs-params">(String id)</span>;
+&#125;</code></pre></div>
+
+<p>以下是透過 Map 結構來儲存資料的 repository。</p>
+<div class="code-wrapper"><pre><code class="hljs java"><span class="hljs-meta">@Repository</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">MapUserRepository</span> <span class="hljs-keyword">implements</span> <span class="hljs-title class_">IUserRepository</span> &#123;
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">final</span> Map&lt;String, User&gt; userMap = <span class="hljs-keyword">new</span> <span class="hljs-title class_">HashMap</span>&lt;&gt;();
+
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">insert</span><span class="hljs-params">(User user)</span> &#123;
+        <span class="hljs-keyword">if</span> (userMap.containsKey(user.getId())) &#123;
+            <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">RuntimeException</span>(<span class="hljs-string">&quot;User id &quot;</span> + user.getId() + <span class="hljs-string">&quot; is existing.&quot;</span>);
+        &#125;
+
+        userMap.put(user.getId(), user);
+    &#125;
+
+    <span class="hljs-keyword">public</span> User <span class="hljs-title function_">findById</span><span class="hljs-params">(String id)</span> &#123;
+        <span class="hljs-keyword">return</span> userMap.get(id);
+    &#125;
+
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">deleteById</span><span class="hljs-params">(String id)</span> &#123;
+        userMap.remove(id);
+    &#125;
+&#125;</code></pre></div>
+
+<p>以下是透過 List 結構來儲存資料的 repository。</p>
+<div class="code-wrapper"><pre><code class="hljs java"><span class="hljs-meta">@Repository</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">ListUserRepository</span> <span class="hljs-keyword">implements</span> <span class="hljs-title class_">IUserRepository</span> &#123;
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">final</span> List&lt;User&gt; userList = <span class="hljs-keyword">new</span> <span class="hljs-title class_">ArrayList</span>&lt;&gt;();
+
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">insert</span><span class="hljs-params">(User user)</span> &#123;
+        <span class="hljs-type">var</span> <span class="hljs-variable">isExisting</span> <span class="hljs-operator">=</span> userList
+                .stream()
+                .anyMatch(u -&gt; u.getId().equals(user.getId()));
+        <span class="hljs-keyword">if</span> (isExisting) &#123;
+            <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">RuntimeException</span>(<span class="hljs-string">&quot;User id &quot;</span> + user.getId() + <span class="hljs-string">&quot; is existing.&quot;</span>);
+        &#125;
+
+        userList.add(user);
+    &#125;
+
+    <span class="hljs-keyword">public</span> User <span class="hljs-title function_">findById</span><span class="hljs-params">(String id)</span> &#123;
+        <span class="hljs-keyword">return</span> userList
+                .stream()
+                .filter(u -&gt; u.getId().equals(id))
+                .findFirst()
+                .orElse(<span class="hljs-literal">null</span>);
+    &#125;
+
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">deleteById</span><span class="hljs-params">(String id)</span> &#123;
+        userList.removeIf(u -&gt; u.getId().equals(id));
+    &#125;
+&#125;</code></pre></div>
+
+<p>以下是 controller，它會依賴 IUserRepository，並透過介面提供的方法來操作。此處採用的實作類別為 MapUserRepository。</p>
+<div class="code-wrapper"><pre><code class="hljs java"><span class="hljs-meta">@RestController</span>
+<span class="hljs-meta">@RequestMapping(path = &quot;/users&quot;)</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">UserController</span> &#123;
+
+    <span class="hljs-meta">@Autowired</span>
+    <span class="hljs-meta">@Qualifier(&quot;mapUserRepository&quot;)</span>
+    <span class="hljs-keyword">private</span> IUserRepository userRepository;
+
+    <span class="hljs-meta">@PostMapping</span>
+    <span class="hljs-keyword">public</span> ResponseEntity&lt;Void&gt; <span class="hljs-title function_">createUser</span><span class="hljs-params">(<span class="hljs-meta">@RequestBody</span> User user)</span> &#123;
+        <span class="hljs-keyword">try</span> &#123;
+            userRepository.insert(user);
+            <span class="hljs-keyword">return</span> ResponseEntity.status(HttpStatus.CREATED).build();
+        &#125; <span class="hljs-keyword">catch</span> (RuntimeException e) &#123;
+            <span class="hljs-keyword">return</span> ResponseEntity.unprocessableEntity().build();
+        &#125;
+    &#125;
+
+    <span class="hljs-meta">@GetMapping(&quot;/&#123;id&#125;&quot;)</span>
+    <span class="hljs-keyword">public</span> ResponseEntity&lt;User&gt; <span class="hljs-title function_">getUser</span><span class="hljs-params">(<span class="hljs-meta">@PathVariable(&quot;id&quot;)</span> String id)</span> &#123;
+        <span class="hljs-type">var</span> <span class="hljs-variable">user</span> <span class="hljs-operator">=</span> userRepository.findById(id);
+        <span class="hljs-keyword">return</span> user == <span class="hljs-literal">null</span>
+                ? ResponseEntity.notFound().build()
+                : ResponseEntity.ok(user);
+    &#125;
+
+    <span class="hljs-meta">@DeleteMapping(&quot;/&#123;id&#125;&quot;)</span>
+    <span class="hljs-keyword">public</span> ResponseEntity&lt;Void&gt; <span class="hljs-title function_">deleteUser</span><span class="hljs-params">(<span class="hljs-meta">@PathVariable(&quot;id&quot;)</span> String id)</span> &#123;
+        userRepository.deleteById(id);;
+        <span class="hljs-keyword">return</span> ResponseEntity.noContent().build();
+    &#125;
+&#125;</code></pre></div>
+
+<h2 id="二、簡易的初始化做法"><a href="#二、簡易的初始化做法" class="headerlink" title="二、簡易的初始化做法"></a>二、簡易的初始化做法</h2><p>在第一節的範例程式中，不論是 MapUserRepository 或 ListUserRepository，它們都透過全域變數來儲存資料。假設我們希望程式啟動時，裡面已經有預先準備好一些初始資料了，那可以怎麼做呢？</p>
+<p>若讀者有看過筆者 Spring Boot 系列的前幾篇文章，就知道可以在類別中寫一個 <code>static</code> 區塊，如下：</p>
+<div class="code-wrapper"><pre><code class="hljs java"><span class="hljs-meta">@Repository</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">MapUserRepository</span> <span class="hljs-keyword">implements</span> <span class="hljs-title class_">IUserRepository</span> &#123;
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">final</span> Map&lt;String, User&gt; userMap = <span class="hljs-keyword">new</span> <span class="hljs-title class_">HashMap</span>&lt;&gt;();
+
+    <span class="hljs-keyword">static</span> &#123;
+        <span class="hljs-type">var</span> <span class="hljs-variable">users</span> <span class="hljs-operator">=</span> List.of(
+                User.of(<span class="hljs-string">&quot;U1&quot;</span>, <span class="hljs-string">&quot;Vincent&quot;</span>),
+                User.of(<span class="hljs-string">&quot;U2&quot;</span>, <span class="hljs-string">&quot;Ivy&quot;</span>),
+                User.of(<span class="hljs-string">&quot;U3&quot;</span>, <span class="hljs-string">&quot;Dora&quot;</span>)
+        );
+        users.forEach(u -&gt; userMap.put(u.getId(), u));
+    &#125;
+
+    <span class="hljs-comment">// ...</span>
+&#125;</code></pre></div>
+
+<p>或者我們也可宣告一個方法，並冠上 <code>@PostConstruct</code> 注解，如下：</p>
+<div class="code-wrapper"><pre><code class="hljs java"><span class="hljs-meta">@Repository</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">MapUserRepository</span> <span class="hljs-keyword">implements</span> <span class="hljs-title class_">IUserRepository</span> &#123;
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">final</span> Map&lt;String, User&gt; userMap = <span class="hljs-keyword">new</span> <span class="hljs-title class_">HashMap</span>&lt;&gt;();
+
+    <span class="hljs-meta">@PostConstruct</span>
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">init</span><span class="hljs-params">()</span> &#123;
+        <span class="hljs-type">var</span> <span class="hljs-variable">users</span> <span class="hljs-operator">=</span> List.of(
+                User.of(<span class="hljs-string">&quot;U1&quot;</span>, <span class="hljs-string">&quot;Vincent&quot;</span>),
+                User.of(<span class="hljs-string">&quot;U2&quot;</span>, <span class="hljs-string">&quot;Ivy&quot;</span>),
+                User.of(<span class="hljs-string">&quot;U3&quot;</span>, <span class="hljs-string">&quot;Dora&quot;</span>)
+        );
+        users.forEach(u -&gt; userMap.put(u.getId(), u));
+    &#125;
+
+    <span class="hljs-comment">// ...</span>
+&#125;</code></pre></div>
+
+<p>這兩種做法的差別，在於執行的時間點。<code>static</code> 區塊會在程式一啟動時就執行，並且只能使用類別中的 static 資料成員及方法。</p>
+<p>而 <code>@PostConstruct</code> 方法，則是在物件建立完成後才會執行。它可以使用 static 與 non-static 的資料成員及方法。由於物件（或者說元件）已經建立完成了，所以當然也能使用注入進來的其他元件。</p>
+<h2 id="三、使用-Bean-注解建立元件"><a href="#三、使用-Bean-注解建立元件" class="headerlink" title="三、使用 @Bean 注解建立元件"></a>三、使用 @Bean 注解建立元件</h2><h3 id="（一）認識-Bean-注解"><a href="#（一）認識-Bean-注解" class="headerlink" title="（一）認識 @Bean 注解"></a>（一）認識 @Bean 注解</h3><p>不論是 <code>static</code> 區塊，還是 <code>@PostConstruct</code> 所注解的方法，都能幫助我們完成全域變數的初始化。但這些做法，其實也會增加元件類別的程式碼。</p>
+<p>本節將示範如何將元件的初始化過程，從自身的類別中分離出去。具體的做法是將元件所需要的資料或物件，先在外部初始化完成，再透過建構子傳入元件中。</p>
+<p>Spring Boot 提供了 <code>@Bean</code> 注解，它會冠在元件類別中的方法上。其用途是將該方法的回傳值建立為元件，用法示意如下：</p>
+<div class="code-wrapper"><pre><code class="hljs java"><span class="hljs-meta">@Configuration</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">RepositoryConfig</span> &#123;
+
+    <span class="hljs-meta">@Bean</span>
+    <span class="hljs-keyword">public</span> IUserRepository <span class="hljs-title function_">mapUserRepository</span><span class="hljs-params">()</span> &#123;
+        <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">MapUserRepository</span>();
+    &#125;
+&#125;</code></pre></div>
+
+<p>以上建立了 Configuration 類別。接著宣告一個方法，回傳值型態為 IUserRepository 介面，而實際回傳的是 MapUserRepository 物件。</p>
+<p>如此一來，Spring Boot 便會將 MapUserRepository 建立為元件。</p>
+<h3 id="（二）實作初始化過程"><a href="#（二）實作初始化過程" class="headerlink" title="（二）實作初始化過程"></a>（二）實作初始化過程</h3><p>既然 <code>@Bean</code> 所注解的方法的回傳值會被建立為元件，那在回傳之前，不就可以客製我們想要的初始化過程了嗎？</p>
+<p>根據前面筆者提到的做法，接下來就要在該方法中準備好測試資料，再傳入 MapUserRepository 或 ListUserRepository 的建構子中。</p>
+<p>首先，請讀者調整這 2 個實作類別，讓它們的建構子能接收使用者資料。同時也要移除 <code>@Repository</code> 注解，因為我們即將改為透過 <code>@Bean</code> 注解來建立元件。</p>
+<div class="code-wrapper"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">MapUserRepository</span> <span class="hljs-keyword">implements</span> <span class="hljs-title class_">IUserRepository</span> &#123;
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> Map&lt;String, User&gt; userMap;
+
+    <span class="hljs-keyword">public</span> <span class="hljs-title function_">MapUserRepository</span><span class="hljs-params">(Map&lt;String, User&gt; userMap)</span> &#123;
+        <span class="hljs-built_in">this</span>.userMap = userMap;
+    &#125;
+
+    <span class="hljs-comment">// ...</span>
+&#125;</code></pre></div>
+<div class="code-wrapper"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">ListUserRepository</span> <span class="hljs-keyword">implements</span> <span class="hljs-title class_">IUserRepository</span> &#123;
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> List&lt;User&gt; userList;
+
+    <span class="hljs-keyword">public</span> <span class="hljs-title function_">ListUserRepository</span><span class="hljs-params">(List&lt;User&gt; userList)</span> &#123;
+        <span class="hljs-built_in">this</span>.userList = userList;
+    &#125;
+
+    <span class="hljs-comment">// ...</span>
+&#125;</code></pre></div>
+
+<p>接著回到 Configuration 類別，分別宣告方法，對 MapUserRepository 與 ListUserRepository 進行初始化。</p>
+<div class="code-wrapper"><pre><code class="hljs java"><span class="hljs-meta">@Configuration</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">RepositoryConfig</span> &#123;
+
+    <span class="hljs-meta">@Bean(name = &quot;mapUserRepo&quot;)</span>
+    <span class="hljs-keyword">public</span> IUserRepository <span class="hljs-title function_">mapUserRepository</span><span class="hljs-params">()</span> &#123;
+        <span class="hljs-type">var</span> <span class="hljs-variable">users</span> <span class="hljs-operator">=</span> List.of(
+                User.of(<span class="hljs-string">&quot;U1&quot;</span>, <span class="hljs-string">&quot;Vincent&quot;</span>),
+                User.of(<span class="hljs-string">&quot;U2&quot;</span>, <span class="hljs-string">&quot;Ivy&quot;</span>),
+                User.of(<span class="hljs-string">&quot;U3&quot;</span>, <span class="hljs-string">&quot;Dora&quot;</span>)
+        );
+
+        <span class="hljs-type">var</span> <span class="hljs-variable">userMap</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">HashMap</span>&lt;String, User&gt;();
+        users.forEach(u -&gt; userMap.put(u.getId(), u));
+
+        <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">MapUserRepository</span>(userMap);
+    &#125;
+
+    <span class="hljs-meta">@Bean(name = &quot;listUserRepo&quot;)</span>
+    <span class="hljs-keyword">public</span> IUserRepository <span class="hljs-title function_">listUserRepository</span><span class="hljs-params">()</span> &#123;
+        <span class="hljs-type">var</span> <span class="hljs-variable">users</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">ArrayList</span>&lt;User&gt;();
+        users.add(User.of(<span class="hljs-string">&quot;U1&quot;</span>, <span class="hljs-string">&quot;Vincent&quot;</span>));
+        users.add(User.of(<span class="hljs-string">&quot;U2&quot;</span>, <span class="hljs-string">&quot;Ivy&quot;</span>));
+        users.add(User.of(<span class="hljs-string">&quot;U3&quot;</span>, <span class="hljs-string">&quot;Dora&quot;</span>));
+
+        <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">ListUserRepository</span>(users);
+    &#125;
+&#125;</code></pre></div>
+
+<p>這樣就能把元件初始化的過程，從自身類別中分離出去。</p>
+<p>附帶一提，我們可在 <code>@Bean</code> 注解中定義元件的名稱（預設為方法名稱），供其他元件指定要注入哪一個實作。因此，controller 仍可透過 <code>@Qualifier</code> 注解進行指定。</p>
+<div class="code-wrapper"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">UserController</span> &#123;
+
+    <span class="hljs-meta">@Autowired</span>
+    <span class="hljs-meta">@Qualifier(&quot;mapUserRepo&quot;)</span>
+    <span class="hljs-keyword">private</span> IUserRepository userRepository;
+
+    <span class="hljs-comment">// ...</span>
+&#125;</code></pre></div>
+
+<h2 id="四、綜合應用"><a href="#四、綜合應用" class="headerlink" title="四、綜合應用"></a>四、綜合應用</h2><h3 id="（一）搭配其他注解"><a href="#（一）搭配其他注解" class="headerlink" title="（一）搭配其他注解"></a>（一）搭配其他注解</h3><p><code>@Bean</code> 所注解的元件建立方法，也可搭配其他注解一起使用。</p>
+<p>比方說，當有回傳值型態相同的多個方法，可透過 <code>@Primary</code> 注解，來指定預設採用的元件。</p>
+<div class="code-wrapper"><pre><code class="hljs java"><span class="hljs-meta">@Configuration</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">RepositoryConfig</span> &#123;
+
+    <span class="hljs-meta">@Primary</span>
+    <span class="hljs-meta">@Bean(name = &quot;mapUserRepo&quot;)</span>
+    <span class="hljs-keyword">public</span> IUserRepository <span class="hljs-title function_">mapUserRepository</span><span class="hljs-params">()</span> &#123;
+        <span class="hljs-comment">// ...</span>
+    &#125;
+
+    <span class="hljs-meta">@Bean(name = &quot;listUserRepo&quot;)</span>
+    <span class="hljs-keyword">public</span> IUserRepository <span class="hljs-title function_">listUserRepository</span><span class="hljs-params">()</span> &#123;
+        <span class="hljs-comment">// ...</span>
+    &#125;
+&#125;</code></pre></div>
+
+<p>另外，我們也可將元件所依賴的其他元件類別或介面，寫在方法參數中。示意如下：</p>
+<div class="code-wrapper"><pre><code class="hljs java"><span class="hljs-meta">@Configuration</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">ServiceConfig</span> &#123;
+    <span class="hljs-comment">// ...</span>
+
+    <span class="hljs-meta">@Bean</span>
+    <span class="hljs-keyword">public</span> UserService <span class="hljs-title function_">userService</span><span class="hljs-params">(IUserRepository userRepository)</span> &#123;
+        <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">UserService</span>(userRepository);
+    &#125;
+&#125;</code></pre></div>
+<div class="code-wrapper"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">UserService</span> &#123;
+    <span class="hljs-keyword">private</span> IUserRepository userRepository;
+
+    <span class="hljs-keyword">public</span> <span class="hljs-title function_">UserService</span><span class="hljs-params">(IUserRepository userRepository)</span> &#123;
+        <span class="hljs-built_in">this</span>.userRepository = userRepository;
+    &#125;
+&#125;</code></pre></div>
+
+<p>當然，也能使用 <code>@Qualifier</code> 注解，指定要取用的實作類別。</p>
+<div class="code-wrapper"><pre><code class="hljs java"><span class="hljs-meta">@Configuration</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">ServiceConfig</span> &#123;
+    <span class="hljs-comment">// ...</span>
+
+    <span class="hljs-meta">@Bean</span>
+    <span class="hljs-keyword">public</span> UserService <span class="hljs-title function_">userService</span><span class="hljs-params">(</span>
+<span class="hljs-params">        <span class="hljs-meta">@Qualifier(&quot;mapUserRepo&quot;)</span> IUserRepository userRepository</span>
+<span class="hljs-params">    )</span> &#123;
+        <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">UserService</span>(userRepository);
+    &#125;
+&#125;</code></pre></div>
+
+<h3 id="（二）結合配置檔"><a href="#（二）結合配置檔" class="headerlink" title="（二）結合配置檔"></a>（二）結合配置檔</h3><p>在程式中，controller 只會取用其中一個實作類別。而另一個用不到的元件，其實不必建立出來。</p>
+<p>因此，我們可將這兩個 <code>@Bean</code> 注解的方法合併，再透過 if 判斷決定要建立哪一個。</p>
+<p>接下來的範例，筆者會結合<a href="/articles/spring-boot-application-properties-configuration/" target="_blank">第 6 課</a>介紹的 application.properties 配置檔，提供元件初始化的一些選項。請先添加以下 2 個設定值：</p>
+<div class="code-wrapper"><pre><code class="hljs properties"><span class="hljs-attr">user-repository.storage</span>=<span class="hljs-string">map</span>
+<span class="hljs-attr">user-repository.test-data.amount</span>=<span class="hljs-string">3</span></code></pre></div>
+
+<p>第一個設定值代表要使用何種資料結構來儲存，可選擇「map」或「list」。第二個設定值代表要產生幾筆測試資料。</p>
+<p>回到 Configuration 類別，在方法參數中使用 <code>@Value</code> 注解，即可將配置檔的設定值讀取進來使用。</p>
+<div class="code-wrapper"><pre><code class="hljs java"><span class="hljs-meta">@Configuration</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">RepositoryConfig</span> &#123;
+
+    <span class="hljs-meta">@Bean</span>
+    <span class="hljs-keyword">public</span> IUserRepository <span class="hljs-title function_">userRepository</span><span class="hljs-params">(</span>
+<span class="hljs-params">            <span class="hljs-meta">@Value(&quot;$&#123;user-repository.storage&#125;&quot;)</span> String storage,</span>
+<span class="hljs-params">            <span class="hljs-meta">@Value(&quot;$&#123;user-repository.test-data.amount:0&#125;&quot;)</span> <span class="hljs-type">int</span> amount</span>
+<span class="hljs-params">    )</span> &#123;
+        <span class="hljs-comment">// 建立測試資料</span>
+        <span class="hljs-type">var</span> <span class="hljs-variable">users</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">ArrayList</span>&lt;User&gt;();
+        <span class="hljs-keyword">for</span> (<span class="hljs-type">var</span> <span class="hljs-variable">i</span> <span class="hljs-operator">=</span> <span class="hljs-number">1</span>; i &lt;= amount; i++) &#123;
+            <span class="hljs-type">var</span> <span class="hljs-variable">user</span> <span class="hljs-operator">=</span> User.of(<span class="hljs-string">&quot;U&quot;</span> + i, <span class="hljs-string">&quot;Test User &quot;</span> + i);
+            users.add(user);
+        &#125;
+
+        <span class="hljs-comment">// 選擇資料結構</span>
+        <span class="hljs-keyword">if</span> (<span class="hljs-string">&quot;map&quot;</span>.equalsIgnoreCase(storage)) &#123;
+            <span class="hljs-type">var</span> <span class="hljs-variable">userMap</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">HashMap</span>&lt;String, User&gt;();
+            users.forEach(u -&gt; userMap.put(u.getId(), u));
+            System.out.println(<span class="hljs-string">&quot;Create MapProductRepository.&quot;</span>);
+
+            <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">MapUserRepository</span>(userMap);
+        &#125; <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (<span class="hljs-string">&quot;list&quot;</span>.equalsIgnoreCase(storage)) &#123;
+            System.out.println(<span class="hljs-string">&quot;Create ListProductRepository.&quot;</span>);
+            <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">ListUserRepository</span>(users);
+        &#125; <span class="hljs-keyword">else</span> &#123;
+            <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">IllegalArgumentException</span>(<span class="hljs-string">&quot;Please provide correct user repository storage type.&quot;</span>);
+        &#125;
+    &#125;
+&#125;</code></pre></div>
+
+<p>在程式邏輯中，首先產生指定數量的測試資料（預設為 0 筆）。接著根據設定值是指定 Map 或 List 資料結構，再建立出對應的 repository 物件。</p>
+<p>同時也將測試資料傳入 repository 的建構子中，隨即回傳，完成元件的初始化。</p>
+<p>最後讀者別忘了確認注入 IUserRepository 的 Controller，已經不必再透過 <code>@Qualifier</code> 注解，來指定要注入的元件了。</p>
+<hr>
+<p>本文的完成後專案，請<a target="_blank" rel="noopener" href="https://github.com/ntub46010/SpringBootTutorial/tree/Ch07-fin-construct-bean-programmatically">點我</a>。</p>
+<p>上一課：<a href="/articles/spring-boot-application-properties-configuration/" target="_blank">【Spring Boot】第6課－在 application.properties 配置檔提供設定值（以 Java Mail 為例）</a></p>
+<p>下一課：<a href="/articles/spring-boot-mongodb-introduction-and-setup/" target="_blank">【Spring Boot】第8.1課－MongoDB 介紹與準備資料庫環境</a></p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/Spring-Boot/" class="category-chain-item">Spring Boot</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+</div>
+
+
+              
+
+              
+            </div>
+
+            <div style="padding-top: 30px;">
+              <b style="font-size: 1.5rem;">張貼留言</b>
+              <script src="https://utteranc.es/client.js"
+                repo="chikuwacode/chikuwacode.github.io"
+                issue-term="pathname"
+                theme="github-light"
+                crossorigin="anonymous"
+                async>
+              </script>
+            </div>
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+
+
+    
+
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜尋</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">關鍵字</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/5.0.0/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允許 JavaScript 運行的環境下瀏覽效果更佳</div>
+  </noscript>
+</body>
+</html>

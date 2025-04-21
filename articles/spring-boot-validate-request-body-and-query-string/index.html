@@ -1,0 +1,874 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-TW" >
+
+
+
+<head>
+  <meta charset="UTF-8">
+
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/logo.png">
+  <link rel="icon" href="/img/logo.png">
+  
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#a05926">
+  <meta name="author" content="Vincent">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="在網頁上填寫資料時，前端會對資料進行檢查，避免送出不合理的值。但若直接對 API 發出請求（如透過 Postman），不就可以繞過檢查了嗎？本文會介紹 @Valid 和許多注解，用來在 Controller 對 request body 與 query string 進行資料驗證。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="【Spring Boot】第3.3課－在 Controller 驗證 request body 與 query string 的資料">
+<meta property="og:url" content="https://ntub46010.github.io/articles/spring-boot-validate-request-body-and-query-string/">
+<meta property="og:site_name" content="吉古拉的程式拾光">
+<meta property="og:description" content="在網頁上填寫資料時，前端會對資料進行檢查，避免送出不合理的值。但若直接對 API 發出請求（如透過 Postman），不就可以繞過檢查了嗎？本文會介紹 @Valid 和許多注解，用來在 Controller 對 request body 與 query string 進行資料驗證。">
+<meta property="og:locale" content="zh_TW">
+<meta property="og:image" content="https://ntub46010.github.io/img/index_img/spring-boot.jpg">
+<meta property="article:published_time" content="2021-05-26T15:51:00.000Z">
+<meta property="article:modified_time" content="2025-04-20T09:43:00.310Z">
+<meta property="article:author" content="Vincent">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://ntub46010.github.io/img/index_img/spring-boot.jpg">
+  
+  
+  
+  <title>【Spring Boot】第3.3課－在 Controller 驗證 request body 與 query string 的資料 | 吉古拉的程式拾光</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1736178_k526ubmyhba.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"ntub46010.github.io","root":"/","version":"1.9.8","typing":{"enable":false,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h2,h3","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":false},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"left","headingSelector":"h2,h3","collapseDepth":3},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2,"exclude":[".no-lazy"]},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":"G-BZW5S6P21Naa"},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 40vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>吉古拉的程式拾光</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>文章分類</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>關於本站</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/banner.jpg') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        
+          <div class="h2">
+            
+              <span id="subtitle">【Spring Boot】第3.3課－在 Controller 驗證 request body 與 query string 的資料</span>
+            
+          </div>
+        
+
+        
+          
+  <div class="mt-3">
+    
+    
+  </div>
+
+  <div class="mt-1">
+    
+
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="padding-left: 2rem; margin-right: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目錄</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">【Spring Boot】第3.3課－在 Controller 驗證 request body 與 query string 的資料</h1>
+            
+              <p id="updated-time" class="note note-warning" style="">
+                
+                  
+                    本文最後更新於：2025-04-20
+                  
+                
+              </p>
+            
+            
+              <div class="markdown-body">
+                
+                <p>在網頁上填寫資料時，前端會對資料進行檢查，避免送出不合理的值。但若直接對 API 發出請求（如透過 Postman），不就可以繞過檢查了嗎？甚至還可能將非預期的值存進資料庫。</p>
+<p>本文會介紹許多內建的注解，用來在 Controller 對接收到的 request body 與 query string 進行資料驗證。此外也會示範定義自己的驗證規則。</p>
+<hr>
+<h2 id="一、什麼是資料驗證"><a href="#一、什麼是資料驗證" class="headerlink" title="一、什麼是資料驗證"></a>一、什麼是資料驗證</h2><p>對開發過前端或行動 App 的人來說，使用者填寫完資料送出時，先對資料進行檢查是很正常的事。例如電子郵件地址不允許空白，或者價格不允許負數。</p>
+<p>但有心人士只要知道 API 路徑和接受的資料格式，就能透過其他工具或途徑來發出請求（如 Postman）。</p>
+<p>那麼 API 是如何得知的呢？舉例來說，讀者在 Chrome 瀏覽器按下 F12，可開啟開發者工具查看。下面是以在網路論壇「Dcard」發表文章為例子。<br><img src="https://ntub46010.github.io/articles/spring-boot-validate-request-body-and-query-string/chrome-devtools-headers-general.png" srcset="/img/loading.gif" lazyload><br><img src="https://ntub46010.github.io/articles/spring-boot-validate-request-body-and-query-string/chrome-devtools-payload.png" srcset="/img/loading.gif" lazyload></p>
+<p>點擊最上方的「Network」頁籤，便能查看該分頁發出的請求。圖中的「Request URL」代表 API 路徑。再往下則是 request 與 response header。點擊「Payload」頁籤，則可看見 request body。</p>
+<p>除了有心人士，一般開發者在串接 API 時，也可能不小心在 request 攜帶不合理的資料。如果後端沒有機制來阻擋，就可能影響業務邏輯的程式執行，或是儲存非預期的資料。</p>
+<p>然而透過撰寫程式碼的方式來驗證每個資料，其實也不方便。因此，本文將使用注解（annotation）的方式來處理驗證的工作。</p>
+<h2 id="二、範例專案準備"><a href="#二、範例專案準備" class="headerlink" title="二、範例專案準備"></a>二、範例專案準備</h2><h3 id="（一）Controller-介紹"><a href="#（一）Controller-介紹" class="headerlink" title="（一）Controller 介紹"></a>（一）Controller 介紹</h3><p>以下的 Product 與 Price 類別，會做為 request body。</p>
+<div class="code-wrapper"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">Product</span> &#123;
+    <span class="hljs-keyword">private</span> String id;
+    <span class="hljs-keyword">private</span> String name;
+    <span class="hljs-keyword">private</span> Price price;
+    <span class="hljs-keyword">private</span> List&lt;String&gt; categories;
+	
+	<span class="hljs-comment">// getter, setter ...</span>
+&#125;</code></pre></div>
+<div class="code-wrapper"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">Price</span> &#123;
+    <span class="hljs-keyword">private</span> <span class="hljs-type">double</span> amount;
+    <span class="hljs-keyword">private</span> String currencyType;
+	
+	<span class="hljs-comment">// getter, setter ...</span>
+&#125;</code></pre></div>
+
+<p>以下的 BaseParameter 類別，會用來接收 query string。</p>
+<div class="code-wrapper"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">BaseParameter</span> &#123;
+    <span class="hljs-keyword">private</span> String sortField;
+    <span class="hljs-keyword">private</span> String sortDirection;
+    <span class="hljs-keyword">private</span> Integer page;
+    <span class="hljs-keyword">private</span> Integer size;
+	
+	<span class="hljs-comment">// getter, setter ...</span>
+&#125;</code></pre></div>
+
+<p>以下是 Controller。</p>
+<div class="code-wrapper"><pre><code class="hljs java"><span class="hljs-meta">@RestController</span>
+<span class="hljs-meta">@RequestMapping(value = &quot;/products&quot;)</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">ProductController</span> &#123;
+    
+    <span class="hljs-meta">@PostMapping</span>
+    <span class="hljs-keyword">public</span> ResponseEntity&lt;Void&gt; <span class="hljs-title function_">createProduct</span><span class="hljs-params">(<span class="hljs-meta">@RequestBody</span> Product request)</span> &#123;
+        <span class="hljs-keyword">return</span> ResponseEntity.ok().build();
+    &#125;
+	
+	<span class="hljs-meta">@GetMapping</span>
+    <span class="hljs-keyword">public</span> ResponseEntity&lt;List&lt;Product&gt;&gt; <span class="hljs-title function_">getProducts</span><span class="hljs-params">(<span class="hljs-meta">@ModelAttribute</span> BaseParameter param)</span> &#123;
+        <span class="hljs-keyword">return</span> ResponseEntity.ok().build();
+    &#125;
+&#125;</code></pre></div>
+
+<h3 id="（二）宣告驗證"><a href="#（二）宣告驗證" class="headerlink" title="（二）宣告驗證"></a>（二）宣告驗證</h3><p>我們會在這些接收 request body 與 query string 的類別中，於欄位上使用注解，來定義驗證規則。</p>
+<p>請在 pom.xml 檔案添加依賴。</p>
+<div class="code-wrapper"><pre><code class="hljs xml"><span class="hljs-tag">&lt;<span class="hljs-name">dependency</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">groupId</span>&gt;</span>org.springframework.boot<span class="hljs-tag">&lt;/<span class="hljs-name">groupId</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">artifactId</span>&gt;</span>spring-boot-starter-validation<span class="hljs-tag">&lt;/<span class="hljs-name">artifactId</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-name">dependency</span>&gt;</span></code></pre></div>
+
+<p>接著將 <code>@Valid</code> 注解冠在 API 處理方法的參數前面，代表要對這個資料進行驗證。</p>
+<div class="code-wrapper"><pre><code class="hljs java"><span class="hljs-keyword">import</span> jakarta.validation.Valid;
+
+<span class="hljs-meta">@RestController</span>
+<span class="hljs-meta">@RequestMapping(value = &quot;/products&quot;)</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">ProductController</span> &#123;
+    
+    <span class="hljs-meta">@PostMapping</span>
+    <span class="hljs-keyword">public</span> ResponseEntity&lt;Void&gt; <span class="hljs-title function_">createProduct</span><span class="hljs-params">(<span class="hljs-meta">@Valid</span> <span class="hljs-meta">@RequestBody</span> Product request)</span> &#123;
+        <span class="hljs-keyword">return</span> ResponseEntity.ok().build();
+    &#125;
+	
+	<span class="hljs-meta">@GetMapping</span>
+    <span class="hljs-keyword">public</span> ResponseEntity&lt;List&lt;Product&gt;&gt; <span class="hljs-title function_">getProducts</span><span class="hljs-params">(<span class="hljs-meta">@Valid</span> <span class="hljs-meta">@ModelAttribute</span> BaseParameter param)</span> &#123;
+        <span class="hljs-keyword">return</span> ResponseEntity.ok().build();
+    &#125;
+&#125;</code></pre></div>
+
+<p>讀者可能還會找到另一個注解叫 <code>@Validated</code>，它是 Spring Boot 自帶的。雖然兩者都能用，但差別在於 <code>@Validated</code> 無法冠在欄位上。</p>
+<p>這邊提醒一點，<code>@Valid</code> 注解只會針對類別中的第一層欄位進行驗證。因此在上述的 Product 類別中，price 欄位的內部資料並不會被驗證。這部份我們留到第七節再來處理。下一節先讓我們一一認識各種驗證注解。</p>
+<h2 id="三，驗證空與非空"><a href="#三，驗證空與非空" class="headerlink" title="三，驗證空與非空"></a>三，驗證空與非空</h2><p>使用 <code>@NotNull</code>，可規定該欄位為「必填」，也就是不能為 null 值。</p>
+<div class="code-wrapper"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">Product</span> &#123;
+
+    <span class="hljs-meta">@NotNull</span>
+    <span class="hljs-keyword">private</span> String name;
+
+    <span class="hljs-meta">@NotNull</span>
+    <span class="hljs-keyword">private</span> Price price;
+
+    <span class="hljs-meta">@NotNull</span>
+    <span class="hljs-keyword">private</span> List&lt;String&gt; categories;
+	
+	<span class="hljs-comment">// ...</span>
+&#125;</code></pre></div>
+
+<p>讀者可使用 Postman 發出 request，會發現得到 HTTP 400（Bad Request）的狀態碼。<br><img src="https://ntub46010.github.io/articles/spring-boot-validate-request-body-and-query-string/postman-bad-request.png" srcset="/img/loading.gif" lazyload></p>
+<p>使用 <code>@NotEmpty</code>，可規定 String、Collection、Map 與陣列不能是空的，至少要有 1 個字或元素。</p>
+<div class="code-wrapper"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">Product</span> &#123;
+
+    <span class="hljs-meta">@NotEmpty</span>
+    <span class="hljs-keyword">private</span> String name;
+
+    <span class="hljs-meta">@NotEmpty</span>
+    <span class="hljs-keyword">private</span> List&lt;String&gt; categories;
+	
+	<span class="hljs-comment">// ...</span>
+&#125;</code></pre></div>
+
+<p>使用 <code>@NotBlank</code>，可規定 String 除了要有字，而且不能全部都是半形空白。</p>
+<div class="code-wrapper"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">Product</span> &#123;
+
+    <span class="hljs-meta">@NotBlank</span>
+    <span class="hljs-keyword">private</span> String name;
+	
+	<span class="hljs-comment">// ...</span>
+&#125;</code></pre></div>
+<div class="code-wrapper"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">BaseParameter</span> &#123;
+
+    <span class="hljs-meta">@NotBlank</span>
+    <span class="hljs-keyword">private</span> String sortField;
+
+    <span class="hljs-meta">@NotBlank</span>
+    <span class="hljs-keyword">private</span> String sortDirection;
+	
+	<span class="hljs-comment">// ...</span>
+&#125;</code></pre></div>
+
+<p>使用 <code>@Null</code>，可規定該欄位值必須是 null。</p>
+<div class="code-wrapper"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">Product</span> &#123;
+
+    <span class="hljs-meta">@Null</span>
+    <span class="hljs-keyword">private</span> String id;
+	
+	<span class="hljs-comment">// ...</span>
+&#125;</code></pre></div>
+
+<p>會用到 <code>@Null</code> 的時機，可能是後端想要自行給該欄位賦值。但筆者認為，該類別或許已經身兼多個用途了，比方說 request body 與資料庫的資料類別共用。</p>
+<p>若後端能夠設計成將 request body（不含 id 欄位）轉換成另一個類別（含 id 欄位），那就不需要此注解了。</p>
+<h2 id="四、驗證數值"><a href="#四、驗證數值" class="headerlink" title="四、驗證數值"></a>四、驗證數值</h2><p>接下來讓我們繼續認識其他驗證注解。要注意的是，它們都允許欄位值是 null。因此讀者可視需要，搭配 <code>@NotNull</code> 注解，確保欄位為必填。</p>
+<h3 id="（一）最大與最小值"><a href="#（一）最大與最小值" class="headerlink" title="（一）最大與最小值"></a>（一）最大與最小值</h3><p>使用 <code>@Max</code> 與 <code>@Min</code>，分別可規定數值欄位的最大與最小值。</p>
+<div class="code-wrapper"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">Price</span> &#123;
+    
+    <span class="hljs-meta">@Min(0)</span>
+    <span class="hljs-meta">@Max(100000)</span>
+    <span class="hljs-keyword">private</span> <span class="hljs-type">double</span> amount;
+	
+	<span class="hljs-comment">// ...</span>
+&#125;</code></pre></div>
+<div class="code-wrapper"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">BaseParameter</span> &#123;
+
+    <span class="hljs-meta">@NotNull</span>
+    <span class="hljs-meta">@Min(0)</span>
+    <span class="hljs-keyword">private</span> Integer page;
+
+    <span class="hljs-meta">@NotNull</span>
+    <span class="hljs-meta">@Min(1)</span>
+    <span class="hljs-keyword">private</span> Integer size;
+	
+	<span class="hljs-comment">// ...</span>
+&#125;</code></pre></div>
+
+<h3 id="（二）驗證位數"><a href="#（二）驗證位數" class="headerlink" title="（二）驗證位數"></a>（二）驗證位數</h3><p>使用 <code>@Digits</code>，可規定數值欄位的整數和小數位數。</p>
+<div class="code-wrapper"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">Price</span> &#123;
+    
+    <span class="hljs-meta">@Digits(integer = 6, fraction = 2)</span>
+	<span class="hljs-meta">@Min(0)</span>
+    <span class="hljs-meta">@Max(100000)</span>
+    <span class="hljs-keyword">private</span> <span class="hljs-type">double</span> amount;
+	
+	<span class="hljs-comment">// ...</span>
+&#125;</code></pre></div>
+
+<p>上面限制了欄位值的整數最多能有 6 位，而小數最多 2 位。</p>
+<h2 id="五、驗證長度"><a href="#五、驗證長度" class="headerlink" title="五、驗證長度"></a>五、驗證長度</h2><p>使用 <code>@Size</code> 注解，可規定 String、Collection、Map 與陣列的長度或元素數量。</p>
+<div class="code-wrapper"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">Product</span> &#123;
+
+    <span class="hljs-meta">@Size(min = 1, max = 3)</span>
+    <span class="hljs-meta">@NotNull</span>
+    <span class="hljs-keyword">private</span> List&lt;String&gt; categories;
+	
+	<span class="hljs-comment">// ...</span>
+&#125;</code></pre></div>
+
+<p>上面限制了欄位值必須要有 1 ~ 3 個元素。</p>
+<p>而下面限制了欄位值固定是 3 個字。</p>
+<div class="code-wrapper"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">Price</span> &#123;
+
+    <span class="hljs-meta">@Size(min = 3, max = 3)</span>
+    <span class="hljs-meta">@NotNull</span>
+    <span class="hljs-keyword">private</span> String currencyType;
+	
+	<span class="hljs-comment">// ...</span>
+&#125;</code></pre></div>
+
+<h2 id="六、正則表達式"><a href="#六、正則表達式" class="headerlink" title="六、正則表達式"></a>六、正則表達式</h2><p>使用 <code>@Pattern</code> 注解，可使用正則表達式來驗證字串。</p>
+<p>以下的例子，是限制欄位值需為 3 個大寫英文字母。</p>
+<div class="code-wrapper"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">Price</span> &#123;
+
+    <span class="hljs-meta">@Pattern(regexp = &quot;[A-Z]&#123;3&#125;$&quot;)</span>
+    <span class="hljs-meta">@NotNull</span>
+    <span class="hljs-keyword">private</span> String currencyType;
+	
+	<span class="hljs-comment">// ...</span>
+&#125;</code></pre></div>
+
+<p>以下的例子，是限制欄位值只能包含大小寫英文字母、數字與半形空白。</p>
+<div class="code-wrapper"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">Product</span> &#123;
+
+    <span class="hljs-meta">@Pattern(regexp = &quot;^[A-Za-z0-9 ]*$&quot;)</span>
+    <span class="hljs-meta">@NotBlank</span>
+    <span class="hljs-keyword">private</span> String name;
+	
+	<span class="hljs-comment">// ...</span>
+&#125;</code></pre></div>
+
+<h2 id="七、嵌套驗證"><a href="#七、嵌套驗證" class="headerlink" title="七、嵌套驗證"></a>七、嵌套驗證</h2><h3 id="（一）驗證內部物件"><a href="#（一）驗證內部物件" class="headerlink" title="（一）驗證內部物件"></a>（一）驗證內部物件</h3><p>在第二節的第二段有提到，<code>@Valid</code> 注解只會驗證該類別的第一層欄位。所以剛剛在 Price 類別使用的驗證注解，是不會生效的。</p>
+<p>此時讀者只要在想驗證的物件欄位上，也冠上 <code>@Valid</code> 注解即可。</p>
+<div class="code-wrapper"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">Product</span> &#123;
+
+    <span class="hljs-meta">@Valid</span>
+    <span class="hljs-meta">@NotNull</span>
+    <span class="hljs-keyword">private</span> Price price;
+	
+	<span class="hljs-comment">// ...</span>
+&#125;</code></pre></div>
+
+<h3 id="（二）驗證元素"><a href="#（二）驗證元素" class="headerlink" title="（二）驗證元素"></a>（二）驗證元素</h3><p>如果欄位的型態是 <code>List&lt;String&gt;</code>，當我們想驗證 List 中的 String 元素，該怎麼做呢？其實也很簡單，針對 List 的泛型類別冠上驗證注解就好。</p>
+<div class="code-wrapper"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">Product</span> &#123;
+
+    <span class="hljs-meta">@Size(min = 1, max = 3)</span>
+    <span class="hljs-meta">@NotNull</span>
+    <span class="hljs-keyword">private</span> List&lt;<span class="hljs-meta">@NotBlank</span> String&gt; categories;
+	
+	<span class="hljs-comment">// ...</span>
+&#125;</code></pre></div>
+
+<p>再假設我們有如下的類別，其 List 欄位的元素，是我們自定義的物件。</p>
+<div class="code-wrapper"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">BatchProduct</span> &#123;
+    <span class="hljs-keyword">private</span> List&lt;<span class="hljs-meta">@Valid</span> Product&gt; products;
+	
+	<span class="hljs-comment">// getter, setter ...</span>
+&#125;</code></pre></div>
+
+<p>只要在泛型類別冠上 <code>@Valid</code> 注解，就能驗證 List 裡面的物件元素了。</p>
+<h2 id="八、自定義驗證邏輯"><a href="#八、自定義驗證邏輯" class="headerlink" title="八、自定義驗證邏輯"></a>八、自定義驗證邏輯</h2><p>接下來筆者會介紹更進階的用法。</p>
+<h3 id="（一）建立驗證注解"><a href="#（一）建立驗證注解" class="headerlink" title="（一）建立驗證注解"></a>（一）建立驗證注解</h3><p>讓我們以第六節的 currencyType 欄位做延伸。生活中有許多縮寫都是由大寫英文字母組成，例如幣別（如 USD、JPY）、國碼（如 US、JP、KR），或是公司的部門代號。</p>
+<p>本節將介紹如何建立自己的驗證注解。一來能夠實作複雜的驗證邏輯，二來也能將多個現有的驗證規則，整合成一個可讀性更好的注解。</p>
+<p>以下建立一個叫 @UppercaseAlphabet 的注解，用途是讓被驗證的字串只能包含大寫字母，且可限制字串長度。</p>
+<div class="code-wrapper"><pre><code class="hljs java"><span class="hljs-meta">@Constraint(validatedBy = UppercaseAlphabetValidator.class)</span>
+<span class="hljs-meta">@Target(&#123;ElementType.FIELD&#125;)</span>
+<span class="hljs-meta">@Retention(RetentionPolicy.RUNTIME)</span>
+<span class="hljs-keyword">public</span> <span class="hljs-meta">@interface</span> UppercaseAlphabet &#123;
+    <span class="hljs-type">int</span> <span class="hljs-title function_">minLength</span><span class="hljs-params">()</span> <span class="hljs-keyword">default</span> <span class="hljs-number">0</span>;
+    <span class="hljs-type">int</span> <span class="hljs-title function_">maxLength</span><span class="hljs-params">()</span> <span class="hljs-keyword">default</span> Integer.MAX_VALUE;
+
+    String <span class="hljs-title function_">message</span><span class="hljs-params">()</span> <span class="hljs-keyword">default</span> <span class="hljs-string">&quot;Should be uppercase alphabet.&quot;</span>;
+    Class&lt;?&gt;[] groups() <span class="hljs-keyword">default</span> &#123;&#125;;
+    Class&lt;? <span class="hljs-keyword">extends</span> <span class="hljs-title class_">Payload</span>&gt;[] payload() <span class="hljs-keyword">default</span> &#123;&#125;;
+&#125;</code></pre></div>
+
+<p>這邊有幾個重要的地方要知道。</p>
+<ul>
+<li><code>@Constraint</code> 注解：可設定驗證邏輯所在的類別，在本節第二段會介紹。</li>
+<li>minLength、maxLength 參數：這是自定義的參數，冠上注解時可傳入。</li>
+<li><code>message</code> 參數：這是驗證注解必須定義的參數之一，用途是提供驗證未通過的訊息，在第九節會介紹。</li>
+</ul>
+<h3 id="（二）實作驗證過程"><a href="#（二）實作驗證過程" class="headerlink" title="（二）實作驗證過程"></a>（二）實作驗證過程</h3><p>在 @UppercaseAlphabet 注解，有冠上了 <code>@Constraint</code> 注解。透過它的 <code>validatedBy</code> 參數，可提供實作 <code>ConstraintValidator</code> 介面的類別。進行資料驗證時，該介面所實作的方法會自動被呼叫。</p>
+<p>以下是自定義的驗證邏輯類別。</p>
+<div class="code-wrapper"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">UppercaseAlphabetValidator</span> <span class="hljs-keyword">implements</span> <span class="hljs-title class_">ConstraintValidator</span>&lt;UppercaseAlphabet, String&gt; &#123;
+    <span class="hljs-keyword">private</span> <span class="hljs-type">int</span> minLength;
+    <span class="hljs-keyword">private</span> <span class="hljs-type">int</span> maxLength;
+
+    <span class="hljs-meta">@Override</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">initialize</span><span class="hljs-params">(UppercaseAlphabet annotation)</span> &#123;
+        <span class="hljs-built_in">this</span>.minLength = annotation.minLength();
+        <span class="hljs-built_in">this</span>.maxLength = annotation.maxLength();
+
+        <span class="hljs-keyword">if</span> (<span class="hljs-built_in">this</span>.minLength &lt; <span class="hljs-number">0</span> || <span class="hljs-built_in">this</span>.minLength &gt; <span class="hljs-built_in">this</span>.maxLength) &#123;
+            <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">IllegalArgumentException</span>();
+        &#125;
+    &#125;
+
+    <span class="hljs-meta">@Override</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-type">boolean</span> <span class="hljs-title function_">isValid</span><span class="hljs-params">(String value, ConstraintValidatorContext context)</span> &#123;
+        <span class="hljs-keyword">if</span> (value == <span class="hljs-literal">null</span>) &#123;
+            value = <span class="hljs-string">&quot;&quot;</span>;
+        &#125;
+
+        <span class="hljs-keyword">if</span> (value.length() &lt; <span class="hljs-built_in">this</span>.minLength || value.length() &gt; <span class="hljs-built_in">this</span>.maxLength) &#123;
+            <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>;
+        &#125;
+
+        <span class="hljs-keyword">return</span> value.matches(<span class="hljs-string">&quot;^[A-Z]*$&quot;</span>);
+    &#125;
+&#125;</code></pre></div>
+
+<p>在實作 <code>ConstraintValidator</code> 介面時，需傳入兩個泛型類別，第一個是自定義的注解，第二個是要驗證的資料型態。</p>
+<p>該介面有兩個方法要實作。</p>
+<ul>
+<li><code>initialize</code>：可進行初始化，在此取出注解中的參數備用，並檢查參數是否合理。</li>
+<li><code>isValid</code>：要驗證的資料會被傳入 <code>value</code> 參數，我們在此檢查字串的長度，並透過正則表達式確認是否只包含大寫英文字母。</li>
+</ul>
+<p>實作完成後，將自定義的注解冠在 request body 的欄位上就行了。下面的例子是限制欄位值為 3 個大寫英文字母。</p>
+<div class="code-wrapper"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">Price</span> &#123;
+    
+    <span class="hljs-meta">@UppercaseAlphabet(minLength = 3, maxLength = 3)</span>
+    <span class="hljs-keyword">private</span> String currencyType;
+	
+	<span class="hljs-comment">// ...</span>
+&#125;</code></pre></div>
+
+<p>讀者也能自行作其他練習，例如將 <code>@Min</code> 與 <code>@Max</code> 注解合併成一個，允許數值在範圍內。</p>
+<h2 id="九、驗證未過的訊息"><a href="#九、驗證未過的訊息" class="headerlink" title="九、驗證未過的訊息"></a>九、驗證未過的訊息</h2><p>當 <code>@Valid</code> 注解驗證失敗時，後端會回傳 HTTP 400 的狀態碼，但我們從 response 一時也看不出未通過的原因。其實從 Console 視窗可找到錯誤訊息。<br><img src="https://ntub46010.github.io/articles/spring-boot-validate-request-body-and-query-string/spring-boot-validation-failed-log.png" srcset="/img/loading.gif" lazyload></p>
+<p>上圖是「name」和「price.amount」欄位值驗證失敗的 log。這樣的形式除了不易閱讀，而且前端的同事若遇到問題，一直向後端確認原因也很不方便。</p>
+<p>本節的目的是將錯誤訊息整理好，並放在如下的 response body 回傳。</p>
+<div class="code-wrapper"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">ValidationFailInfo</span> &#123;
+    <span class="hljs-keyword">private</span> String field;
+    <span class="hljs-keyword">private</span> Object value;
+    <span class="hljs-keyword">private</span> String message;
+
+    <span class="hljs-comment">// getter, setter ...</span>
+&#125;</code></pre></div>
+
+<p>從 log 可看出 request body 驗證失敗時，會發生 <code>MethodArgumentNotValidException</code> 例外。若 query string 驗證失敗，則會發生 <code>BindException</code>。</p>
+<p>若想捕捉 Controller 所拋出的特定例外，可宣告冠有 <code>@ExceptionHandler</code> 注解的方法。</p>
+<div class="code-wrapper"><pre><code class="hljs java"><span class="hljs-keyword">import</span> org.springframework.validation.BindException;
+
+<span class="hljs-meta">@RestController</span>
+<span class="hljs-meta">@RequestMapping(value = &quot;/products&quot;)</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">ProductController</span> &#123;
+	<span class="hljs-comment">// ...</span>
+	
+    <span class="hljs-meta">@ExceptionHandler(BindException.class)</span>
+    <span class="hljs-keyword">public</span> ResponseEntity&lt;List&lt;ValidationFailInfo&gt;&gt; <span class="hljs-title function_">handleValidationFail</span><span class="hljs-params">(BindException ex)</span> &#123;
+        <span class="hljs-type">var</span> <span class="hljs-variable">infoList</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">ArrayList</span>&lt;ValidationFailInfo&gt;();
+
+        ex.getBindingResult().getFieldErrors().forEach(error -&gt; &#123;
+            <span class="hljs-type">var</span> <span class="hljs-variable">info</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">ValidationFailInfo</span>();
+            info.setField(error.getField());
+            info.setValue(error.getRejectedValue());
+            info.setMessage(error.getDefaultMessage());
+
+            infoList.add(info);
+        &#125;);
+
+        <span class="hljs-keyword">return</span> ResponseEntity.badRequest().body(infoList);
+    &#125;
+&#125;</code></pre></div>
+
+<p>關於 <code>@ExceptionHandler</code> 注解，在筆者以前的<a target="_blank" rel="noopener" href="https://chikuwa-tech-study.blogspot.com/2023/02/spring-boot-controller-advice-handle-exception-and-query-string.html">文章</a>有專門介紹，本文就不贅述。巧合的是，<code>MethodArgumentNotValidException</code> 是 <code>BindException</code> 的子類別，所以這邊統一捕捉 <code>BindException</code> 即可。</p>
+<p>這個方法的實作邏輯，簡單來說就是從捕捉到的例外取出資料做處理，再像 API 一樣回傳 response 給前端。完成後，用 Postman 確認結果如下：<br><img src="https://ntub46010.github.io/articles/spring-boot-validate-request-body-and-query-string/postman-bad-request-with-validation-info-body.png" srcset="/img/loading.gif" lazyload></p>
+<p>若讀者想定義自己的錯誤訊息，在每個驗證注解都有提供叫 <code>message</code> 的參數可以傳入。</p>
+<div class="code-wrapper"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">Price</span> &#123;
+
+    <span class="hljs-meta">@Digits(integer = 6, fraction = 2, message = &quot;最多整數6位，小數2位&quot;)</span>
+    <span class="hljs-meta">@Min(0)</span>
+    <span class="hljs-meta">@Max(10000)</span>
+    <span class="hljs-keyword">private</span> <span class="hljs-type">double</span> amount;
+
+    <span class="hljs-meta">@UppercaseAlphabet(minLength = 3, maxLength = 3, message = &quot;需為3個大寫字母&quot;)</span>
+    <span class="hljs-keyword">private</span> String currencyType;
+	
+	<span class="hljs-comment">// ...</span>
+&#125;</code></pre></div>
+
+<p>當我們為 request body 的許多欄位加上驗證規則，並且像這樣子回傳允許的值，某種程度上也是在暴露自己的 API 規格。</p>
+<p>如果有安全上的疑慮，筆者認為可以在不同環境（如開發、測試、正式）的 application.properties 配置檔提供設定值，再透過 if 判斷來控制是否回傳錯誤訊息。</p>
+<hr>
+<p>本文的完成後專案，請<a target="_blank" rel="noopener" href="https://github.com/ntub46010/SpringBootTutorial/tree/Ch03.3-validate-request-body-and-query-string">點我</a>。</p>
+<p>上一課：<a href="/articles/spring-boot-use-query-string-and-header-in-controller/" target="_blank">【Spring Boot】第3.2課－在 Controller 接收 query string 與操作 header</a></p>
+<p>下一課：<a href="/articles/spring-boot-three-tier-architecture/" target="_blank">【Spring Boot】第4課－實作三層式架構的 Service 與 Repository</a></p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/Spring-Boot/" class="category-chain-item">Spring Boot</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+</div>
+
+
+              
+
+              
+            </div>
+
+            <div style="padding-top: 30px;">
+              <b style="font-size: 1.5rem;">張貼留言</b>
+              <script src="https://utteranc.es/client.js"
+                repo="chikuwacode/chikuwacode.github.io"
+                issue-term="pathname"
+                theme="github-light"
+                crossorigin="anonymous"
+                async>
+              </script>
+            </div>
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+
+
+    
+
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜尋</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">關鍵字</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/5.0.0/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允許 JavaScript 運行的環境下瀏覽效果更佳</div>
+  </noscript>
+</body>
+</html>

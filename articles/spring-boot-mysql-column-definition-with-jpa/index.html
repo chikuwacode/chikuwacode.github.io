@@ -1,0 +1,763 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-TW" >
+
+
+
+<head>
+  <meta charset="UTF-8">
+
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/logo.png">
+  <link rel="icon" href="/img/logo.png">
+  
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#a05926">
+  <meta name="author" content="Vincent">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="我們知道可藉由定義實體類別，讓 Spring Data JPA 建立出資料表。而本文會介紹各種設定欄位的方式，包含最基本的欄位名稱、長度與唯一性。此外也會重複運用具有相同設定的欄位，包含嵌入物件與繼承基底類別。最後說明如何自動在欄位填入日期時間與使用者資料。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="【Spring Boot】第9.2課－使用 JPA 設計實體類別與 MySQL 資料表欄位">
+<meta property="og:url" content="https://ntub46010.github.io/articles/spring-boot-mysql-column-definition-with-jpa/">
+<meta property="og:site_name" content="吉古拉的程式拾光">
+<meta property="og:description" content="我們知道可藉由定義實體類別，讓 Spring Data JPA 建立出資料表。而本文會介紹各種設定欄位的方式，包含最基本的欄位名稱、長度與唯一性。此外也會重複運用具有相同設定的欄位，包含嵌入物件與繼承基底類別。最後說明如何自動在欄位填入日期時間與使用者資料。">
+<meta property="og:locale" content="zh_TW">
+<meta property="og:image" content="https://ntub46010.github.io/img/index_img/spring-boot.jpg">
+<meta property="article:published_time" content="2024-05-29T12:00:00.000Z">
+<meta property="article:modified_time" content="2025-03-22T10:33:37.985Z">
+<meta property="article:author" content="Vincent">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://ntub46010.github.io/img/index_img/spring-boot.jpg">
+  
+  
+  
+  <title>【Spring Boot】第9.2課－使用 JPA 設計實體類別與 MySQL 資料表欄位 | 吉古拉的程式拾光</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1736178_k526ubmyhba.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"ntub46010.github.io","root":"/","version":"1.9.8","typing":{"enable":false,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h2,h3","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":false},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"left","headingSelector":"h2,h3","collapseDepth":3},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2,"exclude":[".no-lazy"]},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":"G-BZW5S6P21Naa"},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 40vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>吉古拉的程式拾光</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>文章分類</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>關於本站</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/banner.jpg') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        
+          <div class="h2">
+            
+              <span id="subtitle">【Spring Boot】第9.2課－使用 JPA 設計實體類別與 MySQL 資料表欄位</span>
+            
+          </div>
+        
+
+        
+          
+  <div class="mt-3">
+    
+    
+  </div>
+
+  <div class="mt-1">
+    
+
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="padding-left: 2rem; margin-right: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目錄</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">【Spring Boot】第9.2課－使用 JPA 設計實體類別與 MySQL 資料表欄位</h1>
+            
+              <p id="updated-time" class="note note-warning" style="">
+                
+                  
+                    本文最後更新於：2025-03-22
+                  
+                
+              </p>
+            
+            
+              <div class="markdown-body">
+                
+                <p>在上一篇，我們了解可藉由定義實體類別，讓 Spring Data JPA 建立出資料表。而本文會介紹各種設定資料表欄位的方式，包含欄位名稱、長度與唯一性等。</p>
+<p>此外也會重複運用具有相同設定的欄位，包含嵌入物件與繼承基底類別。最後說明如何在插入或更新資料時，自動在欄位填入日期時間與使用者資料。</p>
+<hr>
+<h2 id="一、實體類別介紹"><a href="#一、實體類別介紹" class="headerlink" title="一、實體類別介紹"></a>一、實體類別介紹</h2><p>Spring Data JPA 允許我們在程式中，透過定義實體類別的方式，來設計資料表（table）。所謂的實體類別，指的是要儲存到資料庫的資料類別。</p>
+<p>以下建立一個實體類別，描述了學生資料。</p>
+<div class="code-wrapper"><pre><code class="hljs java"><span class="hljs-keyword">import</span> jakarta.persistence.*;
+
+<span class="hljs-meta">@Entity</span>
+<span class="hljs-meta">@Table(name = &quot;student&quot;)</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">Student</span> &#123;
+
+    <span class="hljs-meta">@Id</span>
+    <span class="hljs-meta">@GeneratedValue(strategy = GenerationType.IDENTITY)</span>
+    <span class="hljs-keyword">private</span> Long id;
+    <span class="hljs-keyword">private</span> String name;
+    <span class="hljs-keyword">private</span> <span class="hljs-type">int</span> grade;
+    <span class="hljs-keyword">private</span> BloodType bloodType;
+    <span class="hljs-keyword">private</span> LocalDate birthday;
+
+    <span class="hljs-comment">// getter, setter ...</span>
+&#125;</code></pre></div>
+
+<p>該類別叫做「Student」，目前包含 id、名字、年級、血型與生日，共 5 個欄位。</p>
+<p>其中的「BloodType」是個「列舉」（enumeration）類別，包含 4 種血型。</p>
+<div class="code-wrapper"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">enum</span> <span class="hljs-title class_">BloodType</span> &#123;
+    A, B, O, AB
+&#125;</code></pre></div>
+
+<h2 id="二、設計資料表欄位"><a href="#二、設計資料表欄位" class="headerlink" title="二、設計資料表欄位"></a>二、設計資料表欄位</h2><p>實體類別會對應到資料庫的 table，因此維護該類別，就相當於維護 table。在實體類別設計欄位時，會搭配使用 @Column 注解，透過它的參數進行設定。</p>
+<table>
+<thead>
+<tr>
+<th>參數</th>
+<th>設定項目</th>
+<th>補充說明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>name</td>
+<td>欄位名稱</td>
+<td>針對同一個欄位，我們可以在實體類別與 table，分別使用不同的名稱。</td>
+</tr>
+<tr>
+<td>length</td>
+<td>字串長度</td>
+<td>超出的部份會被截斷（truncate）。</td>
+</tr>
+<tr>
+<td>nullable</td>
+<td>值是否可為 null</td>
+<td>Java 基本型態預設為 false；參考型態（如 String）預設為 true。</td>
+</tr>
+<tr>
+<td>unique</td>
+<td>值是否唯一</td>
+<td>若為 true，會自動建立「唯一索引」。</td>
+</tr>
+<tr>
+<td>precision</td>
+<td>整數與小數的總位數</td>
+<td>適用於 Java 的 BigDecimal 型態；MySQL 的 DECIMAL 型態。</td>
+</tr>
+<tr>
+<td>scale</td>
+<td>小數在 precision 所佔的位數</td>
+<td>適用於 Java 的 BigDecimal 型態；MySQL 的 DECIMAL 型態。</td>
+</tr>
+</tbody></table>
+<p>以下是將 <code>@Column</code> 注解用在實體類別上。</p>
+<div class="code-wrapper"><pre><code class="hljs java"><span class="hljs-meta">@Entity</span>
+<span class="hljs-meta">@Table(name = &quot;student&quot;)</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">Student</span> &#123;
+
+    <span class="hljs-meta">@Id</span>
+    <span class="hljs-meta">@GeneratedValue(strategy = GenerationType.IDENTITY)</span>
+    <span class="hljs-keyword">private</span> Long id;
+
+    <span class="hljs-meta">@Column(name = &quot;name&quot;, length = 30, unique = true, nullable = false)</span>
+    <span class="hljs-keyword">private</span> String name;
+
+    <span class="hljs-meta">@Column(name = &quot;grade&quot;)</span>
+    <span class="hljs-keyword">private</span> <span class="hljs-type">int</span> grade;
+
+    <span class="hljs-meta">@Column(name = &quot;blood_type&quot;)</span>
+    <span class="hljs-meta">@Enumerated(EnumType.STRING)</span>
+    <span class="hljs-keyword">private</span> BloodType bloodType;
+
+    <span class="hljs-meta">@Column(name = &quot;birthday&quot;, nullable = false)</span>
+    <span class="hljs-keyword">private</span> LocalDate birthday;
+
+    <span class="hljs-comment">// getter, setter ...</span>
+&#125;</code></pre></div>
+
+<p>另外，如果欄位型態是一個「列舉」（Enum），不妨冠上 <code>@Enumerated</code> 注解，並設定以 Enum 值的名字來儲存。否則預設會以序數（ordinal）來儲存，可讀性較差。</p>
+<p>在網路上其他文章中，讀者可能會注意到那些範例程式，即便實體類別的欄位名與 table 欄位一致，依然會再度使用 <code>@Column</code> 注解來設定 table 欄位名稱。筆者認為這樣的好處，是能避免日後在實體類別修改欄位名稱，無意間影響與 table 的對應關係。</p>
+<p>設定完成後，請讀者啟動程式，讓 Spring Data JPA 自動在資料庫產生 table。下圖是在 MySQL 使用 <code>DESCRIBE</code> 指令，確認 table 的定義。<br><img src="https://ntub46010.github.io/articles/spring-boot-mysql-column-definition-with-jpa/mysql-workbench-describe-table-with-more-fields.png" srcset="/img/loading.gif" lazyload></p>
+<p>在結果中，可看到欄位型態、是否為唯一欄位，或者是否允許 null 值等資訊。</p>
+<h2 id="三、嵌入物件欄位"><a href="#三、嵌入物件欄位" class="headerlink" title="三、嵌入物件欄位"></a>三、嵌入物件欄位</h2><p>我們也可透過「嵌入」（embed）的方式，將自定義的物件放入實體類別中。</p>
+<p>以下建立叫做「Contact」的類別，描述了聯繫方式。</p>
+<div class="code-wrapper"><pre><code class="hljs java"><span class="hljs-meta">@Embeddable</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">Contact</span> &#123;
+    <span class="hljs-keyword">private</span> String email;
+    <span class="hljs-keyword">private</span> String phone;
+
+    <span class="hljs-comment">// getter, setter ...</span>
+&#125;</code></pre></div>
+
+<p>此類別包含信箱與電話這 2 個欄位。為了將它嵌入到實體類別中，需冠上 <code>@Embeddable</code> 注解。這麼做的好處，是日後若有其他實體類別（如老師、員工、公司等），均可重複使用。</p>
+<p>接著回到 Student 實體類別，使用 <code>@Embedded</code> 注解嵌入 Contact 類別。</p>
+<div class="code-wrapper"><pre><code class="hljs java"><span class="hljs-meta">@Entity</span>
+<span class="hljs-meta">@Table(name = &quot;student&quot;)</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">Student</span> &#123;
+    <span class="hljs-comment">// ...</span>
+
+    <span class="hljs-meta">@Embedded</span>
+    <span class="hljs-meta">@AttributeOverride(name = &quot;email&quot;, column = @Column(name = &quot;contact_email&quot;))</span>
+    <span class="hljs-meta">@AttributeOverride(name = &quot;phone&quot;, column = @Column(name = &quot;contact_phone&quot;))</span>
+    <span class="hljs-keyword">private</span> Contact contact;
+
+    <span class="hljs-comment">// getter, setter ...</span>
+&#125;</code></pre></div>
+
+<p>為了在實體類別對嵌入的物件欄位進行設定，需使用 <code>@AttributeOverride</code> 注解。它具有兩個參數，name 是指向內部的欄位；而 <code>column</code> 則是傳入前面介紹過的 <code>@Column</code> 注解，進行設定。</p>
+<h2 id="四、自動填入日期時間與使用者"><a href="#四、自動填入日期時間與使用者" class="headerlink" title="四、自動填入日期時間與使用者"></a>四、自動填入日期時間與使用者</h2><h3 id="（一）前言"><a href="#（一）前言" class="headerlink" title="（一）前言"></a>（一）前言</h3><p>我們可能會想記錄每一筆資料的異動資訊。比方說文章是何時發表的、何時修改的、誰建立的、誰更新的。透過 Spring Data 提供的「JPA Auditing」功能，可以幫助我們做這件事。</p>
+<p>請先在啟動類別冠上 <code>@EnableJpaAuditing</code> 注解，以啟用此功能。</p>
+<div class="code-wrapper"><pre><code class="hljs java"><span class="hljs-meta">@SpringBootApplication</span>
+<span class="hljs-meta">@EnableJpaAuditing</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">Application</span> &#123;
+
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">main</span><span class="hljs-params">(String[] args)</span> &#123;
+        SpringApplication.run(Application.class, args);
+    &#125;
+&#125;</code></pre></div>
+
+<p>接著在實體類別類別冠上 <code>@EntityListeners</code> 注解，註冊這個功能。</p>
+<div class="code-wrapper"><pre><code class="hljs java"><span class="hljs-meta">@Entity</span>
+<span class="hljs-meta">@Table(name = &quot;student&quot;)</span>
+<span class="hljs-meta">@EntityListeners(AuditingEntityListener.class)</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">Student</span> &#123;
+    <span class="hljs-comment">// ...</span>
+&#125;</code></pre></div>
+
+<h3 id="（二）填入日期時間"><a href="#（二）填入日期時間" class="headerlink" title="（二）填入日期時間"></a>（二）填入日期時間</h3><p>以下在 Student 實體類別中，添加了 2 個欄位，分別代表資料的建立與更新時間。</p>
+<div class="code-wrapper"><pre><code class="hljs java"><span class="hljs-meta">@Entity</span>
+<span class="hljs-meta">@Table(name = &quot;student&quot;)</span>
+<span class="hljs-meta">@EntityListeners(AuditingEntityListener.class)</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">Student</span> &#123;
+    <span class="hljs-comment">// ...</span>
+    
+    <span class="hljs-meta">@Column(name = &quot;created_time&quot;, nullable = false)</span>
+    <span class="hljs-meta">@CreatedDate</span>
+    <span class="hljs-keyword">private</span> LocalDateTime createdTime;
+
+    <span class="hljs-meta">@Column(name = &quot;updated_time&quot;, nullable = false)</span>
+    <span class="hljs-meta">@LastModifiedDate</span>
+    <span class="hljs-keyword">private</span> LocalDateTime updatedTime;
+
+    <span class="hljs-comment">// getter, setter ...</span>
+&#125;</code></pre></div>
+
+<p>只要在欄位分別冠上 <code>@CreatedDate</code> 和 <code>@LastModifiedDate</code> 注解即可。Spring Data JPA 會在插入或更新資料時，將日期時間的值賦予給這些欄位。</p>
+<p>當插入資料時，具有 <code>@CreatedDate</code> 或 <code>@LastModifiedDate</code> 注解的欄位，都會同時被賦予值。而後續更新資料時，只會刷新 <code>@LastModifiedDate</code> 的欄位。</p>
+<h3 id="（三）填入使用者"><a href="#（三）填入使用者" class="headerlink" title="（三）填入使用者"></a>（三）填入使用者</h3><p>以下在 Student 實體類別中，添加了 2 個欄位，分別代表資料的建立者與更新者。</p>
+<div class="code-wrapper"><pre><code class="hljs java"><span class="hljs-meta">@Entity</span>
+<span class="hljs-meta">@Table(name = &quot;student&quot;)</span>
+<span class="hljs-meta">@EntityListeners(AuditingEntityListener.class)</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">Student</span> &#123;
+    <span class="hljs-comment">// ...</span>
+    
+    <span class="hljs-meta">@Column(name = &quot;created_by&quot;, nullable = false)</span>
+    <span class="hljs-meta">@CreatedBy</span>
+    <span class="hljs-keyword">private</span> String createdBy;
+
+    <span class="hljs-meta">@Column(name = &quot;updated_by&quot;, nullable = false)</span>
+    <span class="hljs-meta">@LastModifiedBy</span>
+    <span class="hljs-keyword">private</span> String updatedBy;
+
+    <span class="hljs-comment">// getter, setter ...</span>
+&#125;</code></pre></div>
+
+<p>接著在欄位分別冠上 <code>@CreatedBy</code> 或 <code>@LastModifiedBy</code> 注解。Spring Data JPA 會在插入或更新資料時，將代表使用者的值賦予給這些欄位。</p>
+<p>那麼使用者的資料從哪裡來呢？這時我們需要準備一個實作 <code>AuditorAware</code> 介面的元件，讓它告訴 Spring Data JPA。</p>
+<div class="code-wrapper"><pre><code class="hljs java"><span class="hljs-meta">@Component</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">AuditorAwareImpl</span> <span class="hljs-keyword">implements</span> <span class="hljs-title class_">AuditorAware</span>&lt;String&gt; &#123;
+
+    <span class="hljs-meta">@Override</span>
+    <span class="hljs-keyword">public</span> Optional&lt;String&gt; <span class="hljs-title function_">getCurrentAuditor</span><span class="hljs-params">()</span> &#123;
+        <span class="hljs-type">String</span> <span class="hljs-variable">randomId</span> <span class="hljs-operator">=</span> UUID.randomUUID().toString();
+        <span class="hljs-keyword">return</span> Optional.of(randomId);
+    &#125;
+&#125;</code></pre></div>
+
+<p>這個 <code>AuditorAware</code> 介面接收一個泛型類別，它需要與那些冠上 <code>@CreatedBy</code> 和 <code>@LastModifiedBy</code> 注解的欄位型態相同。由於實體類別中的 createdBy 和 updatedBy 欄位是字串，因此泛型類別應傳入 String。</p>
+<p>接著覆寫 <code>getCurrentAuditor</code> 方法，它會在資料正要被儲存時，由 Spring Data JPA 觸發。其回傳值會被賦予給具有這兩種注解的欄位。此處回傳隨機字串，當作使用者的 id。</p>
+<p>附帶一提，若讀者所開發的專案有引進 Spring Security，那就可以從「Security Context」獲取當前使用者的資訊。</p>
+<h2 id="五、共享相同的欄位設定"><a href="#五、共享相同的欄位設定" class="headerlink" title="五、共享相同的欄位設定"></a>五、共享相同的欄位設定</h2><h3 id="（一）用於嵌入欄位"><a href="#（一）用於嵌入欄位" class="headerlink" title="（一）用於嵌入欄位"></a>（一）用於嵌入欄位</h3><p>在本文第三節，我們在 Student 實體類別嵌入自定義的 Contact 類別，代表聯繫方式。</p>
+<p>Spring Data JPA 並不支援直接在 Contact 類別內部使用 <code>@Column</code> 注解來設定。因此若將 Contact 也嵌入到其他實體類別，且內部欄位的設定均相同，那麼就會持續使用 <code>@AttributeOverride</code> 注解，寫出重複的設定。</p>
+<p>但重複利用欄位設定這個想法，還是可以實現的。我們首先需建立一個父類別，將要共享的欄位抽離過去。此外，為了強調該父類別是「基底類別」，不會被用來建立物件，故宣告為抽象。</p>
+<div class="code-wrapper"><pre><code class="hljs java"><span class="hljs-meta">@MappedSuperclass</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">abstract</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">BaseContact</span> &#123;
+    
+    <span class="hljs-meta">@Column(name = &quot;contact_email&quot;, length = 50)</span>
+    <span class="hljs-keyword">private</span> String email;
+
+    <span class="hljs-meta">@Column(name = &quot;contact_phone&quot;, length = 50)</span>
+    <span class="hljs-keyword">private</span> String phone;
+    
+    <span class="hljs-comment">// getter, setter ...</span>
+&#125;</code></pre></div>
+
+<p>該基底類別冠上了 <code>@MappedSuperclass</code> 注解，用途是讓子類別繼承後，能將父類別的欄位也連動到資料庫的 table 欄位上。</p>
+<div class="code-wrapper"><pre><code class="hljs java"><span class="hljs-meta">@Embeddable</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">Contact</span> <span class="hljs-keyword">extends</span> <span class="hljs-title class_">BaseContact</span> &#123;
+&#125;</code></pre></div>
+
+<p>如此一來，在 Student 實體類別就不必透過 <code>@AttributeOverride</code> 注解來設定欄位值了。除非有少數特例需個別設定，否則可將其移除。</p>
+<h3 id="（二）用於實體類別"><a href="#（二）用於實體類別" class="headerlink" title="（二）用於實體類別"></a>（二）用於實體類別</h3><p>這個 <code>@MappedSuperclass</code> 注解，亦可用於那些實體類別都具備的欄位，例如 id、建立與更新資料的時間、建立與更新資料的人。</p>
+<p>以下針對實體類別建立了一個基底類別。</p>
+<div class="code-wrapper"><pre><code class="hljs java"><span class="hljs-meta">@MappedSuperclass</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">abstract</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">BaseEntity</span> &#123;
+
+    <span class="hljs-meta">@Id</span>
+    <span class="hljs-meta">@GeneratedValue(strategy = GenerationType.IDENTITY)</span>
+    <span class="hljs-keyword">private</span> Long id;
+
+    <span class="hljs-meta">@Column(name = &quot;created_time&quot;, nullable = false)</span>
+    <span class="hljs-meta">@CreatedDate</span>
+    <span class="hljs-keyword">private</span> LocalDateTime createdTime;
+
+    <span class="hljs-meta">@Column(name = &quot;updated_time&quot;, nullable = false)</span>
+    <span class="hljs-meta">@LastModifiedDate</span>
+    <span class="hljs-keyword">private</span> LocalDateTime updatedTime;
+
+    <span class="hljs-meta">@Column(name = &quot;created_by&quot;, nullable = false)</span>
+    <span class="hljs-meta">@CreatedBy</span>
+    <span class="hljs-keyword">private</span> String createdBy;
+
+    <span class="hljs-meta">@Column(name = &quot;updated_by&quot;, nullable = false)</span>
+    <span class="hljs-meta">@LastModifiedBy</span>
+    <span class="hljs-keyword">private</span> String updatedBy;
+
+    <span class="hljs-comment">// getter, setter ...</span>
+&#125;</code></pre></div>
+
+<p>而實體類別只要留下自身特有的欄位，並繼承該基底類別即可。一旦基底類別的設計有改動，則所有實體類別都會生效。</p>
+<div class="code-wrapper"><pre><code class="hljs java"><span class="hljs-meta">@Entity</span>
+<span class="hljs-meta">@Table(name = &quot;student&quot;)</span>
+<span class="hljs-meta">@EntityListeners(AuditingEntityListener.class)</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">Student</span> <span class="hljs-keyword">extends</span> <span class="hljs-title class_">BaseEntity</span> &#123;
+    <span class="hljs-comment">// ...</span>
+&#125;</code></pre></div>
+
+<p>本文介紹了如何透過實體類別，設計資料庫中 table 的欄位，讀者可透過重啟程式，印證 table 的變化。</p>
+<p>我們尚未印證本文第三節的 <code>AuditorAware</code> 元件，在插入或更新資料時的效果。下一篇將使用 Spring Data JPA 提供的介面，實際進行 CRUD。</p>
+<hr>
+<p>本文的完成後專案，請<a target="_blank" rel="noopener" href="https://github.com/ntub46010/SpringBootTutorial/tree/Ch09.2-mysql-column-definition-with-jpa">點我</a>。</p>
+<p>上一課：<a href="/articles/spring-boot-setup-mysql-and-introduce-jpa/" target="_blank">【Spring Boot】第9.1課－準備 MySQL 資料庫與認識 Spring Data JPA</a></p>
+<p>下一課：<a href="/articles/spring-boot-mysql-using-jpa-repository/" target="_blank">【Spring Boot】第9.3課－使用 JPA Repository 存取 MySQL 資料庫</a></p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/Spring-Boot/" class="category-chain-item">Spring Boot</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+</div>
+
+
+              
+
+              
+            </div>
+
+            <div style="padding-top: 30px;">
+              <b style="font-size: 1.5rem;">張貼留言</b>
+              <script src="https://utteranc.es/client.js"
+                repo="chikuwacode/chikuwacode.github.io"
+                issue-term="pathname"
+                theme="github-light"
+                crossorigin="anonymous"
+                async>
+              </script>
+            </div>
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+
+
+    
+
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜尋</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">關鍵字</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/5.0.0/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允許 JavaScript 運行的環境下瀏覽效果更佳</div>
+  </noscript>
+</body>
+</html>

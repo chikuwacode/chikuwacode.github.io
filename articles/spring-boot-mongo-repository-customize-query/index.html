@@ -1,0 +1,855 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-TW" >
+
+
+
+<head>
+  <meta charset="UTF-8">
+
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/logo.png">
+  <link rel="icon" href="/img/logo.png">
+  
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#a05926">
+  <meta name="author" content="Vincent">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="本文將使用 Spring Data 框架的功能，示範在 MongoRepository 中，透過方法名稱及原生語法，設計自己的的查詢條件。接著說明如何進行排序與分頁。最後簡介 MongoTemplate，藉由動態產生查詢條件，以因應多樣的需求。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="【Spring Boot】第8.3課－在 MongoRepository 定義查詢條件與排序方式">
+<meta property="og:url" content="https://ntub46010.github.io/articles/spring-boot-mongo-repository-customize-query/">
+<meta property="og:site_name" content="吉古拉的程式拾光">
+<meta property="og:description" content="本文將使用 Spring Data 框架的功能，示範在 MongoRepository 中，透過方法名稱及原生語法，設計自己的的查詢條件。接著說明如何進行排序與分頁。最後簡介 MongoTemplate，藉由動態產生查詢條件，以因應多樣的需求。">
+<meta property="og:locale" content="zh_TW">
+<meta property="og:image" content="https://ntub46010.github.io/img/index_img/spring-boot.jpg">
+<meta property="article:published_time" content="2019-06-23T00:37:56.000Z">
+<meta property="article:modified_time" content="2025-03-22T10:33:37.985Z">
+<meta property="article:author" content="Vincent">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://ntub46010.github.io/img/index_img/spring-boot.jpg">
+  
+  
+  
+  <title>【Spring Boot】第8.3課－在 MongoRepository 定義查詢條件與排序方式 | 吉古拉的程式拾光</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1736178_k526ubmyhba.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"ntub46010.github.io","root":"/","version":"1.9.8","typing":{"enable":false,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h2,h3","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":false},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"left","headingSelector":"h2,h3","collapseDepth":3},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2,"exclude":[".no-lazy"]},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":"G-BZW5S6P21Naa"},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 40vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>吉古拉的程式拾光</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>文章分類</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>關於本站</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/banner.jpg') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        
+          <div class="h2">
+            
+              <span id="subtitle">【Spring Boot】第8.3課－在 MongoRepository 定義查詢條件與排序方式</span>
+            
+          </div>
+        
+
+        
+          
+  <div class="mt-3">
+    
+    
+  </div>
+
+  <div class="mt-1">
+    
+
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="padding-left: 2rem; margin-right: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目錄</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">【Spring Boot】第8.3課－在 MongoRepository 定義查詢條件與排序方式</h1>
+            
+              <p id="updated-time" class="note note-warning" style="">
+                
+                  
+                    本文最後更新於：2025-03-22
+                  
+                
+              </p>
+            
+            
+              <div class="markdown-body">
+                
+                <p>上一篇已經介紹過 MongoRepository 內建的查詢方法，也就是用 id 欄位來查詢。但資料勢必有其他欄位，只有 id 能做為條件肯定是不夠的。</p>
+<p>本文會使用 Spring Data 框架的功能，示範如何在 repository 中設計自己的查詢條件，包含透過方法名稱及原生語法。接著說明如何進行排序與分頁。</p>
+<p>最後簡介 MongoTemplate，藉由動態產生查詢條件，以因應多樣的需求。</p>
+<hr>
+<p>本文的練習用專案，請<a target="_blank" rel="noopener" href="https://github.com/ntub46010/SpringBootTutorial/tree/Ch08.2-mongodb-repository-crud">點我</a>。</p>
+<h2 id="一、資料類別"><a href="#一、資料類別" class="headerlink" title="一、資料類別"></a>一、資料類別</h2><p>首先讓我們快速回顧上一篇要儲存到資料庫的學生資料類別。</p>
+<div class="code-wrapper"><pre><code class="hljs java"><span class="hljs-meta">@Document(collection = &quot;student&quot;)</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">Student</span> &#123;
+
+    <span class="hljs-meta">@Id</span>
+    <span class="hljs-keyword">private</span> String id;
+    <span class="hljs-keyword">private</span> String name;
+    <span class="hljs-keyword">private</span> <span class="hljs-type">int</span> grade;
+    <span class="hljs-keyword">private</span> LocalDate birthday;
+    <span class="hljs-keyword">private</span> Contact contact;
+    <span class="hljs-keyword">private</span> List&lt;Certificate&gt; certificates;
+    
+    <span class="hljs-comment">// getter, setter ...</span>
+&#125;</code></pre></div>
+
+<p>而以下分別是學生的「聯繫方式」與「證照」，屬於學生資料的內部欄位。</p>
+<div class="code-wrapper"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">Contact</span> &#123;
+    <span class="hljs-keyword">private</span> String email;
+    <span class="hljs-keyword">private</span> String phone;
+
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> Contact <span class="hljs-title function_">of</span><span class="hljs-params">(String email, String phone)</span> &#123;
+        <span class="hljs-type">var</span> <span class="hljs-variable">c</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">Contact</span>();
+        c.email = email;
+        c.phone = phone;
+        <span class="hljs-keyword">return</span> c;
+    &#125;
+
+    <span class="hljs-comment">// getter, setter ...</span>
+&#125;</code></pre></div>
+<div class="code-wrapper"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">Certificate</span> &#123;
+    <span class="hljs-keyword">private</span> String type;
+    <span class="hljs-keyword">private</span> Integer score;
+    <span class="hljs-keyword">private</span> String level;
+
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> Certificate <span class="hljs-title function_">of</span><span class="hljs-params">(String type, Integer score, String level)</span> &#123;
+        <span class="hljs-type">var</span> <span class="hljs-variable">c</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">Certificate</span>();
+        c.type = type;
+        c.score = score;
+        c.level = level;
+        <span class="hljs-keyword">return</span> c;
+    &#125;
+
+    <span class="hljs-comment">// getter, setter ...</span>
+&#125;</code></pre></div>
+<div class="code-wrapper"><pre><code class="hljs java"><span class="hljs-meta">@Repository</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">interface</span> <span class="hljs-title class_">StudentRepository</span> <span class="hljs-keyword">extends</span> <span class="hljs-title class_">MongoRepository</span>&lt;Student, String&gt; &#123;
+&#125;</code></pre></div>
+
+<h2 id="二、自定義查詢方法"><a href="#二、自定義查詢方法" class="headerlink" title="二、自定義查詢方法"></a>二、自定義查詢方法</h2><p>我們能在 StudentRepository 中，依照特定的命名規則，設計自己的查詢方法。</p>
+<p>本節挑選一部份出來示範。更多命名方式，讀者可參考 <a target="_blank" rel="noopener" href="https://docs.spring.io/spring-data/jpa/reference/jpa/query-methods.html">Spring Data JPA 官方文件</a>。雖然「JPA」是針對關聯式資料庫，但裡面的內容仍適用於 MongoDB。</p>
+<h3 id="（一）相等條件"><a href="#（一）相等條件" class="headerlink" title="（一）相等條件"></a>（一）相等條件</h3><p>以下是查詢「name」欄位值等於參數值的方法。</p>
+<div class="code-wrapper"><pre><code class="hljs java"><span class="hljs-meta">@Repository</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">interface</span> <span class="hljs-title class_">StudentRepository</span> <span class="hljs-keyword">extends</span> <span class="hljs-title class_">MongoRepository</span>&lt;Student, String&gt; &#123;
+    Student <span class="hljs-title function_">findByName</span><span class="hljs-params">(String s)</span>;
+&#125;</code></pre></div>
+
+<p>方法名稱中，在 <code>findBy</code> 後面緊接著欄位名稱。該名稱必須存在於文件的資料類別，也就是 Student 類別中，否則 Spring Boot 會啟動失敗。</p>
+<p>以下是查詢內部欄位的方法，分別是將聯繫方式與證照當作條件。</p>
+<div class="code-wrapper"><pre><code class="hljs java"><span class="hljs-meta">@Repository</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">interface</span> <span class="hljs-title class_">StudentRepository</span> <span class="hljs-keyword">extends</span> <span class="hljs-title class_">MongoRepository</span>&lt;Student, String&gt; &#123;
+    Student <span class="hljs-title function_">findByContactEmail</span><span class="hljs-params">(String s)</span>;
+    Student <span class="hljs-title function_">findByContactPhone</span><span class="hljs-params">(String s)</span>;
+    List&lt;Student&gt; <span class="hljs-title function_">findByCertificatesType</span><span class="hljs-params">(String s)</span>;
+&#125;</code></pre></div>
+
+<p>想在方法名稱中指定內部欄位，只要將欄位的「路徑」寫出即可。第 1、2 個方法分別是查詢 Contact 物件欄位中的 email 與 phone 欄位。</p>
+<p>而第 3 個方法的查詢條件，則是在 Certificates 的 List 中，只要任一元素的 type 欄位值等於參數，就算符合。</p>
+<p>至於回傳值型態，若讀者認為該條件可能會有多筆資料符合，那就可以選擇回傳 List。</p>
+<p>附帶一提，方法的參數名稱，與資料的欄位名稱並無關聯，所以不一定要取相同的名字。</p>
+<h3 id="（二）範圍條件"><a href="#（二）範圍條件" class="headerlink" title="（二）範圍條件"></a>（二）範圍條件</h3><p>以下是針對數值與日期欄位，做範圍條件的查詢。</p>
+<div class="code-wrapper"><pre><code class="hljs java"><span class="hljs-meta">@Repository</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">interface</span> <span class="hljs-title class_">StudentRepository</span> <span class="hljs-keyword">extends</span> <span class="hljs-title class_">MongoRepository</span>&lt;Student, String&gt; &#123;
+    List&lt;Student&gt; <span class="hljs-title function_">findByGradeGreaterThanEqual</span><span class="hljs-params">(<span class="hljs-type">int</span> from)</span>;
+    List&lt;Student&gt; <span class="hljs-title function_">findByGradeLessThanEqual</span><span class="hljs-params">(<span class="hljs-type">int</span> to)</span>;
+    
+    List&lt;Student&gt; <span class="hljs-title function_">findByBirthdayAfter</span><span class="hljs-params">(LocalDate from)</span>;
+    List&lt;Student&gt; <span class="hljs-title function_">findByBirthdayBefore</span><span class="hljs-params">(LocalDate to)</span>;
+&#125;</code></pre></div>
+
+<p>第 1、2 個方法，分別是查詢年級大於等於，或小於等於參數的資料。方法名稱中使用了 <code>GreaterThanEqual</code> 和 <code>LessThanEqual</code> 關鍵字。若範圍只想要大於或小於，則拿掉 <code>Equal</code> 關鍵字即可。</p>
+<p>第 3、4 個方法，分別是查詢生日在某個日期之後或之前的資料。方法名稱中使用了 <code>After</code> 和 <code>Before</code> 做為關鍵字。</p>
+<h3 id="（三）組合多個條件"><a href="#（三）組合多個條件" class="headerlink" title="（三）組合多個條件"></a>（三）組合多個條件</h3><p>查詢條件也可透過「AND」或「OR」的邏輯組合起來。</p>
+<p>以下的條件是 Contact 物件欄位中的 phone 欄位等於某個值，或 email 欄位等於某個值。</p>
+<div class="code-wrapper"><pre><code class="hljs java"><span class="hljs-meta">@Repository</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">interface</span> <span class="hljs-title class_">StudentRepository</span> <span class="hljs-keyword">extends</span> <span class="hljs-title class_">MongoRepository</span>&lt;Student, String&gt; &#123;
+    List&lt;Student&gt; <span class="hljs-title function_">findByContactEmailOrContactPhone</span><span class="hljs-params">(String email, String phone)</span>;
+&#125;</code></pre></div>
+
+<p>方法名稱中使用了 <code>Or</code> 和 <code>And</code> 關鍵字。</p>
+<p>要注意的是，透過 AND 邏輯組合查詢條件時，欄位不可重複，否則呼叫時會發生例外。舉例來說，「年級大於等於且小於等於」這項條件，不可寫成：</p>
+<div class="code-wrapper"><pre><code class="hljs java">List&lt;Student&gt; <span class="hljs-title function_">findByGradeGreaterThanEqualAndGradeLessThanEqual</span><span class="hljs-params">(<span class="hljs-type">int</span> from, <span class="hljs-type">int</span> to)</span>;</code></pre></div>
+
+<p>原因是 Spring Data 會將方法名稱解讀成類似下面的條件。</p>
+<div class="code-wrapper"><pre><code class="hljs json"><span class="hljs-punctuation">&#123;</span>
+    <span class="hljs-attr">&quot;grade&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">&#123;</span>
+        <span class="hljs-attr">&quot;gte&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-number">1</span>
+    <span class="hljs-punctuation">&#125;</span><span class="hljs-punctuation">,</span>
+    <span class="hljs-attr">&quot;grade&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">&#123;</span>
+        <span class="hljs-attr">&quot;lte&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-number">4</span>
+    <span class="hljs-punctuation">&#125;</span>
+<span class="hljs-punctuation">&#125;</span></code></pre></div>
+
+<p>在 JSON 資料中，若同一階層有相同名稱的欄位，是不合法的格式。</p>
+<p>回到範圍查詢，此時可使用 <code>Between</code> 關鍵字，並傳入 <code>Range</code> 型態的參數。</p>
+<div class="code-wrapper"><pre><code class="hljs java">List&lt;Student&gt; <span class="hljs-title function_">findByGradeBetween</span><span class="hljs-params">(Range&lt;Integer&gt; range)</span>;</code></pre></div>
+
+<p>而 <code>Range</code> 物件的建立方式為：</p>
+<div class="code-wrapper"><pre><code class="hljs java">Range&lt;Integer&gt; range = Range.of(
+    Range.Bound.inclusive(from),
+    Range.Bound.inclusive(to)
+);</code></pre></div>
+
+<h3 id="（四）原生語法"><a href="#（四）原生語法" class="headerlink" title="（四）原生語法"></a>（四）原生語法</h3><p>讀者也許會覺得上述「findByContactEmailOrContactPhone」的方法名稱有點冗長。或者有些比較複雜的條件，其實很難寫出方法名稱，甚至根本寫不出來。</p>
+<p>針對這個情形，Spring Data 也支援我們直接撰寫原生語法，而方法可隨意取名。以下的例子是將相同的查詢條件，以 MongoDB 的語法寫出。</p>
+<div class="code-wrapper"><pre><code class="hljs java"><span class="hljs-meta">@Repository</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">interface</span> <span class="hljs-title class_">StudentRepository</span> <span class="hljs-keyword">extends</span> <span class="hljs-title class_">MongoRepository</span>&lt;Student, String&gt; &#123;
+
+    <span class="hljs-meta">@Query(&quot;&quot;&quot;</span>
+<span class="hljs-meta">        &#123;</span>
+<span class="hljs-meta">            &quot;$or&quot;: [</span>
+<span class="hljs-meta">                &#123; &quot;contact.email&quot;: ?0 &#125;,</span>
+<span class="hljs-meta">                &#123; &quot;contact.phone&quot;: ?1 &#125;</span>
+<span class="hljs-meta">            ]</span>
+<span class="hljs-meta">        &#125;</span>
+<span class="hljs-meta">    &quot;&quot;&quot;)</span>
+    List&lt;Student&gt; <span class="hljs-title function_">findByContact</span><span class="hljs-params">(String email, String phone)</span>;
+&#125;</code></pre></div>
+
+<p>使用 <code>@Query</code> 注解，可以用字串的形式提供語法。而當中的「?0」、「?1」等符號，代表要取用方法的第幾個參數（位置從 0 開始算）。</p>
+<p>此外，Spring Data 並不在意語法是否換行與縮排，讀者可自行排版。</p>
+<p>以下再提供一個例子，其條件是具有某個證照，且分數大於等於某值，例如多益分數大於等於 900。</p>
+<div class="code-wrapper"><pre><code class="hljs java"><span class="hljs-meta">@Repository</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">interface</span> <span class="hljs-title class_">StudentRepository</span> <span class="hljs-keyword">extends</span> <span class="hljs-title class_">MongoRepository</span>&lt;Student, String&gt; &#123;
+    
+    <span class="hljs-meta">@Query(&quot;&quot;&quot;</span>
+<span class="hljs-meta">        &#123;</span>
+<span class="hljs-meta">            &quot;certificates&quot;: &#123;</span>
+<span class="hljs-meta">                &quot;$elemMatch&quot;: &#123;</span>
+<span class="hljs-meta">                    &quot;type&quot;: ?0,</span>
+<span class="hljs-meta">                    &quot;score&quot;: &#123; &quot;$gte&quot;: ?1 &#125;</span>
+<span class="hljs-meta">                &#125;</span>
+<span class="hljs-meta">            &#125;</span>
+<span class="hljs-meta">        &#125;</span>
+<span class="hljs-meta">    &quot;&quot;&quot;)</span>
+    List&lt;Student&gt; <span class="hljs-title function_">findByCertificateTypeAndScoreGte</span><span class="hljs-params">(String type, <span class="hljs-type">int</span> score)</span>;
+&#125;</code></pre></div>
+
+<p>要注意的一點是，假設讀者所開發的系統，未來更換資料庫了，那這些原生語法可能就得根據資料庫的種類進行重寫。而使用方法名稱定義查詢條件，則不必擔心這個問題。</p>
+<h2 id="三、排序與分頁"><a href="#三、排序與分頁" class="headerlink" title="三、排序與分頁"></a>三、排序與分頁</h2><h3 id="（一）排序"><a href="#（一）排序" class="headerlink" title="（一）排序"></a>（一）排序</h3><p>以下是根據年級做遞減排序，而沒有查詢條件。</p>
+<div class="code-wrapper"><pre><code class="hljs java"><span class="hljs-meta">@Repository</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">interface</span> <span class="hljs-title class_">StudentRepository</span> <span class="hljs-keyword">extends</span> <span class="hljs-title class_">MongoRepository</span>&lt;Student, String&gt; &#123;
+    List&lt;Student&gt; <span class="hljs-title function_">findAllByOrderByGradeDesc</span><span class="hljs-params">()</span>;
+&#125;</code></pre></div>
+
+<p>這是一種簡易的做法，直接在方法名稱加上 <code>OrderBy</code> 關鍵字，再緊接著欄位名稱與排序方向。</p>
+<p>若想要更彈性一點，可選擇在方法傳入 <code>Sort</code> 型態的參數。</p>
+<div class="code-wrapper"><pre><code class="hljs java"><span class="hljs-meta">@Repository</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">interface</span> <span class="hljs-title class_">StudentRepository</span> <span class="hljs-keyword">extends</span> <span class="hljs-title class_">MongoRepository</span>&lt;Student, String&gt; &#123;
+
+    <span class="hljs-meta">@Query(&quot;&#123;&#125;&quot;)</span>
+    List&lt;Student&gt; <span class="hljs-title function_">find</span><span class="hljs-params">(Sort sort)</span>;
+&#125;</code></pre></div>
+
+<p>在建立 <code>Sort</code> 物件時，能夠設定排序的欄位與方向。為了示範用法，以下在 Controller 準備了 API，透過 query string 接收排序方式。</p>
+<div class="code-wrapper"><pre><code class="hljs java"><span class="hljs-meta">@RestController</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">MyController</span> &#123;
+
+    <span class="hljs-meta">@Autowired</span>
+    <span class="hljs-keyword">private</span> StudentRepository studentRepository;
+    
+    <span class="hljs-meta">@GetMapping(&quot;/students&quot;)</span>
+    <span class="hljs-keyword">public</span> ResponseEntity&lt;List&lt;Student&gt;&gt; <span class="hljs-title function_">getStudents</span><span class="hljs-params">(</span>
+<span class="hljs-params">            <span class="hljs-meta">@RequestParam(required = false)</span> String sortField,</span>
+<span class="hljs-params">            <span class="hljs-meta">@RequestParam(required = false)</span> String sortDirection</span>
+<span class="hljs-params">    )</span> &#123;
+        <span class="hljs-type">Sort</span> <span class="hljs-variable">sort</span> <span class="hljs-operator">=</span> createSort(sortField, sortDirection);
+        List&lt;Student&gt; students = studentRepository.find(sort);
+
+        <span class="hljs-keyword">return</span> ResponseEntity.ok(students);
+    &#125;
+    
+    <span class="hljs-keyword">private</span> Sort <span class="hljs-title function_">createSort</span><span class="hljs-params">(String field, String direction)</span> &#123;
+        <span class="hljs-keyword">if</span> (field == <span class="hljs-literal">null</span> &amp;&amp; direction == <span class="hljs-literal">null</span>) &#123;
+            <span class="hljs-keyword">return</span> Sort.unsorted();
+        &#125;
+
+        <span class="hljs-keyword">if</span> (field == <span class="hljs-literal">null</span> ^ direction == <span class="hljs-literal">null</span>) &#123;
+            <span class="hljs-keyword">return</span> Sort.unsorted();
+        &#125;
+
+        Sort.Order order;
+        <span class="hljs-keyword">if</span> (<span class="hljs-string">&quot;asc&quot;</span>.equalsIgnoreCase(direction)) &#123;
+            order = Sort.Order.asc(field);
+        &#125; <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (<span class="hljs-string">&quot;desc&quot;</span>.equalsIgnoreCase(direction)) &#123;
+            order = Sort.Order.desc(field);
+        &#125; <span class="hljs-keyword">else</span> &#123;
+            <span class="hljs-keyword">return</span> Sort.unsorted();
+        &#125;
+
+        <span class="hljs-keyword">return</span> Sort.by(List.of(order));
+    &#125;
+&#125;</code></pre></div>
+
+<p>排序的欄位與方向必須一起提供，或兩者都不提供。若有不合理的值，則呼叫 <code>Sort.unsorted</code> 方法，視為不排序。</p>
+<p>呼叫 <code>Sort.Order.asc</code> 或 <code>Sort.Order.desc</code> 方法，並傳入欄位名稱，分別可建立遞增或遞減的排序方式，其型態為 <code>Order</code>。</p>
+<p>將一至多個 <code>Order</code> 物件傳入 <code>Sort.by</code> 方法，可得到 <code>Sort</code> 物件。它代表整體的排序規則，實現多重排序也不成問題。</p>
+<h3 id="（二）分頁"><a href="#（二）分頁" class="headerlink" title="（二）分頁"></a>（二）分頁</h3><p>當資料量太多，實務上會利用「分頁」（pagination）的做法，分批從資料庫取得資料，避免造成資料庫、應用程式或傳輸上的負擔。</p>
+<p>分頁通常會與排序一起使用。例如先將資料根據名字欄位做遞增排序，接著每 10 筆資料當作一頁。我們可選擇要取第 1 頁（第 1 ~ 10 筆）、第 2 頁（第 11 ~ 20 筆），依此類推。</p>
+<p>要透過 repository 的方法進行排序與分頁，需在方法傳入 <code>Pageable</code> 型態的參數。</p>
+<div class="code-wrapper"><pre><code class="hljs java"><span class="hljs-meta">@Repository</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">interface</span> <span class="hljs-title class_">StudentRepository</span> <span class="hljs-keyword">extends</span> <span class="hljs-title class_">MongoRepository</span>&lt;Student, String&gt; &#123;
+    
+    <span class="hljs-meta">@Query(&quot;&#123;&#125;&quot;)</span>
+    List&lt;Student&gt; <span class="hljs-title function_">find</span><span class="hljs-params">(Pageable pageable)</span>;
+&#125;</code></pre></div>
+
+<p><code>Pageable</code> 是一個介面，而 Spring Data 內建了叫做 <code>PageRequest</code> 的實作類別。</p>
+<p>呼叫 <code>PageRequest.of</code> 方法，依序傳入「第幾頁」、「每頁筆數」，以及前面提到的 <code>Sort</code> 物件，就能建立出 <code>PageRequest</code> 物件。</p>
+<div class="code-wrapper"><pre><code class="hljs java"><span class="hljs-meta">@RestController</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">MyController</span> &#123;
+
+    <span class="hljs-meta">@Autowired</span>
+    <span class="hljs-keyword">private</span> StudentRepository studentRepository;
+    
+    <span class="hljs-meta">@GetMapping(&quot;/students&quot;)</span>
+    <span class="hljs-keyword">public</span> ResponseEntity&lt;List&lt;Student&gt;&gt; <span class="hljs-title function_">getStudents</span><span class="hljs-params">(</span>
+<span class="hljs-params">            <span class="hljs-meta">@RequestParam(required = false)</span> String sortField, <span class="hljs-meta">@RequestParam(required = false)</span> String sortDirection,</span>
+<span class="hljs-params">            <span class="hljs-meta">@RequestParam(required = false)</span> Integer page, <span class="hljs-meta">@RequestParam(required = false)</span> Integer size</span>
+<span class="hljs-params">    )</span> &#123;
+        <span class="hljs-type">Sort</span> <span class="hljs-variable">sort</span> <span class="hljs-operator">=</span> createSort(sortField, sortDirection);
+        <span class="hljs-type">Pageable</span> <span class="hljs-variable">pageable</span> <span class="hljs-operator">=</span> createPageable(page, size, sort);
+        List&lt;Student&gt; students = studentRepository.find(pageable);
+
+        <span class="hljs-keyword">return</span> ResponseEntity.ok(students);
+    &#125;
+    
+    <span class="hljs-keyword">private</span> Pageable <span class="hljs-title function_">createPageable</span><span class="hljs-params">(Integer page, Integer size, Sort sort)</span> &#123;
+        <span class="hljs-keyword">if</span> (page == <span class="hljs-literal">null</span> &amp;&amp; size == <span class="hljs-literal">null</span>) &#123;
+            <span class="hljs-keyword">return</span> Pageable.unpaged(sort);
+        &#125;
+
+        <span class="hljs-keyword">if</span> (page == <span class="hljs-literal">null</span> ^ size == <span class="hljs-literal">null</span>) &#123;
+            <span class="hljs-keyword">return</span> Pageable.unpaged(sort);
+        &#125;
+
+        <span class="hljs-keyword">return</span> PageRequest.of(page, size, sort);
+    &#125;
+    
+    <span class="hljs-keyword">private</span> Sort <span class="hljs-title function_">createSort</span><span class="hljs-params">(String field, String direction)</span> &#123;
+        <span class="hljs-comment">// ...</span>
+    &#125;
+&#125;</code></pre></div>
+
+<p>分頁的頁數與每頁筆數，同樣也必須一起提供，或兩者都不提供。若有不合理的值，則呼叫 <code>Pageable.unpaged</code> 方法，視為不分頁。</p>
+<h2 id="四、因應變化多端的查詢條件"><a href="#四、因應變化多端的查詢條件" class="headerlink" title="四、因應變化多端的查詢條件"></a>四、因應變化多端的查詢條件</h2><h3 id="（一）背景"><a href="#（一）背景" class="headerlink" title="（一）背景"></a>（一）背景</h3><p>看完這篇文章後，我們在 repository 中設計了許多方法。不知讀者是否有察覺到，實務上面對不同的需求，就會有各式各樣的查詢條件，並且有不同的排序與分頁方式。</p>
+<p>舉例來說，假設有一支 API 是 <code>GET /students</code>，用途是查詢多筆資料，那它可能會支援大量的 query string。例如：信箱、手機、年級範圍、生日範圍、證照種類及其分數等。以下為示意程式。</p>
+<div class="code-wrapper"><pre><code class="hljs java"><span class="hljs-meta">@RestController</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">MyController</span> &#123;
+
+    <span class="hljs-meta">@GetMapping(&quot;/students&quot;)</span>
+    <span class="hljs-keyword">public</span> ResponseEntity&lt;List&lt;Student&gt;&gt; <span class="hljs-title function_">getStudents</span><span class="hljs-params">(<span class="hljs-meta">@ModelAttribute</span> StudentRequestParam param)</span> &#123;
+        <span class="hljs-comment">// ...</span>
+    &#125;
+&#125;</code></pre></div>
+
+<p>此處將可能收到的 query string 封裝成如下的物件：</p>
+<div class="code-wrapper"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">StudentRequestParam</span> &#123;
+    <span class="hljs-comment">// sort and pagination</span>
+    <span class="hljs-keyword">private</span> String sortField;
+    <span class="hljs-keyword">private</span> String sortDirection;
+    <span class="hljs-keyword">private</span> Integer page;
+    <span class="hljs-keyword">private</span> Integer size;
+    
+    <span class="hljs-comment">// customized parameters</span>
+    <span class="hljs-keyword">private</span> String email;
+    <span class="hljs-keyword">private</span> String phone;
+    <span class="hljs-keyword">private</span> Integer gradeFrom;
+    <span class="hljs-keyword">private</span> Integer gradeTo;
+    <span class="hljs-keyword">private</span> LocalDate birthdayFrom;
+    <span class="hljs-keyword">private</span> LocalDate birthdayTo;
+    <span class="hljs-keyword">private</span> String certType;
+    <span class="hljs-keyword">private</span> Integer certScoreFrom;
+    <span class="hljs-keyword">private</span> Integer certScoreTo;
+
+    <span class="hljs-comment">// getter, setter ...</span>
+&#125;</code></pre></div>
+
+<p>當查詢條件複雜一點，前端就會傳遞各種 query string 的組合給 API。若後端總是 case by case，在 repository 設計新方法來因應，並在程式中判斷要呼叫哪一個 repository 方法，那會沒完沒了。</p>
+<p>在商業邏輯中，透過 Spring Data 的 repository 進行簡單的查詢是很便利的。然而後端若想兼容各種 query string 的組合，條件寫死的 repository 方法有時並不好用。</p>
+<h3 id="（二）MongoTemplate-簡介"><a href="#（二）MongoTemplate-簡介" class="headerlink" title="（二）MongoTemplate 簡介"></a>（二）MongoTemplate 簡介</h3><p>根據筆者在前公司的經驗，會使用 <code>MongoTemplate</code> 元件，並搭配動態產生的條件進行複雜查詢，以下是一些用法。</p>
+<p>假設查詢條件是「2 年級的學生」，且不做排序與分頁，則示意程式如下：</p>
+<div class="code-wrapper"><pre><code class="hljs java"><span class="hljs-meta">@RestController</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">MyController</span> &#123;
+
+    <span class="hljs-meta">@Autowired</span>
+    <span class="hljs-keyword">private</span> MongoTemplate mongoTemplate;
+
+    <span class="hljs-keyword">private</span> List&lt;Student&gt; <span class="hljs-title function_">foo</span><span class="hljs-params">()</span> &#123;
+        <span class="hljs-type">Criteria</span> <span class="hljs-variable">criteria</span> <span class="hljs-operator">=</span> Criteria.where(<span class="hljs-string">&quot;grade&quot;</span>).is(<span class="hljs-number">2</span>);
+        <span class="hljs-type">Pageable</span> <span class="hljs-variable">pageable</span> <span class="hljs-operator">=</span> Pageable.unpaged();
+        <span class="hljs-type">Query</span> <span class="hljs-variable">query</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">Query</span>(criteria).with(pageable);
+
+        <span class="hljs-keyword">return</span> mongoTemplate.find(query, Student.class);
+    &#125;
+&#125;</code></pre></div>
+
+<p>假設查詢條件是「多益分數達 900 分的 1 年級學生」，則示意程式如下：</p>
+<div class="code-wrapper"><pre><code class="hljs java"><span class="hljs-meta">@RestController</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">MyController</span> &#123;
+
+    <span class="hljs-meta">@Autowired</span>
+    <span class="hljs-keyword">private</span> MongoTemplate mongoTemplate;
+
+    <span class="hljs-keyword">private</span> List&lt;Student&gt; <span class="hljs-title function_">foo</span><span class="hljs-params">()</span> &#123;
+        <span class="hljs-type">Criteria</span> <span class="hljs-variable">certCriteria</span> <span class="hljs-operator">=</span> Criteria
+                .where(<span class="hljs-string">&quot;certificates&quot;</span>)
+                .elemMatch(
+                        <span class="hljs-keyword">new</span> <span class="hljs-title class_">Criteria</span>().andOperator(
+                                Criteria.where(<span class="hljs-string">&quot;type&quot;</span>).is(<span class="hljs-string">&quot;TOEIC&quot;</span>),
+                                Criteria.where(<span class="hljs-string">&quot;score&quot;</span>).gte(<span class="hljs-number">900</span>)
+                        )
+                );
+        <span class="hljs-type">Criteria</span> <span class="hljs-variable">gradeCriteria</span> <span class="hljs-operator">=</span> Criteria.where(<span class="hljs-string">&quot;grade&quot;</span>).is(<span class="hljs-number">1</span>);
+        <span class="hljs-type">Criteria</span> <span class="hljs-variable">allCriteria</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">Criteria</span>().andOperator(List.of(gradeCriteria, certCriteria));
+        <span class="hljs-type">Query</span> <span class="hljs-variable">query</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">Query</span>(allCriteria);
+
+        <span class="hljs-keyword">return</span> mongoTemplate.find(query, Student.class);
+    &#125;
+&#125;</code></pre></div>
+
+<p>從範例中可看出，透過 Criteria 物件，能夠以程式碼動態建立出查詢條件。</p>
+<p>筆者在「<a target="_blank" rel="noopener" href="https://ithelp.ithome.com.tw/articles/10339546">【Elasticsearch】使用 Java API Client 完成簡易搜尋框架</a>」文章中，有刻過一套動態產生條件的查詢流程。以下提供當時的實作思路，供讀者參考：</p>
+<ol>
+<li>將所有 query string 封裝成一個物件，並透過 Java 的「反射」（reflection）轉換成泛用的 Map 資料結構。</li>
+<li>處理排序與分頁的 query string。</li>
+<li>處理需「客製化」的 query string，如範圍條件、內部欄位條件。</li>
+<li>其餘 query string 視為欄位的相等條件。</li>
+<li>將所有條件以 AND 邏輯串接起來。</li>
+<li>執行查詢。</li>
+</ol>
+<p>本節只是簡單介紹用法。至於 <code>MongoTemplate</code> 元件的配置方式，以及要如何開發出通用且易於擴充的查詢流程，讀者得自行去打造。</p>
+<hr>
+<p>本文的完成後專案，請<a target="_blank" rel="noopener" href="https://github.com/ntub46010/SpringBootTutorial/tree/Ch08.3-mongo-repository-customize-query">點我</a>。</p>
+<p>上一課：<a href="/articles/spring-boot-data-mongodb-repository-crud/" target="_blank">【Spring Boot】第8.2課－使用 Spring Data 存取 MongoDB 資料庫，進行基本 CRUD 操作</a></p>
+<p>下一課：<a href="/articles/spring-boot-setup-mysql-and-introduce-jpa/" target="_blank">【Spring Boot】第9.1課－準備 MySQL 資料庫與認識 Spring Data JPA</a></p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/Spring-Boot/" class="category-chain-item">Spring Boot</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+</div>
+
+
+              
+
+              
+            </div>
+
+            <div style="padding-top: 30px;">
+              <b style="font-size: 1.5rem;">張貼留言</b>
+              <script src="https://utteranc.es/client.js"
+                repo="chikuwacode/chikuwacode.github.io"
+                issue-term="pathname"
+                theme="github-light"
+                crossorigin="anonymous"
+                async>
+              </script>
+            </div>
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+
+
+    
+
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜尋</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">關鍵字</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/5.0.0/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允許 JavaScript 運行的環境下瀏覽效果更佳</div>
+  </noscript>
+</body>
+</html>

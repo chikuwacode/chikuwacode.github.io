@@ -1,0 +1,613 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-TW" >
+
+
+
+<head>
+  <meta charset="UTF-8">
+
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/logo.png">
+  <link rel="icon" href="/img/logo.png">
+  
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#a05926">
+  <meta name="author" content="Vincent">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="後端程式會透過資料庫來儲存與查詢資料。本文將介紹 MongoDB 資料庫，並在 Spring Boot 專案中進行連接。接著介紹基本語法，讓讀者知道 MongoDB 的資料與語法，是以 JSON 格式來表示。由於 JSON 格式可直接與程式物件的資料做對應，因此適合那些希望能靈活調整資料欄位的應用程式。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="【Spring Boot】第8.1課－MongoDB 介紹與準備資料庫環境">
+<meta property="og:url" content="https://ntub46010.github.io/articles/spring-boot-mongodb-introduction-and-setup/">
+<meta property="og:site_name" content="吉古拉的程式拾光">
+<meta property="og:description" content="後端程式會透過資料庫來儲存與查詢資料。本文將介紹 MongoDB 資料庫，並在 Spring Boot 專案中進行連接。接著介紹基本語法，讓讀者知道 MongoDB 的資料與語法，是以 JSON 格式來表示。由於 JSON 格式可直接與程式物件的資料做對應，因此適合那些希望能靈活調整資料欄位的應用程式。">
+<meta property="og:locale" content="zh_TW">
+<meta property="og:image" content="https://ntub46010.github.io/img/index_img/spring-boot.jpg">
+<meta property="article:published_time" content="2019-06-23T00:33:39.000Z">
+<meta property="article:modified_time" content="2025-03-22T10:33:37.985Z">
+<meta property="article:author" content="Vincent">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://ntub46010.github.io/img/index_img/spring-boot.jpg">
+  
+  
+  
+  <title>【Spring Boot】第8.1課－MongoDB 介紹與準備資料庫環境 | 吉古拉的程式拾光</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1736178_k526ubmyhba.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"ntub46010.github.io","root":"/","version":"1.9.8","typing":{"enable":false,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h2,h3","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":false},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"left","headingSelector":"h2,h3","collapseDepth":3},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2,"exclude":[".no-lazy"]},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":"G-BZW5S6P21Naa"},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 40vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>吉古拉的程式拾光</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>文章分類</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>關於本站</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/banner.jpg') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        
+          <div class="h2">
+            
+              <span id="subtitle">【Spring Boot】第8.1課－MongoDB 介紹與準備資料庫環境</span>
+            
+          </div>
+        
+
+        
+          
+  <div class="mt-3">
+    
+    
+  </div>
+
+  <div class="mt-1">
+    
+
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="padding-left: 2rem; margin-right: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目錄</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">【Spring Boot】第8.1課－MongoDB 介紹與準備資料庫環境</h1>
+            
+              <p id="updated-time" class="note note-warning" style="">
+                
+                  
+                    本文最後更新於：2025-03-22
+                  
+                
+              </p>
+            
+            
+              <div class="markdown-body">
+                
+                <p>後端程式需要透過資料庫來儲存與查詢資料。在先前的文章，範例程式都是以 Java 的 Map 資料結構來暫存，一旦重新啟動程式，資料便消失了。</p>
+<p>在第 8 課系列中，本文首先會介紹 MongoDB 這款資料庫，並在 Spring Boot 中確認可以連接上。接著介紹基本語法，讓讀者在後續的練習中，知道如何在資料庫中查看資料，以便確認結果。</p>
+<hr>
+<h2 id="一、MongoDB-介紹"><a href="#一、MongoDB-介紹" class="headerlink" title="一、MongoDB 介紹"></a>一、MongoDB 介紹</h2><h3 id="（一）什麼是-NoSQL"><a href="#（一）什麼是-NoSQL" class="headerlink" title="（一）什麼是 NoSQL"></a>（一）什麼是 NoSQL</h3><p>提到資料庫，讀者可能會先聯想到如 MySQL、SQL Server 與 Oracle 等常見的關聯式資料庫。這種資料庫，會透過資料表設計來定義資料規格。也透過約束（constraint）來要求不同表的資料必須能保持關聯。</p>
+<p>與之相對的是「NoSQL」（Not Only SQL），使用上不需要嚴格地去設計資料表和約束關係。以下列出幾種常見的 NoSQL，它們都有各自適用的場景。</p>
+<ul>
+<li>MongoDB：使用 JSON 格式儲存資料，故內容可直接與程式物件對應。適合希望能隨著需求，靈活調整資料欄位的系統。此外也易於進行「反正規化」，若設計得當，有助於應用程式更快地得到查詢結果。</li>
+<li>Redis：會以「鍵值對」（key-value pair）的形式，來儲存每一筆資料。由於運行時，資料會載入到記憶體中，因此適合作為快取的用途。</li>
+<li>Elasticsearch：同樣使用 JSON 格式儲存資料。本身是一種「全文檢索引擎」，除了一般查詢，更大的特色是提供關鍵字查詢與相關度評分的功能。適合用來開發站內搜尋與推薦系統。</li>
+</ul>
+<h3 id="（二）集合與文件"><a href="#（二）集合與文件" class="headerlink" title="（二）集合與文件"></a>（二）集合與文件</h3><p>在關聯式資料庫中，會使用「資料表」（table）來儲存資料，而一筆資料稱為「資料列」（row）。</p>
+<p>在 MongoDB 中，則使用其他名詞來表達這兩個概念。「集合」（collection）對應到資料表，而「文件」（document）對應到資料列。換句話說，文件會以 JSON 格式記錄資料內容，而集合會儲存許多文件。</p>
+<p>MongoDB 會為每一筆文件產生叫做「_id」的欄位，它相當於資料的主鍵，不會有重複值。其資料型態預設為特有的「Object Id」，值由 24 個 0～9 與 a～f 字元組成。值的產生與當下時間有關，因此有遞增的現象。</p>
+<p>後續在使用 Spring Boot 串接 MongoDB 時，文件還會被自動加入叫做「_class」的欄位，它的值會是 Java 類別的 package 路徑。這是為了在程式查詢資料時，能夠將文件內容轉換成正確的 Java 物件。</p>
+<h2 id="二、準備-MongoDB-環境"><a href="#二、準備-MongoDB-環境" class="headerlink" title="二、準備 MongoDB 環境"></a>二、準備 MongoDB 環境</h2><h3 id="（一）Docker-容器"><a href="#（一）Docker-容器" class="headerlink" title="（一）Docker 容器"></a>（一）Docker 容器</h3><p>讀者可在命令列（command line）環境下，透過 Docker 指令啟動 MongoDB 的服務。</p>
+<div class="code-wrapper"><pre><code class="hljs sh">docker run -d --name <span class="hljs-string">&quot;MongoDB_4.4.29&quot;</span> -p 27017:27017 mongo:4.4.29</code></pre></div>
+
+<p>以上取用的 MongoDB 版本為 4.4.29。容器取名為「MongoDB_4.4.29」，運行在 27017 的 port 號上。</p>
+<p>其他版本可參考 <a target="_blank" rel="noopener" href="https://hub.docker.com/_/mongo">Docker Hub</a>。關於 Docker 的操作，本文將不詳細介紹。</p>
+<h3 id="（二）圖形化介面工具"><a href="#（二）圖形化介面工具" class="headerlink" title="（二）圖形化介面工具"></a>（二）圖形化介面工具</h3><p>為了直接查詢資料庫中的資料，或者進行寫入，讀者可安裝圖形化介面（GUI）工具。本文選擇「<a target="_blank" rel="noopener" href="https://nosqlbooster.com/downloads">NoSQL Booster</a>」。</p>
+<p>開啟 GUI 後，點擊左上方的「Connect」按鈕，會出現管理資料庫連線設定的視窗。若讀者想存取不同伺服器上的資料庫，就能在這裡建立多個需要的連線（connection）。<br><img src="https://ntub46010.github.io/articles/spring-boot-mongodb-introduction-and-setup/nosqlbooster-connections.png" srcset="/img/loading.gif" lazyload></p>
+<p>按下「Create」按鈕，可填寫設定並建立一個連線。<br><img src="https://ntub46010.github.io/articles/spring-boot-mongodb-introduction-and-setup/nosqlbooster-connection-editor-basic.png" srcset="/img/loading.gif" lazyload></p>
+<p>在上圖中，「Server」欄位填寫的是資料庫的位址與 port 號。而「Name」欄位是為這個連線命名，方便我們在 GUI 辨識。</p>
+<p>最後按下「Save &amp; Connect」按鈕，就能連線到資料庫。</p>
+<h3 id="（三）建立資料庫"><a href="#（三）建立資料庫" class="headerlink" title="（三）建立資料庫"></a>（三）建立資料庫</h3><p>按下 GUI 上方的「SQL」按鈕，可開啟查詢視窗。下圖撰寫了兩句語法。<br><img src="https://ntub46010.github.io/articles/spring-boot-mongodb-introduction-and-setup/nosqlbooster-use-query-to-create-database-collection.png" srcset="/img/loading.gif" lazyload></p>
+<p>使用 <code>use</code>，可切換到指定的資料庫，即便不存在也可切換。此處選擇叫做「school」的資料庫。</p>
+<p>使用 <code>db.createCollection</code>，可在資料庫中建立集合（collection），此處建立叫做「student」的集合。</p>
+<div class="code-wrapper"><pre><code class="hljs javascript">use <span class="hljs-string">&quot;school&quot;</span>
+db.<span class="hljs-title function_">createCollection</span>(<span class="hljs-string">&quot;student&quot;</span>);</code></pre></div>
+
+<p>按下「Run」按鈕，就會執行視窗中的全部指令。由於 school 這個資料庫中開始有內容了，此時它才會被建立出來。</p>
+<p>以上這些操作，其實不透過指令，也能藉由 GUI 完成，讀者可自行探索。</p>
+<h2 id="三、準備程式專案"><a href="#三、準備程式專案" class="headerlink" title="三、準備程式專案"></a>三、準備程式專案</h2><p>本節讓我們在 Spring Boot 專案中串接資料庫。請在 pom.xml 檔案添加 MongoDB 的依賴。</p>
+<div class="code-wrapper"><pre><code class="hljs xml"><span class="hljs-tag">&lt;<span class="hljs-name">dependency</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">groupId</span>&gt;</span>org.springframework.boot<span class="hljs-tag">&lt;/<span class="hljs-name">groupId</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">artifactId</span>&gt;</span>spring-boot-starter-data-mongodb<span class="hljs-tag">&lt;/<span class="hljs-name">artifactId</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-name">dependency</span>&gt;</span></code></pre></div>
+
+<p>接著在專案的「src\main\resources」路徑下，找到「application.properties」配置檔，並在裡頭添加連線字串。以下是在本地連線到叫做「school」的資料庫。</p>
+<div class="code-wrapper"><pre><code class="hljs properties"><span class="hljs-attr">spring.data.mongodb.uri</span>=<span class="hljs-string">mongodb://localhost:27017/school</span></code></pre></div>
+
+<p>若讀者未來要在 Docker 容器中運行 Spring Boot，可能需將網域從「localhost」改為「host.docker.internal」，如下：</p>
+<div class="code-wrapper"><pre><code class="hljs properties"><span class="hljs-attr">spring.data.mongodb.uri</span>=<span class="hljs-string">mongodb://host.docker.internal:27017/school</span></code></pre></div>
+
+<p>MongoDB 的 library 會從配置檔中讀取指定 key 的設定值，做為連線字串。</p>
+<p>最後請啟動 Spring Boot。若 console 沒有出現 exception 訊息，代表有成功連線到 MongoDB 的服務。若連線不到，可能會看到如下的訊息。</p>
+<div class="code-wrapper"><pre><code class="hljs text">com.mongodb.MongoSocketOpenException: Exception opening socket
+...
+Caused by: java.net.ConnectException: Connection refused: no further information
+...</code></pre></div>
+
+<h2 id="四、基本語法介紹"><a href="#四、基本語法介紹" class="headerlink" title="四、基本語法介紹"></a>四、基本語法介紹</h2><p>為了讓讀者可以透過查詢，直接在 GUI 上確認當前資料庫中的資料，本節將介紹一些語法。在撰寫指令操作 MongoDB 時，絕大多數都是使用 Javascript 語言。</p>
+<p>以下是插入多筆資料到叫做「student」的集合。而資料庫會自動產生「_id」欄位的值。</p>
+<div class="code-wrapper"><pre><code class="hljs javascript">db.<span class="hljs-property">student</span>.<span class="hljs-title function_">insertMany</span>(
+    [
+        &#123;
+            <span class="hljs-string">&quot;name&quot;</span>: <span class="hljs-string">&quot;Vincent&quot;</span>,
+            <span class="hljs-string">&quot;majority&quot;</span>: <span class="hljs-string">&quot;資訊管理&quot;</span>,
+            <span class="hljs-string">&quot;contact&quot;</span>: &#123;
+                <span class="hljs-string">&quot;email&quot;</span>: <span class="hljs-string">&quot;vincent@school.com&quot;</span>,
+                <span class="hljs-string">&quot;phone&quot;</span>: <span class="hljs-string">&quot;0911111111&quot;</span>
+            &#125;
+        &#125;,
+        &#123;
+            <span class="hljs-string">&quot;name&quot;</span>: <span class="hljs-string">&quot;Dora&quot;</span>,
+            <span class="hljs-string">&quot;majority&quot;</span>: <span class="hljs-string">&quot;財務金融&quot;</span>,
+            <span class="hljs-string">&quot;contact&quot;</span>: &#123;
+                <span class="hljs-string">&quot;email&quot;</span>: <span class="hljs-string">&quot;dora@school.com&quot;</span>,
+                <span class="hljs-string">&quot;phone&quot;</span>: <span class="hljs-string">&quot;0922222222&quot;</span>
+            &#125;
+        &#125;
+    ]
+);</code></pre></div>
+
+<p>以下是查詢集合中的所有資料。在大括號 <code>&#123; &#125;</code> 中會寫上查詢條件，此處為無條件。</p>
+<div class="code-wrapper"><pre><code class="hljs javascript">db.<span class="hljs-property">student</span>.<span class="hljs-title function_">find</span>(&#123;&#125;);</code></pre></div>
+
+<p>以下是查詢「_id」欄位值為某個 Object Id 的資料。</p>
+<div class="code-wrapper"><pre><code class="hljs javascript">db.<span class="hljs-property">student</span>.<span class="hljs-title function_">find</span>(
+    &#123;
+        <span class="hljs-string">&quot;_id&quot;</span>: <span class="hljs-title class_">ObjectId</span>(<span class="hljs-string">&quot;6640d57d4825f6a549d85c08&quot;</span>)
+    &#125;
+);</code></pre></div>
+
+<p>以下是查詢「majority」欄位值，等於其中一個陣列元素的資料。</p>
+<div class="code-wrapper"><pre><code class="hljs javascript">db.<span class="hljs-property">student</span>.<span class="hljs-title function_">find</span>(
+    &#123;
+        <span class="hljs-string">&quot;majority&quot;</span>: &#123;
+            <span class="hljs-string">&quot;$in&quot;</span>: [<span class="hljs-string">&quot;資訊管理&quot;</span>, <span class="hljs-string">&quot;會計&quot;</span>]
+        &#125;
+    &#125;
+);</code></pre></div>
+
+<p>以下是查詢「contact」物件欄位中的「email」欄位，是某個值的資料。</p>
+<div class="code-wrapper"><pre><code class="hljs javascript">db.<span class="hljs-property">student</span>.<span class="hljs-title function_">find</span>(
+    &#123;
+        <span class="hljs-string">&quot;contact.email&quot;</span>: <span class="hljs-string">&quot;vincent@school.com&quot;</span>
+    &#125;
+);</code></pre></div>
+
+<p>以下是刪除集合中的所有資料。</p>
+<div class="code-wrapper"><pre><code class="hljs javascript">db.<span class="hljs-property">student</span>.<span class="hljs-title function_">deleteMany</span>(&#123;&#125;);</code></pre></div>
+
+
+<hr>
+<p>本文的完成後專案，請<a target="_blank" rel="noopener" href="https://github.com/ntub46010/SpringBootTutorial/tree/Ch08.1-mongodb-introduction-and-setup">點我</a>。</p>
+<p>上一課：<a href="/articles/spring-boot-construct-bean-programmatically/" target="_blank">【Spring Boot】第7課－手動進行元件的初始化</a></p>
+<p>下一課：<a href="/articles/spring-boot-data-mongodb-repository-crud/" target="_blank">【Spring Boot】第8.2課－使用 Spring Data 存取 MongoDB 資料庫，進行基本 CRUD 操作</a></p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/Spring-Boot/" class="category-chain-item">Spring Boot</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+</div>
+
+
+              
+
+              
+            </div>
+
+            <div style="padding-top: 30px;">
+              <b style="font-size: 1.5rem;">張貼留言</b>
+              <script src="https://utteranc.es/client.js"
+                repo="chikuwacode/chikuwacode.github.io"
+                issue-term="pathname"
+                theme="github-light"
+                crossorigin="anonymous"
+                async>
+              </script>
+            </div>
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+
+
+    
+
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜尋</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">關鍵字</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/5.0.0/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允許 JavaScript 運行的環境下瀏覽效果更佳</div>
+  </noscript>
+</body>
+</html>

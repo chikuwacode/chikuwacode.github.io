@@ -1,0 +1,759 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-TW" >
+
+
+
+<head>
+  <meta charset="UTF-8">
+
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/logo.png">
+  <link rel="icon" href="/img/logo.png">
+  
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#a05926">
+  <meta name="author" content="Vincent">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="準備好 MongoDB 的環境後，就能在 Spring Boot 中存取資料庫了。本文將介紹「Spring Data」這款框架，建立 ORM &#x2F; ODM 的概念。隨後透過「MongoRepository」內建的 CRUD 方法，存取資料庫。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="【Spring Boot】第8.2課－使用 Spring Data 存取 MongoDB 資料庫，進行基本 CRUD 操作">
+<meta property="og:url" content="https://ntub46010.github.io/articles/spring-boot-data-mongodb-repository-crud/">
+<meta property="og:site_name" content="吉古拉的程式拾光">
+<meta property="og:description" content="準備好 MongoDB 的環境後，就能在 Spring Boot 中存取資料庫了。本文將介紹「Spring Data」這款框架，建立 ORM &#x2F; ODM 的概念。隨後透過「MongoRepository」內建的 CRUD 方法，存取資料庫。">
+<meta property="og:locale" content="zh_TW">
+<meta property="og:image" content="https://ntub46010.github.io/img/index_img/spring-boot.jpg">
+<meta property="article:published_time" content="2024-05-20T01:00:00.000Z">
+<meta property="article:modified_time" content="2025-03-22T10:33:37.985Z">
+<meta property="article:author" content="Vincent">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://ntub46010.github.io/img/index_img/spring-boot.jpg">
+  
+  
+  
+  <title>【Spring Boot】第8.2課－使用 Spring Data 存取 MongoDB 資料庫，進行基本 CRUD 操作 | 吉古拉的程式拾光</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1736178_k526ubmyhba.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"ntub46010.github.io","root":"/","version":"1.9.8","typing":{"enable":false,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h2,h3","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":false},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"left","headingSelector":"h2,h3","collapseDepth":3},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2,"exclude":[".no-lazy"]},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":"G-BZW5S6P21Naa"},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 40vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>吉古拉的程式拾光</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>文章分類</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>關於本站</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/banner.jpg') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        
+          <div class="h2">
+            
+              <span id="subtitle">【Spring Boot】第8.2課－使用 Spring Data 存取 MongoDB 資料庫，進行基本 CRUD 操作</span>
+            
+          </div>
+        
+
+        
+          
+  <div class="mt-3">
+    
+    
+  </div>
+
+  <div class="mt-1">
+    
+
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="padding-left: 2rem; margin-right: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目錄</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">【Spring Boot】第8.2課－使用 Spring Data 存取 MongoDB 資料庫，進行基本 CRUD 操作</h1>
+            
+              <p id="updated-time" class="note note-warning" style="">
+                
+                  
+                    本文最後更新於：2025-03-22
+                  
+                
+              </p>
+            
+            
+              <div class="markdown-body">
+                
+                <p>準備好 MongoDB 的環境後，就能在 Spring Boot 中存取資料庫了。本文首先會展示要儲存的資料內容，接著介紹「Spring Data」框架的特色。</p>
+<p>隨後透過「MongoRepository」內建的 CRUD 方法存取資料庫，而下一篇才會介紹自定義查詢條件的方式。</p>
+<hr>
+<p>本文的練習用專案，請<a target="_blank" rel="noopener" href="https://github.com/ntub46010/SpringBootTutorial/tree/Ch08.1-mongodb-introduction-and-setup">點我</a>。</p>
+<h2 id="一、資料類別"><a href="#一、資料類別" class="headerlink" title="一、資料類別"></a>一、資料類別</h2><p>以下是自定義的類別，叫做「Student」，用來描述學生資料。</p>
+<div class="code-wrapper"><pre><code class="hljs java"><span class="hljs-meta">@Document(collection = &quot;student&quot;)</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">Student</span> &#123;
+
+    <span class="hljs-meta">@Id</span>
+    <span class="hljs-keyword">private</span> String id;
+    <span class="hljs-keyword">private</span> String name;
+    <span class="hljs-keyword">private</span> <span class="hljs-type">int</span> grade;
+    <span class="hljs-keyword">private</span> LocalDate birthday;
+    <span class="hljs-keyword">private</span> Contact contact;
+    <span class="hljs-keyword">private</span> List&lt;Certificate&gt; certificates;
+    
+    <span class="hljs-comment">// getter, setter ...</span>
+&#125;</code></pre></div>
+
+<p>這個類別冠上了 <code>@Document</code> 注解，代表它是資料庫中的「文件」。並透過 <code>collection</code> 參數，指定「集合」的名稱。參數請不要誤寫成「collation」了。</p>
+<p>類別中包含 id、名字、年級、生日、聯繫方式與證照，共 6 個欄位。其中 id 欄位冠上了 <code>@Id</code> 注解，代表它在資料庫中對應到文件的主鍵欄位。</p>
+<p>以下的「Contact」類別是描述聯繫方式，包含信箱與電話這 2 個欄位。</p>
+<div class="code-wrapper"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">Contact</span> &#123;
+    <span class="hljs-keyword">private</span> String email;
+    <span class="hljs-keyword">private</span> String phone;
+
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> Contact <span class="hljs-title function_">of</span><span class="hljs-params">(String email, String phone)</span> &#123;
+        <span class="hljs-type">var</span> <span class="hljs-variable">c</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">Contact</span>();
+        c.email = email;
+        c.phone = phone;
+        <span class="hljs-keyword">return</span> c;
+    &#125;
+
+    <span class="hljs-comment">// getter, setter ...</span>
+&#125;</code></pre></div>
+
+<p>以下的「Certificate」類別是描述證照，包含種類、分數與等級這 3 個欄位。</p>
+<div class="code-wrapper"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">Certificate</span> &#123;
+    <span class="hljs-keyword">private</span> String type;
+    <span class="hljs-keyword">private</span> Integer score;
+    <span class="hljs-keyword">private</span> String level;
+
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> Certificate <span class="hljs-title function_">of</span><span class="hljs-params">(String type, Integer score, String level)</span> &#123;
+        <span class="hljs-type">var</span> <span class="hljs-variable">c</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">Certificate</span>();
+        c.type = type;
+        c.score = score;
+        c.level = level;
+        <span class="hljs-keyword">return</span> c;
+    &#125;
+
+    <span class="hljs-comment">// getter, setter ...</span>
+&#125;</code></pre></div>
+
+<p>本文會將 Student 類別的物件，儲存到 MongoDB 資料庫。</p>
+<h2 id="二、認識-Spring-Data-框架"><a href="#二、認識-Spring-Data-框架" class="headerlink" title="二、認識 Spring Data 框架"></a>二、認識 Spring Data 框架</h2><h3 id="（一）建立-Repository-介面"><a href="#（一）建立-Repository-介面" class="headerlink" title="（一）建立 Repository 介面"></a>（一）建立 Repository 介面</h3><p>如果讀者有用過 JDBC（Java Database Connectivity），應該對存取資料庫的程式流程還留有一點印象，大致包含以下步驟：</p>
+<ol>
+<li>建立資料庫連線。</li>
+<li>撰寫原生 SQL 語法。</li>
+<li>將查詢結果（Result Set），轉換成商業邏輯要用的程式物件。</li>
+<li>釋放資源。</li>
+</ol>
+<p>由於太過繁瑣，於是「Spring Data」這套框架封裝了此過程，讓開發者能更輕鬆地存取資料庫。上一篇在 pom.xml 檔案中添加的「spring-boot-starter-data-mongodb」依賴，就是 Spring Data 的產品之一。</p>
+<div class="code-wrapper"><pre><code class="hljs xml"><span class="hljs-tag">&lt;<span class="hljs-name">dependency</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">groupId</span>&gt;</span>org.springframework.boot<span class="hljs-tag">&lt;/<span class="hljs-name">groupId</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">artifactId</span>&gt;</span>spring-boot-starter-data-mongodb<span class="hljs-tag">&lt;/<span class="hljs-name">artifactId</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-name">dependency</span>&gt;</span></code></pre></div>
+
+<p>在<a href="/articles/spring-boot-bean-ioc-di-and-swap/" target="_blank">第 5 課</a>，我們有練習建立一個「ProductRepository」介面，將其注入到商業邏輯中。該介面有 2 種實作類別，分別用 List 與 Map 結構來儲存測試資料。</p>
+<p>本節會建立一個特殊的介面，定位與上述的 ProductRepository 相同。但我們不必親自實作它，而是交給框架處理。</p>
+<div class="code-wrapper"><pre><code class="hljs java"><span class="hljs-meta">@Repository</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">interface</span> <span class="hljs-title class_">StudentRepository</span> <span class="hljs-keyword">extends</span> <span class="hljs-title class_">MongoRepository</span>&lt;Student, String&gt; &#123;
+&#125;</code></pre></div>
+
+<p>這個「StudentRepository」介面繼承了 <code>MongoRepository</code> 介面，且傳入兩個泛型類別，分別是文件與主鍵的類別。其中主鍵的類別，必須與上述 Student 資料類別中的 id 欄位相同。</p>
+<h3 id="（二）查詢語法與物件對映"><a href="#（二）查詢語法與物件對映" class="headerlink" title="（二）查詢語法與物件對映"></a>（二）查詢語法與物件對映</h3><p>使用 Spring Data 時，我們最直接感受到的好處，就是「產生查詢語法」與「物件對映」。</p>
+<p>在 <code>MongoRepository</code> 介面，以及它的父介面中，已經有內建一些基本方法。舉例來說，我們可以將 Student 物件傳入 repository 的 <code>insert</code> 方法。</p>
+<p>僅僅一句程式，Spring Data 就會產生如下的 MongoDB 操作：</p>
+<div class="code-wrapper"><pre><code class="hljs javascript">db.<span class="hljs-property">student</span>.<span class="hljs-title function_">insert</span>(
+    &#123;
+        <span class="hljs-string">&quot;name&quot;</span>: <span class="hljs-string">&quot;Vincent&quot;</span>,
+        <span class="hljs-string">&quot;grade&quot;</span>: <span class="hljs-number">2</span>
+        <span class="hljs-string">&quot;contact&quot;</span>: &#123;
+            <span class="hljs-string">&quot;email&quot;</span>: <span class="hljs-string">&quot;vincent@school.com&quot;</span>,
+            <span class="hljs-string">&quot;phone&quot;</span>: <span class="hljs-string">&quot;0911111111&quot;</span>
+        &#125;
+    &#125;
+);</code></pre></div>
+
+<p>此時該方法會回傳插入成功的文件資料，且包含由 MongoDB 產生的 id。</p>
+<p>又或者是呼叫 <code>findById</code> 方法，則會產生如下的操作：</p>
+<div class="code-wrapper"><pre><code class="hljs javascript">db.<span class="hljs-property">student</span>.<span class="hljs-title function_">find</span>(
+    &#123;
+        <span class="hljs-string">&quot;_id&quot;</span>: <span class="hljs-title class_">ObjectId</span>(<span class="hljs-string">&quot;...&quot;</span>)
+    &#125;
+);</code></pre></div>
+
+<p>此時該方法除了回傳符合條件的結果，更重要的是文件資料會被轉換成 Java 物件，也就是 Student。</p>
+<p>資料庫中的資料，與程式物件互相轉換，這項技術在關聯式資料庫稱為「物件關聯對映」（Object-Relational Mapping，ORM）。而在 MongoDB 則稱為「物件文件對映」（Object-Document Mapping，ODM）。</p>
+<p>從上面這兩個例子，我們可看出 Spring Data 會解讀 repository 的方法定義，產生對應的資料庫語法。而在下一篇，讀者也能依照命名規則，設計出自己的查詢方法，讓操作更簡單。</p>
+<h2 id="三、使用-MongoRepository"><a href="#三、使用-MongoRepository" class="headerlink" title="三、使用 MongoRepository"></a>三、使用 MongoRepository</h2><p>本節讓我們來實際使用 <code>MongoRepository</code> 提供的內建方法。</p>
+<p>為了在程式中有地方呼叫 StudentRepository，讀者可在 Controller 準備 API，屆時便能搭配如 Postman 之類的工具，對後端發送 request。</p>
+<h3 id="（一）插入資料"><a href="#（一）插入資料" class="headerlink" title="（一）插入資料"></a>（一）插入資料</h3><p>以下提供一支 API，用來建立學生資料。</p>
+<div class="code-wrapper"><pre><code class="hljs java"><span class="hljs-meta">@RestController</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">MyController</span> &#123;
+
+    <span class="hljs-meta">@Autowired</span>
+    <span class="hljs-keyword">private</span> StudentRepository studentRepository;
+    
+    <span class="hljs-meta">@PostMapping(&quot;/students&quot;)</span>
+    <span class="hljs-keyword">public</span> ResponseEntity&lt;Void&gt; <span class="hljs-title function_">createStudent</span><span class="hljs-params">(<span class="hljs-meta">@RequestBody</span> Student student)</span> &#123;
+        student.setId(<span class="hljs-literal">null</span>);
+        studentRepository.insert(student);
+
+        <span class="hljs-type">URI</span> <span class="hljs-variable">uri</span> <span class="hljs-operator">=</span> ServletUriComponentsBuilder
+                .fromCurrentRequestUri()
+                .path(<span class="hljs-string">&quot;/&#123;id&#125;&quot;</span>)
+                .build(Map.of(<span class="hljs-string">&quot;id&quot;</span>, student.getId()));
+
+        <span class="hljs-keyword">return</span> ResponseEntity.created(uri).build();
+    &#125;
+&#125;</code></pre></div>
+
+<p>呼叫 <code>insert</code> 方法即可插入資料。若該資料沒有 id 的值，則 MongoDB 將自行產生。若 id 發生重複，則會拋出 <code>DuplicatedKeyException</code> 例外。</p>
+<p>該方法最後會回傳含有 id 的資料，此處組出 <code>URI</code>，附加到 response header，讓 API 回傳。</p>
+<h3 id="（二）取得資料"><a href="#（二）取得資料" class="headerlink" title="（二）取得資料"></a>（二）取得資料</h3><p>以下是查詢指定 id 的資料，呼叫 <code>findById</code> 方法即可。</p>
+<div class="code-wrapper"><pre><code class="hljs java"><span class="hljs-meta">@RestController</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">MyController</span> &#123;
+
+    <span class="hljs-meta">@Autowired</span>
+    <span class="hljs-keyword">private</span> StudentRepository studentRepository;
+        
+    <span class="hljs-meta">@GetMapping(&quot;/students/&#123;id&#125;&quot;)</span>
+    <span class="hljs-keyword">public</span> ResponseEntity&lt;Student&gt; <span class="hljs-title function_">getStudent</span><span class="hljs-params">(<span class="hljs-meta">@PathVariable</span> String id)</span> &#123;
+        Optional&lt;Student&gt; studentOp = studentRepository.findById(id);
+        <span class="hljs-keyword">return</span> studentOp.isPresent()
+                ? ResponseEntity.ok(studentOp.get())
+                : ResponseEntity.notFound().build();
+    &#125;
+&#125;</code></pre></div>
+
+<p>以下是給予 List，查詢多筆指定 id 的資料。呼叫 <code>findAllById</code> 方法即可。</p>
+<div class="code-wrapper"><pre><code class="hljs java"><span class="hljs-meta">@RestController</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">MyController</span> &#123;
+
+    <span class="hljs-meta">@Autowired</span>
+    <span class="hljs-keyword">private</span> StudentRepository studentRepository;
+        
+    <span class="hljs-meta">@GetMapping(&quot;/students/ids&quot;)</span>
+    <span class="hljs-keyword">public</span> ResponseEntity&lt;List&lt;Student&gt;&gt; <span class="hljs-title function_">getStudents</span><span class="hljs-params">(<span class="hljs-meta">@RequestParam</span> List&lt;String&gt; idList)</span> &#123;
+        List&lt;Student&gt; students = studentRepository.findAllById(idList);
+        <span class="hljs-keyword">return</span> ResponseEntity.ok(students);
+    &#125;
+&#125;</code></pre></div>
+
+<p>攜帶 query string 存取此 API 的方式，示意如下：</p>
+<div class="code-wrapper"><pre><code class="hljs text">GET /students/ids?idList=111,222,333</code></pre></div>
+
+<p>雖然在資料庫中，文件主鍵的欄位名稱為「_id」，且型態是 Object Id，但 MongoDB 會做這部份的轉換，所以讀者不用特別做處理。</p>
+<h3 id="（三）更新資料"><a href="#（三）更新資料" class="headerlink" title="（三）更新資料"></a>（三）更新資料</h3><p>以下是更新指定 id 的資料。</p>
+<div class="code-wrapper"><pre><code class="hljs java"><span class="hljs-meta">@RestController</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">MyController</span> &#123;
+
+    <span class="hljs-meta">@Autowired</span>
+    <span class="hljs-keyword">private</span> StudentRepository studentRepository;
+    
+    <span class="hljs-meta">@PutMapping(&quot;/students/&#123;id&#125;&quot;)</span>
+    <span class="hljs-keyword">public</span> ResponseEntity&lt;Void&gt; <span class="hljs-title function_">updateStudent</span><span class="hljs-params">(</span>
+<span class="hljs-params">            <span class="hljs-meta">@PathVariable</span> String id, <span class="hljs-meta">@RequestBody</span> Student request</span>
+<span class="hljs-params">    )</span> &#123;
+        Optional&lt;Student&gt; studentOp = studentRepository.findById(id);
+        <span class="hljs-keyword">if</span> (studentOp.isEmpty()) &#123;
+            <span class="hljs-keyword">return</span> ResponseEntity.notFound().build();
+        &#125;
+
+        <span class="hljs-type">Student</span> <span class="hljs-variable">student</span> <span class="hljs-operator">=</span> studentOp.get();
+        student.setName(request.getName());
+        student.setGrade(request.getGrade());
+        student.setBirthday(request.getBirthday());
+        student.setContact(request.getContact());
+        student.setCertificates(request.getCertificates());
+        studentRepository.save(student);
+
+        <span class="hljs-keyword">return</span> ResponseEntity.noContent().build();
+    &#125;
+&#125;</code></pre></div>
+
+<p>在邏輯中，我們先判斷該筆資料是否存在。是的話，就將 request 中的資料更新上去，最後呼叫 <code>save</code> 方法儲存。</p>
+<p>這個 <code>save</code> 方法，其實是「upsert」的性質。也就是說，若 id 所對應的資料存在，便進行覆蓋，否則視為插入新資料。</p>
+<h3 id="（四）刪除資料"><a href="#（四）刪除資料" class="headerlink" title="（四）刪除資料"></a>（四）刪除資料</h3><p>以下是刪除指定 id 的資料，呼叫 <code>deleteById</code> 方法即可。</p>
+<div class="code-wrapper"><pre><code class="hljs java"><span class="hljs-meta">@RestController</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">MyController</span> &#123;
+
+    <span class="hljs-meta">@Autowired</span>
+    <span class="hljs-keyword">private</span> StudentRepository studentRepository;
+
+    <span class="hljs-meta">@DeleteMapping(&quot;/students/&#123;id&#125;&quot;)</span>
+    <span class="hljs-keyword">public</span> ResponseEntity&lt;Void&gt; <span class="hljs-title function_">deleteStudent</span><span class="hljs-params">(<span class="hljs-meta">@PathVariable</span> String id)</span> &#123;
+        studentRepository.deleteById(id);
+        <span class="hljs-keyword">return</span> ResponseEntity.noContent().build();
+    &#125;
+&#125;</code></pre></div>
+
+<h2 id="四、測試資料"><a href="#四、測試資料" class="headerlink" title="四、測試資料"></a>四、測試資料</h2><p>以下提供一支 API，用途是在資料庫插入 3 筆測試資料。若讀者有需要，可以先準備起來，方便下一篇的練習，</p>
+<div class="code-wrapper"><pre><code class="hljs java"><span class="hljs-meta">@RestController</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">MyController</span> &#123;
+
+    <span class="hljs-meta">@Autowired</span>
+    <span class="hljs-keyword">private</span> StudentRepository studentRepository;
+    
+    <span class="hljs-meta">@PostMapping(&quot;/students/reset&quot;)</span>
+    <span class="hljs-keyword">public</span> ResponseEntity&lt;Void&gt; <span class="hljs-title function_">resetStudents</span><span class="hljs-params">()</span> &#123;
+        <span class="hljs-type">Student</span> <span class="hljs-variable">s1</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">Student</span>();
+        s1.setName(<span class="hljs-string">&quot;Vincent&quot;</span>);
+        s1.setGrade(<span class="hljs-number">2</span>);
+        s1.setBirthday(LocalDate.of(<span class="hljs-number">1996</span>, <span class="hljs-number">1</span>, <span class="hljs-number">1</span>));
+        s1.setContact(Contact.of(<span class="hljs-string">&quot;vincent@school.com&quot;</span>, <span class="hljs-string">&quot;0911111111&quot;</span>));
+        s1.setCertificates(List.of(
+                Certificate.of(<span class="hljs-string">&quot;GEPT&quot;</span>, <span class="hljs-literal">null</span>, <span class="hljs-string">&quot;Medium&quot;</span>),
+                Certificate.of(<span class="hljs-string">&quot;TOEIC&quot;</span>, <span class="hljs-number">990</span>, <span class="hljs-string">&quot;Gold&quot;</span>)
+        ));
+
+        <span class="hljs-type">Student</span> <span class="hljs-variable">s2</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">Student</span>();
+        s2.setName(<span class="hljs-string">&quot;Dora&quot;</span>);
+        s2.setGrade(<span class="hljs-number">3</span>);
+        s2.setBirthday(LocalDate.of(<span class="hljs-number">1995</span>, <span class="hljs-number">1</span>, <span class="hljs-number">1</span>));
+        s2.setContact(Contact.of(<span class="hljs-string">&quot;dora@school.com&quot;</span>, <span class="hljs-string">&quot;0922222222&quot;</span>));
+        s2.setCertificates(List.of(
+                Certificate.of(<span class="hljs-string">&quot;TOEFL&quot;</span>, <span class="hljs-number">85</span>, <span class="hljs-literal">null</span>),
+                Certificate.of(<span class="hljs-string">&quot;TOEIC&quot;</span>, <span class="hljs-number">900</span>, <span class="hljs-string">&quot;Gold&quot;</span>)
+        ));
+
+        <span class="hljs-type">Student</span> <span class="hljs-variable">s3</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">Student</span>();
+        s3.setName(<span class="hljs-string">&quot;Ivy&quot;</span>);
+        s3.setGrade(<span class="hljs-number">4</span>);
+        s3.setBirthday(LocalDate.of(<span class="hljs-number">1994</span>, <span class="hljs-number">1</span>, <span class="hljs-number">1</span>));
+        s3.setContact(Contact.of(<span class="hljs-string">&quot;ivy@school.com&quot;</span>, <span class="hljs-string">&quot;0933333333&quot;</span>));
+        s3.setCertificates(List.of(
+                Certificate.of(<span class="hljs-string">&quot;IELTS&quot;</span>, <span class="hljs-number">5</span>, <span class="hljs-literal">null</span>)
+        ));
+
+        studentRepository.deleteAll();
+        studentRepository.insert(List.of(s1, s2, s3));
+        <span class="hljs-keyword">return</span> ResponseEntity.noContent().build();
+    &#125;
+&#125;</code></pre></div>
+
+<p>此處會呼叫 <code>deleteAll</code> 方法，刪除 collection 中的所有資料。接著再呼叫另一個多載的 <code>insert</code> 方法，插入多筆資料。</p>
+<p>下圖是透過 GUI 工具「NoSQLBooster」查詢到的內容。<br><img src="https://ntub46010.github.io/articles/spring-boot-data-mongodb-repository-crud/nosqlbooster-find-documents.png" srcset="/img/loading.gif" lazyload></p>
+<p>可確認到 MongoDB 會自動產生「_id」欄位，其型態為 Object Id。</p>
+<p>到目前為止，都是使用 <code>MongoRepository</code> 內建的方法存取資料庫。下一篇將說明如何設計自己的查詢條件，以及排序方式。</p>
+<hr>
+<p>本文的完成後專案，請<a target="_blank" rel="noopener" href="https://github.com/ntub46010/SpringBootTutorial/tree/Ch08.2-mongodb-repository-crud">點我</a>。</p>
+<p>上一課：<a href="/articles/spring-boot-mongodb-introduction-and-setup/" target="_blank">【Spring Boot】第8.1課－MongoDB 介紹與準備資料庫環境</a></p>
+<p>下一課：<a href="/articles/spring-boot-mongo-repository-customize-query/" target="_blank">【Spring Boot】第8.3課－在 MongoRepository 定義查詢條件與排序方式</a></p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/Spring-Boot/" class="category-chain-item">Spring Boot</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+</div>
+
+
+              
+
+              
+            </div>
+
+            <div style="padding-top: 30px;">
+              <b style="font-size: 1.5rem;">張貼留言</b>
+              <script src="https://utteranc.es/client.js"
+                repo="chikuwacode/chikuwacode.github.io"
+                issue-term="pathname"
+                theme="github-light"
+                crossorigin="anonymous"
+                async>
+              </script>
+            </div>
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+
+
+    
+
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜尋</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">關鍵字</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/5.0.0/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允許 JavaScript 運行的環境下瀏覽效果更佳</div>
+  </noscript>
+</body>
+</html>

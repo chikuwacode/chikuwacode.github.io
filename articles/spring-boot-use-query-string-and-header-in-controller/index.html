@@ -1,0 +1,742 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-TW" >
+
+
+
+<head>
+  <meta charset="UTF-8">
+
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/logo.png">
+  <link rel="icon" href="/img/logo.png">
+  
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#a05926">
+  <meta name="author" content="Vincent">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="本文將繼續介紹 Controller 的其他細節。首先是接收 query string，進行條件篩選與排序。接著是 header 的處理，包含接收指定名稱的 request header，以及產生 URI，在 response header 提供 Location。最後提供幾項實用的技巧來簡化程式碼。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="【Spring Boot】第3.2課－在 Controller 接收 query string 與操作 header">
+<meta property="og:url" content="https://ntub46010.github.io/articles/spring-boot-use-query-string-and-header-in-controller/">
+<meta property="og:site_name" content="吉古拉的程式拾光">
+<meta property="og:description" content="本文將繼續介紹 Controller 的其他細節。首先是接收 query string，進行條件篩選與排序。接著是 header 的處理，包含接收指定名稱的 request header，以及產生 URI，在 response header 提供 Location。最後提供幾項實用的技巧來簡化程式碼。">
+<meta property="og:locale" content="zh_TW">
+<meta property="og:image" content="https://ntub46010.github.io/img/index_img/spring-boot.jpg">
+<meta property="article:published_time" content="2019-05-26T08:12:50.000Z">
+<meta property="article:modified_time" content="2025-03-31T14:45:52.364Z">
+<meta property="article:author" content="Vincent">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://ntub46010.github.io/img/index_img/spring-boot.jpg">
+  
+  
+  
+  <title>【Spring Boot】第3.2課－在 Controller 接收 query string 與操作 header | 吉古拉的程式拾光</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1736178_k526ubmyhba.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"ntub46010.github.io","root":"/","version":"1.9.8","typing":{"enable":false,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h2,h3","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":false},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"left","headingSelector":"h2,h3","collapseDepth":3},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2,"exclude":[".no-lazy"]},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":"G-BZW5S6P21Naa"},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 40vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>吉古拉的程式拾光</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>文章分類</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>關於本站</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/banner.jpg') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        
+          <div class="h2">
+            
+              <span id="subtitle">【Spring Boot】第3.2課－在 Controller 接收 query string 與操作 header</span>
+            
+          </div>
+        
+
+        
+          
+  <div class="mt-3">
+    
+    
+  </div>
+
+  <div class="mt-1">
+    
+
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="padding-left: 2rem; margin-right: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目錄</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">【Spring Boot】第3.2課－在 Controller 接收 query string 與操作 header</h1>
+            
+              <p id="updated-time" class="note note-warning" style="">
+                
+                  
+                    本文最後更新於：2025-03-31
+                  
+                
+              </p>
+            
+            
+              <div class="markdown-body">
+                
+                <p>完成<a href="/articles/spring-boot-implement-restful-api-in-controller/" target="_blank">第 3.1 課</a>後，相信讀者已經知道如何在 Controller 設計 API。本文將繼續介紹其他可以實作的細節。</p>
+<p>首先是接收查詢字串（query string），進行條件篩選與排序，回傳多筆資料。接著是標頭（header）的處理，包含接收指定名稱的 request header，以及回傳 Location。最後提供幾項實用的做法，讓 Controller 的程式碼更簡潔。</p>
+<hr>
+<p>本文的練習用專案，請<a target="_blank" rel="noopener" href="https://github.com/ntub46010/SpringBootTutorial/tree/Ch03.1-implement-restful-api-in-controller">點我</a>。</p>
+<h2 id="一、範例專案介紹"><a href="#一、範例專案介紹" class="headerlink" title="一、範例專案介紹"></a>一、範例專案介紹</h2><p>首先回顧一下練習用專案中的測試資料和 Controller。</p>
+<p>以下的自訂類別，描述了產品的編號、名稱與價格，會作為測試資料。</p>
+<div class="code-wrapper"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">Product</span> &#123;
+    <span class="hljs-keyword">private</span> String id;
+    <span class="hljs-keyword">private</span> String name;
+    <span class="hljs-keyword">private</span> <span class="hljs-type">int</span> price;
+
+    <span class="hljs-comment">// getter, setter ...</span>
+&#125;</code></pre></div>
+
+<p>以下是 Controller，由於沒有串接真實的 DB，因此將測試資料存放在 Java 的 Map 資料結構中。</p>
+<div class="code-wrapper"><pre><code class="hljs java"><span class="hljs-meta">@RestController</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">ProductController</span> &#123;
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">final</span> Map&lt;String, Product&gt; productMap = <span class="hljs-keyword">new</span> <span class="hljs-title class_">HashMap</span>&lt;&gt;();
+
+    <span class="hljs-keyword">static</span> &#123;
+        Stream.of(
+                Product.of(<span class="hljs-string">&quot;B1&quot;</span>, <span class="hljs-string">&quot;Android Development (Java)&quot;</span>, <span class="hljs-number">380</span>),
+                Product.of(<span class="hljs-string">&quot;B2&quot;</span>, <span class="hljs-string">&quot;Android Development (Kotlin)&quot;</span>, <span class="hljs-number">420</span>),
+                Product.of(<span class="hljs-string">&quot;B3&quot;</span>, <span class="hljs-string">&quot;Data Structure (Java)&quot;</span>, <span class="hljs-number">250</span>),
+                Product.of(<span class="hljs-string">&quot;B4&quot;</span>, <span class="hljs-string">&quot;Finance Management&quot;</span>, <span class="hljs-number">450</span>),
+                Product.of(<span class="hljs-string">&quot;B5&quot;</span>, <span class="hljs-string">&quot;Human Resource Management&quot;</span>, <span class="hljs-number">330</span>)
+        ).forEach(p -&gt; productMap.put(p.getId(), p));
+    &#125;
+
+    <span class="hljs-comment">// TODO</span>
+&#125;</code></pre></div>
+
+<h2 id="二、接收查詢字串"><a href="#二、接收查詢字串" class="headerlink" title="二、接收查詢字串"></a>二、接收查詢字串</h2><h3 id="（一）範例說明"><a href="#（一）範例說明" class="headerlink" title="（一）範例說明"></a>（一）範例說明</h3><p>延續練習用專案，本節讓我們實作新的 API。它能接收端點（endpoint）上的查詢字串（query string），對測試資料 Product 進行搜尋與排序。</p>
+<p>筆者設計了三個查詢字串。</p>
+<ul>
+<li>searchKey：搜尋的關鍵字。本文支援搜尋「id」與「name」欄位。</li>
+<li>sortField：用來排序的欄位。本文支援「name」與「price」。</li>
+<li>sortDir：排序的方向。僅支援「asc」（遞增）與「desc」（遞減）。</li>
+</ul>
+<p>舉例來說，若想以「manage」關鍵字搜尋，並以價格遞增排序，則 endpoint 寫法為：<br><code>GET /products?searchKey=manage&amp;sortField=price&amp;sortDir=asc</code>。</p>
+<h3 id="（二）宣告-API"><a href="#（二）宣告-API" class="headerlink" title="（二）宣告 API"></a>（二）宣告 API</h3><p>了解需求後，就能開始實作了。以下是在 Controller 先宣告 API 的處理方法。</p>
+<div class="code-wrapper"><pre><code class="hljs java"><span class="hljs-meta">@RestController</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">ProductController</span> &#123;
+    <span class="hljs-comment">// ...</span>
+
+    <span class="hljs-meta">@GetMapping(&quot;/products&quot;)</span>
+    <span class="hljs-keyword">public</span> ResponseEntity&lt;List&lt;Product&gt;&gt; <span class="hljs-title function_">getProducts</span><span class="hljs-params">(</span>
+<span class="hljs-params">            <span class="hljs-meta">@RequestParam(value = &quot;searchKey&quot;, required = false, defaultValue = &quot;&quot;)</span> String keyword,</span>
+<span class="hljs-params">            <span class="hljs-meta">@RequestParam(value = &quot;sortField&quot;, required = false)</span> String sortField,</span>
+<span class="hljs-params">            <span class="hljs-meta">@RequestParam(value = &quot;sortDir&quot;, required = false)</span>String sortDir</span>
+<span class="hljs-params">    )</span> &#123;
+        <span class="hljs-comment">// TODO</span>
+        <span class="hljs-keyword">return</span> <span class="hljs-literal">null</span>;
+    &#125;
+&#125;</code></pre></div>
+
+<p>這個方法的三個參數，分別對應到上述的搜尋關鍵字、排序欄位與方向，且都冠上了 <code>@RequestParam</code> 注解。</p>
+<p>該注解又可再傳入多個參數，用途說明如下。</p>
+<ul>
+<li><code>value</code>：指定要接收 endpoint 上的哪一個 query string。好處是方法參數與 query string 可分開取名，不必使用相同的名稱。否則預設將會與方法參數一樣。</li>
+<li><code>required</code>：設定該 query string 是否為必填。預設為 true，若前端未提供，後端會自動回應 HTTP 400 狀態碼（Bad Request）。</li>
+<li><code>defaultValue</code>：若前端未提供 query string，可在此定義預設值。</li>
+</ul>
+<p>最後，由於這支 API 會回傳多筆資料，而且可能有順序性，所以回傳值的 <code>ResponseEntity</code>，其泛型類別給予的是 List。</p>
+<h3 id="（三）實作程式邏輯"><a href="#（三）實作程式邏輯" class="headerlink" title="（三）實作程式邏輯"></a>（三）實作程式邏輯</h3><p>本文的範例程式並未串接真實的 DB，故透過 Java 的「stream」 API 來進行操作。</p>
+<div class="code-wrapper"><pre><code class="hljs java"><span class="hljs-meta">@RestController</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">ProductController</span> &#123;
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">final</span> Map&lt;String, Product&gt; productMap = <span class="hljs-keyword">new</span> <span class="hljs-title class_">HashMap</span>&lt;&gt;();
+
+    <span class="hljs-meta">@GetMapping(&quot;/products&quot;)</span>
+    <span class="hljs-keyword">public</span> ResponseEntity&lt;List&lt;Product&gt;&gt; <span class="hljs-title function_">getProducts</span><span class="hljs-params">(</span>
+<span class="hljs-params">            <span class="hljs-meta">@RequestParam(value = &quot;searchKey&quot;, required = false, defaultValue = &quot;&quot;)</span> String keyword,</span>
+<span class="hljs-params">            <span class="hljs-meta">@RequestParam(value = &quot;sortField&quot;, required = false)</span> String sortField,</span>
+<span class="hljs-params">            <span class="hljs-meta">@RequestParam(value = &quot;sortDir&quot;, required = false)</span> String sortDir</span>
+<span class="hljs-params">    )</span> &#123;
+        <span class="hljs-comment">// 準備排序方式</span>
+        Comparator&lt;Product&gt; comparator;
+        <span class="hljs-keyword">if</span> (<span class="hljs-string">&quot;name&quot;</span>.equals(sortField)) &#123;
+            comparator = Comparator.comparing(x -&gt; x.getName().toLowerCase());
+        &#125; <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (<span class="hljs-string">&quot;price&quot;</span>.equals(sortField)) &#123;
+            comparator = Comparator.comparing(Product::getPrice);
+        &#125; <span class="hljs-keyword">else</span> &#123;
+            comparator = (a, b) -&gt; <span class="hljs-number">0</span>;
+        &#125;
+
+        <span class="hljs-comment">// 判斷是否遞減</span>
+        <span class="hljs-keyword">if</span> (<span class="hljs-string">&quot;desc&quot;</span>.equalsIgnoreCase(sortDir)) &#123;
+            comparator = comparator.reversed();
+        &#125;
+
+        <span class="hljs-comment">// 執行</span>
+        <span class="hljs-type">var</span> <span class="hljs-variable">products</span> <span class="hljs-operator">=</span> productMap.values()
+                .stream()
+                .filter(x -&gt; x.getName().toLowerCase().contains(keyword.toLowerCase()) ||
+                        x.getId().contains(keyword))
+                .sorted(comparator)
+                .toList();
+        <span class="hljs-keyword">return</span> ResponseEntity.status(HttpStatus.OK).body(products);
+    &#125;
+&#125;</code></pre></div>
+
+<p>此處的程式邏輯分為三個步驟：</p>
+<ol>
+<li>根據排序的欄位，宣告 Comparator 物件，用來比較大小。</li>
+<li>根據排序的方向，決定是否將 Comparator 調整為遞減。</li>
+<li>取得測試資料的集合，呼叫 stream 的相關方法。將搜尋關鍵字用來篩選，再將符合的資料做排序。</li>
+</ol>
+<p>完成後，可實際用 Postman 呼叫看看。<br><img src="https://ntub46010.github.io/articles/spring-boot-use-query-string-and-header-in-controller/postman-get-with-query-string.png" srcset="/img/loading.gif" lazyload></p>
+<p>本節著重於如何在 Controller 接收 query string。至於檢查它們的值是否合法，不在本文的討論範圍。</p>
+<h2 id="三、接收與回傳標頭"><a href="#三、接收與回傳標頭" class="headerlink" title="三、接收與回傳標頭"></a>三、接收與回傳標頭</h2><h3 id="（一）回傳-Location-標頭"><a href="#（一）回傳-Location-標頭" class="headerlink" title="（一）回傳 Location 標頭"></a>（一）回傳 Location 標頭</h3><p>在<a href="/articles/spring-boot-restful-api/" target="_blank">第 2 課</a>有介紹過，如果 API 的功能是建立資源，那麼後端可額外回傳「Location」這個標頭（header），提供指向該資源的 endpoint。</p>
+<p>在練習用專案中，尚有另一個 API 是「POST &#x2F;products」，用途是建立新的產品資料。其對應的 API 處理方法為「createProduct」，本節就在這個 API 提供此 header。</p>
+<div class="code-wrapper"><pre><code class="hljs java"><span class="hljs-meta">@RestController</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">ProductController</span> &#123;
+    <span class="hljs-comment">// ...</span>
+
+    <span class="hljs-meta">@PostMapping(&quot;/products&quot;)</span>
+    <span class="hljs-keyword">public</span> ResponseEntity&lt;Void&gt; <span class="hljs-title function_">createProduct</span><span class="hljs-params">(<span class="hljs-meta">@RequestBody</span> Product product)</span> &#123;
+        <span class="hljs-comment">// ...</span>
+
+        <span class="hljs-type">URI</span> <span class="hljs-variable">uri</span> <span class="hljs-operator">=</span> ServletUriComponentsBuilder
+                .fromCurrentRequestUri()
+                .path(<span class="hljs-string">&quot;/&#123;id&#125;&quot;</span>)
+                .build(Map.of(<span class="hljs-string">&quot;id&quot;</span>, product.getId()));
+        <span class="hljs-type">HttpHeaders</span> <span class="hljs-variable">headers</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">HttpHeaders</span>();
+        headers.setLocation(uri);
+
+        <span class="hljs-keyword">return</span> ResponseEntity
+                .status(HttpStatus.CREATED)
+                .headers(headers)
+                .build();
+    &#125;
+&#125;</code></pre></div>
+
+<p>透過 <code>ServletUriComponentsBuilder</code> 提供的方法，我們能一步步建構出 URI 物件。</p>
+<ol>
+<li><code>fromCurrentRequestUri</code>：從前端呼叫當前 API 的 endpoint 為基準開始建構。例如 <code>http://localhost:8080/products</code>。</li>
+<li><code>path</code>：以目前建構出的結果，繼續往後添加新的路徑，亦可透過「{ }」符號挖空格（placeholder），並於後續填入值。</li>
+<li><code>build</code>：傳入 Map，將值填入上述的 placeholder 中，並回傳建立好的 URI 物件。</li>
+</ol>
+<p>準備好 URI 後，請建立 <code>HttpHeaders</code> 物件，添加 Location 的值。<code>HttpHeaders</code> 提供一系列的「setXXX」方法，可以很直覺地加上資料。最後將其附帶於 <code>ResponseEntity</code> 中。</p>
+<p>以下是 Postman 的操作結果，可看見 response header 確實有出現「Location」。<br><img src="https://ntub46010.github.io/articles/spring-boot-use-query-string-and-header-in-controller/postman-response-header-indicate-location.png" srcset="/img/loading.gif" lazyload></p>
+<h3 id="（二）接收標頭"><a href="#（二）接收標頭" class="headerlink" title="（二）接收標頭"></a>（二）接收標頭</h3><p>Controller 除了可以回傳 header，當然也能接收。以下的小範例，是接收一個叫做「If-Modified-Since」的 header。</p>
+<div class="code-wrapper"><pre><code class="hljs java"><span class="hljs-meta">@GetMapping(&quot;/test&quot;)</span>
+<span class="hljs-keyword">public</span> ResponseEntity&lt;Foo&gt; <span class="hljs-title function_">getFoo</span><span class="hljs-params">(</span>
+<span class="hljs-params">    <span class="hljs-meta">@RequestHeader(HttpHeaders.IF_MODIFIED_SINCE)</span> String ifModifiedSince</span>
+<span class="hljs-params">)</span> &#123;
+    <span class="hljs-comment">// ...</span>
+&#125;</code></pre></div>
+
+<p>這裡使用了 <code>@RequestHeader</code> 注解，並於注解的參數提供要接收 header 的名稱。</p>
+<h2 id="四、簡化-Controller-的程式"><a href="#四、簡化-Controller-的程式" class="headerlink" title="四、簡化 Controller 的程式"></a>四、簡化 Controller 的程式</h2><p>完成<a href="/articles/spring-boot-implement-restful-api-in-controller/" target="_blank">第 3.1 課</a>與第 3.2 課後，讀者在 Controller 將擁有五支 RESTful API。本節將補充一些寫法，讓程式能簡潔好讀一些。</p>
+<h3 id="（一）套用-Endpoint-前綴"><a href="#（一）套用-Endpoint-前綴" class="headerlink" title="（一）套用 Endpoint 前綴"></a>（一）套用 Endpoint 前綴</h3><p>這些跟產品有關的 API，在 <code>@GetMapping</code>、<code>@PostMapping</code> 等注解中，其 endpoint 的開頭都要寫上「&#x2F;products」，感覺重複性有點高。</p>
+<p>我們可以在 Controller 類別冠上 <code>@RequestMapping</code> 注解，定義路徑的前綴，之後底下的 endpoint 都會掛上它。</p>
+<div class="code-wrapper"><pre><code class="hljs java"><span class="hljs-meta">@RestController</span>
+<span class="hljs-meta">@RequestMapping(path = &quot;/products&quot;)</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">ProductController</span> &#123;
+
+    <span class="hljs-comment">// GET /products/&#123;id&#125;</span>
+    <span class="hljs-meta">@GetMapping(&quot;/&#123;id&#125;&quot;)</span>
+
+    <span class="hljs-comment">// POST /products</span>
+    <span class="hljs-meta">@PostMapping</span>
+
+    <span class="hljs-comment">// PUT /products/&#123;id&#125;</span>
+    <span class="hljs-meta">@PutMapping(&quot;/&#123;id&#125;&quot;)</span>
+
+    <span class="hljs-comment">// DELETE /products/&#123;id&#125;</span>
+    <span class="hljs-meta">@DeleteMapping(&quot;/&#123;id&#125;&quot;)</span>
+&#125;</code></pre></div>
+
+<h3 id="（二）選擇-HTTP-狀態碼"><a href="#（二）選擇-HTTP-狀態碼" class="headerlink" title="（二）選擇 HTTP 狀態碼"></a>（二）選擇 HTTP 狀態碼</h3><p>先前提供 HTTP 狀態碼的方式，是呼叫 <code>ResponseEntity.status</code> 方法，傳入 <code>HttpStatus</code> 這個列舉（enum）物件。</p>
+<p>其實 <code>ResponseEntity</code> 類別也有提供如 <code>ok</code>、<code>noContent</code>、<code>notFound</code> 等常見的方法，可以用來替代。</p>
+<p>以處理 GET 與 POST 請求的方法為例，將程式調整成如下。</p>
+<div class="code-wrapper"><pre><code class="hljs java"><span class="hljs-meta">@RestController</span>
+<span class="hljs-meta">@RequestMapping(path = &quot;/products&quot;)</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">ProductController</span> &#123;
+    <span class="hljs-comment">// ...</span>
+
+    <span class="hljs-meta">@GetMapping(&quot;/&#123;id&#125;&quot;)</span>
+    <span class="hljs-keyword">public</span> ResponseEntity&lt;Product&gt; <span class="hljs-title function_">getProduct</span><span class="hljs-params">(<span class="hljs-meta">@PathVariable(&quot;id&quot;)</span> String productId)</span> &#123;
+        <span class="hljs-type">var</span> <span class="hljs-variable">product</span> <span class="hljs-operator">=</span> productMap.get(productId);
+        <span class="hljs-keyword">return</span> product == <span class="hljs-literal">null</span>
+                ? ResponseEntity.notFound().build()
+                : ResponseEntity.ok(product);
+    &#125;
+    
+    <span class="hljs-meta">@PostMapping</span>
+    <span class="hljs-keyword">public</span> ResponseEntity&lt;Void&gt; <span class="hljs-title function_">createProduct</span><span class="hljs-params">(<span class="hljs-meta">@RequestBody</span> Product product)</span> &#123;
+        <span class="hljs-comment">// ...</span>
+
+        <span class="hljs-type">URI</span> <span class="hljs-variable">uri</span> <span class="hljs-operator">=</span> ServletUriComponentsBuilder
+                .fromCurrentRequestUri()
+                .path(<span class="hljs-string">&quot;/&#123;id&#125;&quot;</span>)
+                .build(Map.of(<span class="hljs-string">&quot;id&quot;</span>, product.getId()));
+
+        <span class="hljs-keyword">return</span> ResponseEntity.created(uri).build();
+    &#125;
+
+    <span class="hljs-comment">// ...</span>
+&#125;</code></pre></div>
+
+<p>其中 <code>ok</code> 方法可傳入 payload，而 <code>created</code> 方法可傳入 URI。</p>
+<h3 id="（三）封裝多個查詢字串"><a href="#（三）封裝多個查詢字串" class="headerlink" title="（三）封裝多個查詢字串"></a>（三）封裝多個查詢字串</h3><p>在第二節的實作的 <code>GET /products</code> 這支 API，若開放更多 query string 傳進來，將會使程式碼太冗長。畢竟每個 query string，都要配上一個 <code>@RequestParam</code> 注解，而每個注解都能傳入好幾個參數。</p>
+<p>針對這個問題，我們可準備自定義的類別，並搭配一個叫做 <code>@ModelAttribute</code> 的注解，將 query string 的值自動填充到該類別的物件中。就像接收 request body 那樣。</p>
+<p>以下是用來接收 query string 的類別。</p>
+<div class="code-wrapper"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">ProductRequestParameter</span> &#123;
+    <span class="hljs-keyword">private</span> String searchKey;
+    <span class="hljs-keyword">private</span> String sortField;
+    <span class="hljs-keyword">private</span> String sortDir;
+
+    <span class="hljs-comment">// getter, setter ...</span>
+&#125;</code></pre></div>
+
+<p>以下是調整過後的 API 處理方法。</p>
+<div class="code-wrapper"><pre><code class="hljs java"><span class="hljs-meta">@RestController</span>
+<span class="hljs-meta">@RequestMapping(path = &quot;/products&quot;)</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">ProductController</span> &#123;
+    <span class="hljs-comment">// ...</span>
+
+    <span class="hljs-meta">@GetMapping</span>
+    <span class="hljs-keyword">public</span> ResponseEntity&lt;List&lt;Product&gt;&gt; <span class="hljs-title function_">getProducts</span><span class="hljs-params">(</span>
+<span class="hljs-params">            <span class="hljs-meta">@ModelAttribute</span> ProductRequestParameter param</span>
+<span class="hljs-params">    )</span> &#123;
+        <span class="hljs-type">var</span> <span class="hljs-variable">sortField</span> <span class="hljs-operator">=</span> param.getSortField();
+        <span class="hljs-type">var</span> <span class="hljs-variable">sortDir</span> <span class="hljs-operator">=</span> param.getSortDir();
+        <span class="hljs-type">var</span> <span class="hljs-variable">keyword</span> <span class="hljs-operator">=</span> param.getSearchKey();
+
+        <span class="hljs-comment">// ...</span>
+    &#125;
+&#125;</code></pre></div>
+
+<p>透過 <code>@ModelAttribute</code> 注解，可以將 query string 都收集起來，之後再分別取出做運用。</p>
+<p>我們在 Controller 寫了好幾支程式，內容也越來越龐大。<a href="/articles/spring-boot-three-tier-architecture/" target="_blank">第 4 課</a>將介紹「三層式架構」，將不同目的的程式碼片段，分開撰寫在其他地方。</p>
+<hr>
+<p>本文的完成後專案，請<a target="_blank" rel="noopener" href="https://github.com/ntub46010/SpringBootTutorial/tree/Ch03.2-use-query-string-and-header-in-controller">點我</a>。</p>
+<p>上一課：<a href="/articles/spring-boot-implement-restful-api-in-controller/" target="_blank">【Spring Boot】第3.1課－在 Controller 實作 RESTful API</a></p>
+<p>下一課：<a href="/articles/spring-boot-validate-request-body-and-query-string/" target="_blank">【Spring Boot】第3.3課－在 Controller 驗證 request body 與 query string 的資料</a></p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/Spring-Boot/" class="category-chain-item">Spring Boot</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+</div>
+
+
+              
+
+              
+            </div>
+
+            <div style="padding-top: 30px;">
+              <b style="font-size: 1.5rem;">張貼留言</b>
+              <script src="https://utteranc.es/client.js"
+                repo="chikuwacode/chikuwacode.github.io"
+                issue-term="pathname"
+                theme="github-light"
+                crossorigin="anonymous"
+                async>
+              </script>
+            </div>
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+
+
+    
+
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜尋</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">關鍵字</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/5.0.0/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允許 JavaScript 運行的環境下瀏覽效果更佳</div>
+  </noscript>
+</body>
+</html>

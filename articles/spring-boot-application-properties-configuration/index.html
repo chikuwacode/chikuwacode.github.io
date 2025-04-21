@@ -1,0 +1,831 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-TW" >
+
+
+
+<head>
+  <meta charset="UTF-8">
+
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/logo.png">
+  <link rel="icon" href="/img/logo.png">
+  
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#a05926">
+  <meta name="author" content="Vincent">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="在專案中串接資料庫或第三方服務，通常都需要那些平台的帳密或其他設定值。我們可以將這些設定值集中寫在一個叫「配置檔」的地方，再由程式去引用，以便根據不同環境彈性切換。本文會以使用 Java Mail 寄信為例子，示範如何配置設定值，並利用 Profile 的功能來切換。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="【Spring Boot】第6課－在 application.properties 配置檔提供設定值（以 Java Mail 為例）">
+<meta property="og:url" content="https://ntub46010.github.io/articles/spring-boot-application-properties-configuration/">
+<meta property="og:site_name" content="吉古拉的程式拾光">
+<meta property="og:description" content="在專案中串接資料庫或第三方服務，通常都需要那些平台的帳密或其他設定值。我們可以將這些設定值集中寫在一個叫「配置檔」的地方，再由程式去引用，以便根據不同環境彈性切換。本文會以使用 Java Mail 寄信為例子，示範如何配置設定值，並利用 Profile 的功能來切換。">
+<meta property="og:locale" content="zh_TW">
+<meta property="og:image" content="https://ntub46010.github.io/img/index_img/spring-boot.jpg">
+<meta property="article:published_time" content="2020-02-19T06:29:57.000Z">
+<meta property="article:modified_time" content="2025-03-22T10:33:37.985Z">
+<meta property="article:author" content="Vincent">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://ntub46010.github.io/img/index_img/spring-boot.jpg">
+  
+  
+  
+  <title>【Spring Boot】第6課－在 application.properties 配置檔提供設定值（以 Java Mail 為例） | 吉古拉的程式拾光</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1736178_k526ubmyhba.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"ntub46010.github.io","root":"/","version":"1.9.8","typing":{"enable":false,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h2,h3","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":false},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"left","headingSelector":"h2,h3","collapseDepth":3},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2,"exclude":[".no-lazy"]},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":"G-BZW5S6P21Naa"},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 40vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>吉古拉的程式拾光</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>文章分類</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>關於本站</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/banner.jpg') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        
+          <div class="h2">
+            
+              <span id="subtitle">【Spring Boot】第6課－在 application.properties 配置檔提供設定值（以 Java Mail 為例）</span>
+            
+          </div>
+        
+
+        
+          
+  <div class="mt-3">
+    
+    
+  </div>
+
+  <div class="mt-1">
+    
+
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="padding-left: 2rem; margin-right: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目錄</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">【Spring Boot】第6課－在 application.properties 配置檔提供設定值（以 Java Mail 為例）</h1>
+            
+              <p id="updated-time" class="note note-warning" style="">
+                
+                  
+                    本文最後更新於：2025-03-22
+                  
+                
+              </p>
+            
+            
+              <div class="markdown-body">
+                
+                <p>在串接資料庫或其他第三方服務時，通常都需要那些平台的伺服器位址、帳密，或其他設定值，我們合稱為「連線字串」（connection string）。</p>
+<p>若我們希望在不同環境啟動程式時（如測試環境、正式環境），能彈性切換不同的連線字串，那麼可以將這些值寫在一個叫「配置檔」的地方，再由程式去取用。</p>
+<p>本文會以使用透過 Java Mail 寄送郵件為例，示範如何配置設定值，並利用 Profile 的功能來切換。最後講解在啟動 JAR 檔時，如何引入配置檔。</p>
+<hr>
+<p>本文的練習用專案，請<a target="_blank" rel="noopener" href="https://github.com/ntub46010/SpringBootTutorial/tree/Ch06-start-application-properties-configuration">點我</a>。</p>
+<h2 id="一、準備程式專案"><a href="#一、準備程式專案" class="headerlink" title="一、準備程式專案"></a>一、準備程式專案</h2><h3 id="（一）範例專案介紹"><a href="#（一）範例專案介紹" class="headerlink" title="（一）範例專案介紹"></a>（一）範例專案介紹</h3><p>在本文的練習用專案，能找到筆者事先準備好的範例程式。</p>
+<p>第一個是「MailController」，裡面有一支 RESTful API。我們預期它會接收 request，並執行一段寄送 email 的程式。</p>
+<div class="code-wrapper"><pre><code class="hljs java"><span class="hljs-meta">@RestController</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">MailController</span> &#123;
+
+    <span class="hljs-meta">@PostMapping(&quot;/mail&quot;)</span>
+    <span class="hljs-keyword">public</span> ResponseEntity&lt;Void&gt; <span class="hljs-title function_">sendPlainText</span><span class="hljs-params">(<span class="hljs-meta">@RequestBody</span> SendMailRequest request)</span> &#123;
+        <span class="hljs-comment">// TODO</span>
+        <span class="hljs-keyword">return</span> ResponseEntity.noContent().build();
+    &#125;
+&#125;</code></pre></div>
+
+<p>第二個是「SendMailRequest」，它會在 controller 接收 request body，包含 email 的收件人、主旨與內容。</p>
+<div class="code-wrapper"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">SendMailRequest</span> &#123;
+    <span class="hljs-keyword">private</span> String[] receivers = <span class="hljs-keyword">new</span> <span class="hljs-title class_">String</span>[<span class="hljs-number">0</span>];
+    <span class="hljs-keyword">private</span> <span class="hljs-type">String</span> <span class="hljs-variable">subject</span> <span class="hljs-operator">=</span> <span class="hljs-string">&quot;&quot;</span>;
+    <span class="hljs-keyword">private</span> <span class="hljs-type">String</span> <span class="hljs-variable">content</span> <span class="hljs-operator">=</span> <span class="hljs-string">&quot;&quot;</span>;
+    
+    <span class="hljs-comment">// getter, setter ...</span>
+&#125;</code></pre></div>
+
+<h3 id="（二）匯入函式庫"><a href="#（二）匯入函式庫" class="headerlink" title="（二）匯入函式庫"></a>（二）匯入函式庫</h3><p>請在 pom.xml 檔案添加「Spring Mail」的依賴。</p>
+<div class="code-wrapper"><pre><code class="hljs xml"><span class="hljs-tag">&lt;<span class="hljs-name">dependency</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">groupId</span>&gt;</span>org.springframework.boot<span class="hljs-tag">&lt;/<span class="hljs-name">groupId</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">artifactId</span>&gt;</span>spring-boot-starter-mail<span class="hljs-tag">&lt;/<span class="hljs-name">artifactId</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-name">dependency</span>&gt;</span></code></pre></div>
+
+<p>這項依賴其實是 Spring Boot 對 Java Mail 進行封裝後的產物，讓我們容易使用。</p>
+<h2 id="二、取得-Google-應用程式密碼"><a href="#二、取得-Google-應用程式密碼" class="headerlink" title="二、取得 Google 應用程式密碼"></a>二、取得 Google 應用程式密碼</h2><p>由於本文會搭配郵件服務來做示範，因此需要做一些事前準備。畢竟在程式中串接外部服務時，通常都需要那個平台的帳密。</p>
+<p>筆者會使用 Gmail 來寄信，然而 Google 為了安全性考量，不允許我們直接在程式中使用 Google 密碼。因此接下來請依照步驟，產生「應用程式密碼」。</p>
+<p>在 Google 帳戶的首頁，前往「安全性」的頁籤，找到「登入 Google 的方式」，進入「兩步驟驗證」畫面。<br><img src="https://ntub46010.github.io/articles/spring-boot-application-properties-configuration/google-account-security-tab.png" srcset="/img/loading.gif" lazyload></p>
+<p>從畫面最下方，進入「應用程式密碼」畫面。<br><img src="https://ntub46010.github.io/articles/spring-boot-application-properties-configuration/google-two-step-verification-page.png" srcset="/img/loading.gif" lazyload></p>
+<p>在畫面中為這次要建立的密碼取個名字。<br><img src="https://ntub46010.github.io/articles/spring-boot-application-properties-configuration/google-application-password-setup.png" srcset="/img/loading.gif" lazyload></p>
+<p>按下「建立」後，即可得到 16 個字的應用程式密碼。<br><img src="https://ntub46010.github.io/articles/spring-boot-application-properties-configuration/google-application-password-fin.jpg" srcset="/img/loading.gif" lazyload></p>
+<p>請讀者將這組密碼記在別的地方，因為離開此畫面後，便無法再看到了。</p>
+<h2 id="三、認識-Spring-Mail-的用法"><a href="#三、認識-Spring-Mail-的用法" class="headerlink" title="三、認識 Spring Mail 的用法"></a>三、認識 Spring Mail 的用法</h2><p>本節會展示如何使用 Spring Mail 發送純文字郵件，藉此讓讀者知道使用 Gmail 寄信時，需要哪些設定值。到了第四節，我們再調整成使用「配置檔」的做法。</p>
+<div class="code-wrapper"><pre><code class="hljs java"><span class="hljs-meta">@RestController</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">MailController</span> &#123;
+
+    <span class="hljs-meta">@PostMapping(&quot;/mail&quot;)</span>
+    <span class="hljs-keyword">public</span> ResponseEntity&lt;Void&gt; <span class="hljs-title function_">sendPlainText</span><span class="hljs-params">(<span class="hljs-meta">@RequestBody</span> SendMailRequest request)</span> &#123;
+        <span class="hljs-type">JavaMailSenderImpl</span> <span class="hljs-variable">sender</span> <span class="hljs-operator">=</span> createMailSender();
+
+        <span class="hljs-type">SimpleMailMessage</span> <span class="hljs-variable">msg</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">SimpleMailMessage</span>();
+        msg.setFrom(String.format(<span class="hljs-string">&quot;%s&lt;%s&gt;&quot;</span>, <span class="hljs-string">&quot;Spring Mail&quot;</span>, sender.getUsername()));
+        msg.setTo(request.getReceivers());
+        msg.setSubject(request.getSubject());
+        msg.setText(request.getContent());
+
+        sender.send(msg);
+
+        <span class="hljs-keyword">return</span> ResponseEntity.noContent().build();
+    &#125;
+
+    <span class="hljs-keyword">private</span> JavaMailSenderImpl <span class="hljs-title function_">createMailSender</span><span class="hljs-params">()</span> &#123;
+        <span class="hljs-type">JavaMailSenderImpl</span> <span class="hljs-variable">sender</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">JavaMailSenderImpl</span>();
+
+        <span class="hljs-comment">// 郵件服務主機</span>
+        sender.setHost(<span class="hljs-string">&quot;smtp.gmail.com&quot;</span>);
+        sender.setPort(<span class="hljs-number">587</span>);
+
+        <span class="hljs-comment">// 郵件服務帳密</span>
+        sender.setUsername(<span class="hljs-string">&quot;your_gmail&quot;</span>);
+        sender.setPassword(<span class="hljs-string">&quot;your_application_password&quot;</span>);
+
+        <span class="hljs-type">Properties</span> <span class="hljs-variable">props</span> <span class="hljs-operator">=</span> sender.getJavaMailProperties();
+        props.put(<span class="hljs-string">&quot;mail.smtp.auth&quot;</span>, <span class="hljs-literal">true</span>); <span class="hljs-comment">// 是否向郵件服務驗證身份</span>
+        props.put(<span class="hljs-string">&quot;mail.smtp.starttls.enable&quot;</span>, <span class="hljs-literal">true</span>); <span class="hljs-comment">// 是否啟用 TLS（傳輸層安全），對通訊加密</span>
+        props.put(<span class="hljs-string">&quot;mail.transport.protocol&quot;</span>, <span class="hljs-string">&quot;smtp&quot;</span>); <span class="hljs-comment">// 傳輸協定</span>
+
+        <span class="hljs-keyword">return</span> sender;
+    &#125;
+&#125;</code></pre></div>
+
+<p>上面的範例程式中，在「createMailSender」方法建立了 <code>JavaMailSenderImpl</code> 物件。它需要一些有關郵件服務的參數。例如主機、port 號、帳密等。</p>
+<p>而 API 的處理方法「sendPlainText」，則建立了 <code>SimpleMailMessage</code> 物件，並填寫郵件的寄件人、收件人、主旨與內容，最後寄出。</p>
+<p>此處呼叫 <code>setFrom</code> 方法，在寄件人給予 <code>名稱&lt;信箱&gt;</code> 格式的字串。這是為了讓收件人能看到我們自定義的寄件人名稱，而不是一個 email 地址。</p>
+<p>完成後，讀者可用 Postman 之類的工具呼叫該 API。</p>
+<div class="code-wrapper"><pre><code class="hljs text">POST http://localhost:8080/mail
+&#123;
+    &quot;receivers&quot;: [&quot;foo@gmail.com&quot;, &quot;bar@gmail.com&quot;],
+    &quot;subject&quot;: &quot;Hello&quot;,
+    &quot;content&quot;: &quot;World&quot;
+&#125;</code></pre></div>
+
+<p>確認一下目前的程式能夠寄信到指定的 email 地址。</p>
+<h2 id="四、開始使用配置檔"><a href="#四、開始使用配置檔" class="headerlink" title="四、開始使用配置檔"></a>四、開始使用配置檔</h2><h3 id="（一）撰寫參數"><a href="#（一）撰寫參數" class="headerlink" title="（一）撰寫參數"></a>（一）撰寫參數</h3><p>在第三節，我們把寄信的相關設定值寫死在程式碼中（hard code），這樣的做法可能有一些缺點：</p>
+<ul>
+<li>當各種服務的連線字串，都散落在專案的不同地方，以後若想查看或修改，就不容易找到當初是寫在哪裡。</li>
+<li>承上，即使將設定值集中寫在一個 Java 類別作為常數，但每次修改後，都得重新打包出 JAR 檔，才能交付。</li>
+<li>為了便於管理，我們可以將設定值集中寫在一個叫做「application.properties」的配置檔中。該檔案預設是位於「src\main\resources」資料夾下。若讀者沒有該檔案，請自行建立一個。</li>
+</ul>
+<p>接著將寄信時所用到的設定值，以 <code>key=value</code> 的格式寫在裡面，以下是一個範例：</p>
+<div class="code-wrapper"><pre><code class="hljs properties"><span class="hljs-attr">mail.host</span>=<span class="hljs-string">smtp.gmail.com</span>
+<span class="hljs-attr">mail.port</span>=<span class="hljs-string">587</span>
+<span class="hljs-attr">mail.username</span>=<span class="hljs-string">your_gmail</span>
+<span class="hljs-attr">mail.password</span>=<span class="hljs-string">your_application_password</span>
+<span class="hljs-attr">mail.transport-protocol</span>=<span class="hljs-string">smtp</span>
+<span class="hljs-attr">mail.smtp.auth</span>=<span class="hljs-string">true</span>
+<span class="hljs-attr">mail.starttls.enable</span>=<span class="hljs-string">true</span>
+<span class="hljs-attr">mail.display-name</span>=<span class="hljs-string">Spring Mail</span></code></pre></div>
+
+<p>此處的 key 都是筆者自己取名，且單字可用「.」符號來表示階層。</p>
+<h3 id="（二）讀取配置檔參數"><a href="#（二）讀取配置檔參數" class="headerlink" title="（二）讀取配置檔參數"></a>（二）讀取配置檔參數</h3><p>將設定值都寫到 application.properties 配置檔後，我們就能在元件中透過 <code>@Value</code> 注解，來讀取它們。</p>
+<div class="code-wrapper"><pre><code class="hljs java"><span class="hljs-meta">@RestController</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">MailController</span> &#123;
+
+    <span class="hljs-meta">@Value(&quot;$&#123;mail.host&#125;&quot;)</span>
+    <span class="hljs-keyword">private</span> String host;
+
+    <span class="hljs-meta">@Value(&quot;$&#123;mail.port&#125;&quot;)</span>
+    <span class="hljs-keyword">private</span> <span class="hljs-type">int</span> port;
+
+    <span class="hljs-meta">@Value(&quot;$&#123;mail.username&#125;&quot;)</span>
+    <span class="hljs-keyword">private</span> String username;
+
+    <span class="hljs-meta">@Value(&quot;$&#123;mail.password&#125;&quot;)</span>
+    <span class="hljs-keyword">private</span> String password;
+
+    <span class="hljs-meta">@Value(&quot;$&#123;mail.transport-protocol&#125;&quot;)</span>
+    <span class="hljs-keyword">private</span> String protocol;
+
+    <span class="hljs-meta">@Value(&quot;$&#123;mail.smtp.auth&#125;&quot;)</span>
+    <span class="hljs-keyword">private</span> <span class="hljs-type">boolean</span> smtpAuth;
+
+    <span class="hljs-meta">@Value(&quot;$&#123;mail.starttls.enable&#125;&quot;)</span>
+    <span class="hljs-keyword">private</span> <span class="hljs-type">boolean</span> enableStartTls;
+
+    <span class="hljs-meta">@Value(&quot;$&#123;mail.display-name:Test Mail&#125;&quot;)</span>
+    <span class="hljs-keyword">private</span> String displayName;
+
+    <span class="hljs-meta">@PostMapping(&quot;/mail&quot;)</span>
+    <span class="hljs-keyword">public</span> ResponseEntity&lt;Void&gt; <span class="hljs-title function_">sendPlainText</span><span class="hljs-params">(<span class="hljs-meta">@RequestBody</span> SendMailRequest request)</span> &#123;
+        <span class="hljs-comment">// ...        </span>
+        msg.setFrom(String.format(<span class="hljs-string">&quot;%s&lt;%s&gt;&quot;</span>, displayName, sender.getUsername()));
+        <span class="hljs-comment">// ...</span>
+    &#125;
+
+    <span class="hljs-keyword">private</span> JavaMailSenderImpl <span class="hljs-title function_">createMailSender</span><span class="hljs-params">()</span> &#123;
+        <span class="hljs-type">JavaMailSenderImpl</span> <span class="hljs-variable">sender</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">JavaMailSenderImpl</span>();
+
+        sender.setHost(host);
+        sender.setPort(port);
+        sender.setUsername(username);
+        sender.setPassword(password);
+
+        <span class="hljs-type">Properties</span> <span class="hljs-variable">props</span> <span class="hljs-operator">=</span> sender.getJavaMailProperties();
+        props.put(<span class="hljs-string">&quot;mail.smtp.auth&quot;</span>, smtpAuth);
+        props.put(<span class="hljs-string">&quot;mail.smtp.starttls.enable&quot;</span>, enableStartTls);
+        props.put(<span class="hljs-string">&quot;mail.transport.protocol&quot;</span>, protocol);
+
+        <span class="hljs-keyword">return</span> sender;
+    &#125;
+&#125;</code></pre></div>
+
+<p>使用 <code>@Value</code> 注解時，需傳入配置檔的 key 名稱。若有需要，讀者也可提供預設值。格式為 <code>$&#123;key 名稱:預設值&#125;</code>。</p>
+<h3 id="（三）封裝到配置類別"><a href="#（三）封裝到配置類別" class="headerlink" title="（三）封裝到配置類別"></a>（三）封裝到配置類別</h3><p>也許讀者已經感受到了，當類別中存在太多 <code>@Value</code> 注解，整個類別就會很冗長。</p>
+<p>因此，我們也可以考慮將讀取設定值的部份，轉移到另一個元件類別。</p>
+<div class="code-wrapper"><pre><code class="hljs java"><span class="hljs-meta">@Configuration</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">MailConfig</span> &#123;
+
+    <span class="hljs-meta">@Value(&quot;$&#123;mail.host&#125;&quot;)</span>
+    <span class="hljs-keyword">private</span> String host;
+
+    <span class="hljs-meta">@Value(&quot;$&#123;mail.port&#125;&quot;)</span>
+    <span class="hljs-keyword">private</span> <span class="hljs-type">int</span> port;
+
+    <span class="hljs-meta">@Value(&quot;$&#123;mail.username&#125;&quot;)</span>
+    <span class="hljs-keyword">private</span> String username;
+
+    <span class="hljs-meta">@Value(&quot;$&#123;mail.password&#125;&quot;)</span>
+    <span class="hljs-keyword">private</span> String password;
+
+    <span class="hljs-meta">@Value(&quot;$&#123;mail.transport-protocol&#125;&quot;)</span>
+    <span class="hljs-keyword">private</span> String protocol;
+
+    <span class="hljs-meta">@Value(&quot;$&#123;mail.smtp.auth&#125;&quot;)</span>
+    <span class="hljs-keyword">private</span> <span class="hljs-type">boolean</span> smtpAuth;
+
+    <span class="hljs-meta">@Value(&quot;$&#123;mail.starttls.enable&#125;&quot;)</span>
+    <span class="hljs-keyword">private</span> <span class="hljs-type">boolean</span> enableStartTls;
+
+    <span class="hljs-meta">@Value(&quot;$&#123;mail.display-name:Test Mail&#125;&quot;)</span>
+    <span class="hljs-keyword">private</span> String displayName;
+
+    <span class="hljs-comment">// getter ...</span>
+&#125;</code></pre></div>
+
+<p>以上建立一個叫做「MailConfig」的類別，並冠上 <code>@Configuration</code> 注解，代表這是與配置有關的元件類別。另外也提供 getter 方法供外部呼叫。</p>
+<p>之後便可將這個元件注入到需要的地方。</p>
+<div class="code-wrapper"><pre><code class="hljs java"><span class="hljs-meta">@RestController</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">MailController</span> &#123;
+    
+    <span class="hljs-meta">@Autowired</span>
+    <span class="hljs-keyword">private</span> MailConfig mailConfig;
+
+    <span class="hljs-meta">@PostMapping(&quot;/mail&quot;)</span>
+    <span class="hljs-keyword">public</span> ResponseEntity&lt;Void&gt; <span class="hljs-title function_">sendPlainText</span><span class="hljs-params">(<span class="hljs-meta">@RequestBody</span> SendMailRequest request)</span> &#123;
+        <span class="hljs-comment">// ...</span>
+        msg.setFrom(String.format(<span class="hljs-string">&quot;%s&lt;%s&gt;&quot;</span>, mailConfig.getDisplayName(), sender.getUsername()));
+        <span class="hljs-comment">// ...</span>
+    &#125;
+
+    <span class="hljs-keyword">private</span> JavaMailSenderImpl <span class="hljs-title function_">createMailSender</span><span class="hljs-params">()</span> &#123;
+        <span class="hljs-type">JavaMailSenderImpl</span> <span class="hljs-variable">sender</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">JavaMailSenderImpl</span>();
+        
+        sender.setHost(mailConfig.getHost());
+        sender.setPort(mailConfig.getPort());
+        sender.setUsername(mailConfig.getUsername());
+        sender.setPassword(mailConfig.getPassword());
+
+        <span class="hljs-type">Properties</span> <span class="hljs-variable">props</span> <span class="hljs-operator">=</span> sender.getJavaMailProperties();
+        props.put(<span class="hljs-string">&quot;mail.smtp.auth&quot;</span>, mailConfig.isSmtpAuth());
+        props.put(<span class="hljs-string">&quot;mail.smtp.starttls.enable&quot;</span>, mailConfig.isEnableStartTls());
+        props.put(<span class="hljs-string">&quot;mail.transport.protocol&quot;</span>, mailConfig.getProtocol());
+
+        <span class="hljs-keyword">return</span> sender;
+    &#125;
+&#125;</code></pre></div>
+
+<h2 id="五、使用函式庫所指定的設定值"><a href="#五、使用函式庫所指定的設定值" class="headerlink" title="五、使用函式庫所指定的設定值"></a>五、使用函式庫所指定的設定值</h2><p>Spring Mail 函式庫本身有提供「自動配置」的功能。也就是說，Spring Mail 自己也有一個類似第四節的 MailConfig 配置類別。它會讀取配置檔中指定 key 名稱的設定值，私下建立出 <code>JavaMailSenderImpl</code> 元件。</p>
+<p>這麼一來，我們其實直接取用它所建立出來的元件即可，完全不需要自己寫程式來建立。</p>
+<p>本節讓我們稍作調整，將配置檔的設定值，改為 Spring Mail 指定的 key 名稱。</p>
+<div class="code-wrapper"><pre><code class="hljs properties"><span class="hljs-attr">spring.mail.host</span>=<span class="hljs-string">smtp.gmail.com</span>
+<span class="hljs-attr">spring.mail.port</span>=<span class="hljs-string">587</span>
+<span class="hljs-attr">spring.mail.username</span>=<span class="hljs-string">your_gmail</span>
+<span class="hljs-attr">spring.mail.password</span>=<span class="hljs-string">your_application_password</span>
+<span class="hljs-attr">spring.mail.properties.mail.transport.protocol</span>=<span class="hljs-string">smtp</span>
+<span class="hljs-attr">spring.mail.properties.mail.smtp.auth</span>=<span class="hljs-string">true</span>
+<span class="hljs-attr">spring.mail.properties.mail.smtp.starttls.enable</span>=<span class="hljs-string">true</span>
+
+<span class="hljs-attr">mail.display-name</span>=<span class="hljs-string">Spring Mail</span></code></pre></div>
+
+<p>到這邊為止，除了「mail.display-name」的 key 名稱是筆者自己取名，其餘都是 Spring Mail 特別指定的。</p>
+<p>接下來，請在程式中放心地注入 <code>JavaMailSenderImpl</code> 元件。</p>
+<div class="code-wrapper"><pre><code class="hljs java"><span class="hljs-meta">@RestController</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">MailController</span> &#123;
+
+    <span class="hljs-meta">@Autowired</span>
+    <span class="hljs-keyword">private</span> JavaMailSenderImpl sender;
+
+    <span class="hljs-meta">@Autowired</span>
+    <span class="hljs-keyword">private</span> MailConfig mailConfig;
+
+    <span class="hljs-meta">@PostMapping(&quot;/mail&quot;)</span>
+    <span class="hljs-keyword">public</span> ResponseEntity&lt;Void&gt; <span class="hljs-title function_">sendPlainText</span><span class="hljs-params">(<span class="hljs-meta">@RequestBody</span> SendMailRequest request)</span> &#123;
+        <span class="hljs-comment">// ...</span>
+        msg.setFrom(String.format(<span class="hljs-string">&quot;%s&lt;%s&gt;&quot;</span>, mailConfig.getDisplayName(), sender.getUsername()));
+        <span class="hljs-comment">// ...</span>
+
+        sender.send(msg);
+
+        <span class="hljs-keyword">return</span> ResponseEntity.noContent().build();
+    &#125;
+&#125;</code></pre></div>
+<p>而先前用來手動建立 <code>JavaMailSenderImpl</code> 物件的 createMailSender 方法，則可以移除了。</p>
+<h2 id="六、使用-Profile-切換配置參數"><a href="#六、使用-Profile-切換配置參數" class="headerlink" title="六、使用 Profile 切換配置參數"></a>六、使用 Profile 切換配置參數</h2><h3 id="（一）部署的環境"><a href="#（一）部署的環境" class="headerlink" title="（一）部署的環境"></a>（一）部署的環境</h3><p>根據筆者的工作經驗，寫好的程式至少會在以下環境運行。</p>
+<ul>
+<li>開發環境：在開發期間，讓工程師確認實作出的功能是否如預期。</li>
+<li>測試環境：讓測試人員驗證功能是否正常。</li>
+<li>正式環境：提供服務給真實使用者。</li>
+</ul>
+<p>每個環境所需要的設定值可能不同。最典型的例子就是不同環境所使用的資料庫位址和帳密，都不一樣。</p>
+<p>針對這個問題，我們可以準備多個配置檔，將不同環境的設定值寫在裡面。並搭配 Spring Boot 提供的「Profile」功能，切換使用不同配置檔。</p>
+<h3 id="（二）切換配置"><a href="#（二）切換配置" class="headerlink" title="（二）切換配置"></a>（二）切換配置</h3><p>以下準備了 2 份配置檔，分別用於開發和測試環境。檔名需遵循 application-環境名稱.properties 的格式。</p>
+<p>「application-dev.properties」檔案：</p>
+<div class="code-wrapper"><pre><code class="hljs properties"><span class="hljs-attr">mail.display-name</span>=<span class="hljs-string">Spring Mail (dev)</span></code></pre></div>
+
+<p>「application-test.properties」檔案：</p>
+<div class="code-wrapper"><pre><code class="hljs properties"><span class="hljs-attr">mail.display-name</span>=<span class="hljs-string">Spring Mail (test)</span></code></pre></div>
+
+<p>它們都只有一個叫做「mail.display-name」的設定值，會做為寄件者的名稱。</p>
+<p>接著在原本的 application.properties 配置檔中，添加 <code>spring.profiles.active</code> 的設定值，就能指定啟動程式時要用哪一份配置檔了。</p>
+<div class="code-wrapper"><pre><code class="hljs properties"><span class="hljs-attr">spring.profiles.active</span>=<span class="hljs-string">dev</span>
+<span class="hljs-comment"></span>
+<span class="hljs-comment"># 其他參數 ...</span></code></pre></div>
+
+<p>此處的設定值為「dev」，因此 Spring Boot 便會去讀取「application-dev.properties」檔案。至於其他未寫在該配置檔的設定值，則會回頭採用 application.properties。</p>
+<h2 id="七、啟動-JAR-檔時指定配置檔"><a href="#七、啟動-JAR-檔時指定配置檔" class="headerlink" title="七、啟動 JAR 檔時指定配置檔"></a>七、啟動 JAR 檔時指定配置檔</h2><p>第六節的做法適合在開發工具中，切換不同的配置。而本節將說明如何在啟動 JAR 檔時，指定配置檔。</p>
+<h3 id="（一）指定-Profile"><a href="#（一）指定-Profile" class="headerlink" title="（一）指定 Profile"></a>（一）指定 Profile</h3><p>前面所建立的那些配置檔，會連同程式專案一起被打包進 JAR 檔。因此在 command line 執行 JAR 檔時，可提供 <code>-Dspring.profiles.active</code> 這項參數，指定要採用的配置檔。</p>
+<div class="code-wrapper"><pre><code class="hljs sh">java -Dspring.profiles.active=<span class="hljs-built_in">test</span> -jar demo.jar</code></pre></div>
+
+<p>此處指定「test」這個 profile，代表要採用「application-test.properties」配置檔。</p>
+<h3 id="（二）自行提供配置檔"><a href="#（二）自行提供配置檔" class="headerlink" title="（二）自行提供配置檔"></a>（二）自行提供配置檔</h3><p>若讀者自己有準備一份配置檔，也可於啟動 JAR 檔時進行指定。</p>
+<p>請在 JAR 檔的所在位置，建立一個叫做「config」的資料夾，並將配置檔放到裡面。相對位置如下：</p>
+<div class="code-wrapper"><pre><code class="hljs text">|_ demo.jar
+|_ config
+    |_ application.properties</code></pre></div>
+
+<p>啟動時，只要簡單地執行以下指令即可，Spring Boot 將會優先讀取 config 資料夾的配置檔。</p>
+<div class="code-wrapper"><pre><code class="hljs sh">java -jar demo.jar</code></pre></div>
+
+<h2 id="八、YAML-檔"><a href="#八、YAML-檔" class="headerlink" title="八、YAML 檔"></a>八、YAML 檔</h2><p>YAML 檔是一種常被用來配置設定值的檔案格式，副檔名為「yml」。我們可將 application.properties 檔案，改寫為「application.yml」檔案。Spring Boot 支援以 YAML 檔做為設定值的來源。</p>
+<div class="code-wrapper"><pre><code class="hljs yml"><span class="hljs-attr">server:</span>
+  <span class="hljs-attr">port:</span> <span class="hljs-number">8080</span>
+
+<span class="hljs-attr">spring:</span>
+  <span class="hljs-attr">profiles:</span>
+    <span class="hljs-attr">active:</span> <span class="hljs-string">dev</span>
+  <span class="hljs-attr">mail:</span>
+    <span class="hljs-attr">host:</span> <span class="hljs-string">smtp.gmail.com</span>
+    <span class="hljs-attr">port:</span> <span class="hljs-number">587</span>
+    <span class="hljs-attr">username:</span> <span class="hljs-string">your_gmail</span>
+    <span class="hljs-attr">password:</span> <span class="hljs-string">your_application_password</span>
+    <span class="hljs-attr">properties:</span>
+      <span class="hljs-attr">mail:</span>
+        <span class="hljs-attr">transport:</span>
+          <span class="hljs-attr">protocol:</span> <span class="hljs-string">smtp</span>
+        <span class="hljs-attr">smtp:</span>
+          <span class="hljs-attr">auth:</span> <span class="hljs-literal">true</span>
+          <span class="hljs-attr">starttls:</span>
+            <span class="hljs-attr">enable:</span> <span class="hljs-literal">true</span>
+
+<span class="hljs-attr">mail:</span>
+  <span class="hljs-attr">display-name:</span> <span class="hljs-string">Spring</span> <span class="hljs-string">Mail</span></code></pre></div>
+
+<p>從排版格式便可清楚地看出階層之分。YAML 檔以換行加兩個半形空格縮排為一個階層，相當於 properties 檔的「.」。YAML 格式有時具有更好的可讀性。</p>
+<hr>
+<p>本文的完成後專案，請<a target="_blank" rel="noopener" href="https://github.com/ntub46010/SpringBootTutorial/tree/Ch06-fin-application-properties-configuration">點我</a>。</p>
+<p>上一課：<a href="/articles/spring-boot-bean-ioc-di-and-swap/" target="_blank">【Spring Boot】第5課－元件的控制反轉、依賴注入與抽換</a></p>
+<p>下一課：<a href="/articles/spring-boot-construct-bean-programmatically/" target="_blank">【Spring Boot】第7課－手動進行元件的初始化</a></p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/Spring-Boot/" class="category-chain-item">Spring Boot</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+</div>
+
+
+              
+
+              
+            </div>
+
+            <div style="padding-top: 30px;">
+              <b style="font-size: 1.5rem;">張貼留言</b>
+              <script src="https://utteranc.es/client.js"
+                repo="chikuwacode/chikuwacode.github.io"
+                issue-term="pathname"
+                theme="github-light"
+                crossorigin="anonymous"
+                async>
+              </script>
+            </div>
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+
+
+    
+
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜尋</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">關鍵字</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/5.0.0/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允許 JavaScript 運行的環境下瀏覽效果更佳</div>
+  </noscript>
+</body>
+</html>

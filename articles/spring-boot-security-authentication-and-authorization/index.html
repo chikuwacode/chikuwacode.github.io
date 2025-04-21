@@ -1,0 +1,789 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-TW" >
+
+
+
+<head>
+  <meta charset="UTF-8">
+
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/logo.png">
+  <link rel="icon" href="/img/logo.png">
+  
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#a05926">
+  <meta name="author" content="Vincent">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="Spring Security 能幫助我們開發有關認證與授權等有關安全管理的功能。本文會進行初始設置，搭配 in-memory 的測試帳號，登入存取 API，藉此建立認證的概念。至於授權，則是透過設計帳號權限，並定義 API 要開放給哪些權限來達成。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="【Spring Boot】第12.1課－初探 Spring Security 的認證與授權">
+<meta property="og:url" content="https://ntub46010.github.io/articles/spring-boot-security-authentication-and-authorization/">
+<meta property="og:site_name" content="吉古拉的程式拾光">
+<meta property="og:description" content="Spring Security 能幫助我們開發有關認證與授權等有關安全管理的功能。本文會進行初始設置，搭配 in-memory 的測試帳號，登入存取 API，藉此建立認證的概念。至於授權，則是透過設計帳號權限，並定義 API 要開放給哪些權限來達成。">
+<meta property="og:locale" content="zh_TW">
+<meta property="og:image" content="https://ntub46010.github.io/img/index_img/spring-boot.jpg">
+<meta property="article:published_time" content="2021-06-06T07:48:00.000Z">
+<meta property="article:modified_time" content="2025-04-20T09:43:27.483Z">
+<meta property="article:author" content="Vincent">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://ntub46010.github.io/img/index_img/spring-boot.jpg">
+  
+  
+  
+  <title>【Spring Boot】第12.1課－初探 Spring Security 的認證與授權 | 吉古拉的程式拾光</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1736178_k526ubmyhba.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"ntub46010.github.io","root":"/","version":"1.9.8","typing":{"enable":false,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h2,h3","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":false},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"left","headingSelector":"h2,h3","collapseDepth":3},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2,"exclude":[".no-lazy"]},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":"G-BZW5S6P21Naa"},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 40vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>吉古拉的程式拾光</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>文章分類</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>關於本站</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/banner.jpg') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        
+          <div class="h2">
+            
+              <span id="subtitle">【Spring Boot】第12.1課－初探 Spring Security 的認證與授權</span>
+            
+          </div>
+        
+
+        
+          
+  <div class="mt-3">
+    
+    
+  </div>
+
+  <div class="mt-1">
+    
+
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="padding-left: 2rem; margin-right: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目錄</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">【Spring Boot】第12.1課－初探 Spring Security 的認證與授權</h1>
+            
+              <p id="updated-time" class="note note-warning" style="">
+                
+                  
+                    本文最後更新於：2025-04-20
+                  
+                
+              </p>
+            
+            
+              <div class="markdown-body">
+                
+                <p>Spring Security 是一套框架，它能幫助我們開發有關認證與授權等有關安全管理的功能。</p>
+<p>本文會進行 Spring Security 的初始配置。首先準備簡單的 RESTful API，並搭配 in-memory 的測試帳號，在瀏覽器登入存取 API。藉此讓讀者建立認證的概念。</p>
+<p>至於授權的部份，則會設計帳號的權限，並定義 API 要開放給哪些權限。</p>
+<hr>
+<h2 id="一、前言"><a href="#一、前言" class="headerlink" title="一、前言"></a>一、前言</h2><p>Spring Security 是一套可以保護 Spring Boot 應用程式的框架。它扮演著如同保全的角色，能夠管控人員的進出，以及誰可以去什麼地方。</p>
+<p>那麼要保護什麼呢？假設我們有一個校務系統，已知有「學生」和「老師」兩種角色。使用情境中，老師可以建立課程資料、給學生打分數；而學生可以選課、給予課程回饋。當然，這些操作都要先登入系統才能進行。</p>
+<p>基於這個情境，對學生而言，課程和分數的資料就只能查看，不能建立、修改或刪除。對老師而言，課程回饋只能查看，不能修改。</p>
+<p>所以說，Spring Security 這套安全管理的框架，就是要保護服務、資料等各項資源，不會被任意存取。</p>
+<p>Spring Security 提供了兩大功能，分別是認證（authentication）與授權（authorization）。認證就相當於前面提到的登入，向系統表示自己是個擁有帳號的使用者。而授權則是系統允許該使用者存取某服務，也就是存取 API。</p>
+<h2 id="二、程式專案概觀"><a href="#二、程式專案概觀" class="headerlink" title="二、程式專案概觀"></a>二、程式專案概觀</h2><p>本系列文章的範例程式，使用的 Spring Boot 版本為 3.4.4。</p>
+<p>請建立 Controller，準備一支簡單的 API，做為測試用途。</p>
+<div class="code-wrapper"><pre><code class="hljs java"><span class="hljs-meta">@RestController</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">MyController</span> &#123;
+
+    <span class="hljs-meta">@GetMapping(&quot;/home&quot;)</span>
+    <span class="hljs-keyword">public</span> String <span class="hljs-title function_">home</span><span class="hljs-params">()</span> &#123;
+        <span class="hljs-keyword">return</span> <span class="hljs-string">&quot;系統首頁&quot;</span>;
+    &#125;
+&#125;</code></pre></div>
+
+<p>啟動程式後，讀者可在瀏覽器上前往 <code>http://localhost:8080/home</code>，確認有出現該 API 回傳的「系統首頁」字串。<br><img src="https://ntub46010.github.io/articles/spring-boot-security-authentication-and-authorization/spring-security-call-api-in-browser.png" srcset="/img/loading.gif" lazyload></p>
+<p>接著請在 pom.xml 檔案添加 Spring Security 的依賴，並且重新整理，將函式庫下載到程式專案中。</p>
+<div class="code-wrapper"><pre><code class="hljs xml"><span class="hljs-tag">&lt;<span class="hljs-name">dependency</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">groupId</span>&gt;</span>org.springframework.boot<span class="hljs-tag">&lt;/<span class="hljs-name">groupId</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">artifactId</span>&gt;</span>spring-boot-starter-security<span class="hljs-tag">&lt;/<span class="hljs-name">artifactId</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-name">dependency</span>&gt;</span></code></pre></div>
+
+<p>即便現在我們尚未做任何設定，但 Spring Security 預設將自動保護所有 API。此時重新啟動程式，讀者再前往該網址，便會看見內建的登入畫面。<br><img src="https://ntub46010.github.io/articles/spring-boot-security-authentication-and-authorization/spring-security-login-page.png" srcset="/img/loading.gif" lazyload></p>
+<p>雖然在前後端分離的系統中，並不會使用這種登入畫面，然而在初學 Spring Security 時，它是用來測試認證與授權的好管道。</p>
+<p>Spring Security 在每次程式啟動時，都會產生一個叫「user」的帳號。而密碼為隨機值，在 console 中可找到如下的訊息：</p>
+<div class="code-wrapper"><pre><code class="hljs text">Using generated security password: 8698d55e-33dc-461c-80e4-a8e364b23a6c</code></pre></div>
+
+<p>這時在登入畫面輸入該組帳密，就又能看見剛剛的「系統首頁」文字了。</p>
+<p>而 Spring Security 也有內建登出畫面，網址為 <code>http://localhost:8080/logout</code>。<br><img src="https://ntub46010.github.io/articles/spring-boot-security-authentication-and-authorization/spring-security-logout-page.png" srcset="/img/loading.gif" lazyload></p>
+<p>在本文第三節登入測試帳號後，可透過此畫面來登出，以切換不同帳號。</p>
+<h2 id="三、實作認證功能"><a href="#三、實作認證功能" class="headerlink" title="三、實作認證功能"></a>三、實作認證功能</h2><h3 id="（一）準備測試帳號"><a href="#（一）準備測試帳號" class="headerlink" title="（一）準備測試帳號"></a>（一）準備測試帳號</h3><p>實務開發中，都是在資料庫儲存使用者的帳密。然而接下來的範例程式，若馬上引進資料庫，那我們就勢必得先準備資料庫的服務、設計使用者的資料表欄位，並在 Spring Boot 中串接。</p>
+<p>為避免讀者在學習上分心，以及文章篇幅過長，筆者在本文會使用 Spring Security 提供的「in-memory user」功能，快速建立簡易的測試帳號。</p>
+<p>待本文結束，對 Spring Security 的認證與授權有概念後，在<a href="/articles/spring-boot-security-authentication-integrating-with-mongodb-database/" target="_blank">第 12.2 課</a>會抽換成使用資料庫來儲存帳密。</p>
+<p>以下建立了一個配置類別，並冠上 <code>@EnableWebSecurity</code> 注解。有關 Spring Security 的各項設定，都能在這裡透過程式碼來自定義。</p>
+<div class="code-wrapper"><pre><code class="hljs java"><span class="hljs-meta">@Configuration</span>
+<span class="hljs-meta">@EnableWebSecurity</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">SecurityConfig</span> &#123;
+
+    <span class="hljs-meta">@Bean</span>
+    <span class="hljs-keyword">public</span> InMemoryUserDetailsManager <span class="hljs-title function_">inMemoryUserDetailManager</span><span class="hljs-params">()</span> &#123;
+        <span class="hljs-type">UserDetails</span> <span class="hljs-variable">user1</span> <span class="hljs-operator">=</span> User
+                .withUsername(<span class="hljs-string">&quot;user1&quot;</span>)
+                .password(<span class="hljs-string">&quot;&#123;noop&#125;111&quot;</span>)
+                .build();
+        <span class="hljs-type">UserDetails</span> <span class="hljs-variable">user2</span> <span class="hljs-operator">=</span> User
+                .withUsername(<span class="hljs-string">&quot;user2&quot;</span>)
+                .password(<span class="hljs-string">&quot;&#123;noop&#125;222&quot;</span>)
+                .build();
+        <span class="hljs-type">UserDetails</span> <span class="hljs-variable">user3</span> <span class="hljs-operator">=</span> User
+                .withUsername(<span class="hljs-string">&quot;user3&quot;</span>)
+                .password(<span class="hljs-string">&quot;&#123;noop&#125;333&quot;</span>)
+                .build();
+        <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">InMemoryUserDetailsManager</span>(List.of(user1, user2, user3));
+    &#125;
+&#125;</code></pre></div>
+
+<p>上面建立了 <code>InMemoryUserDetailsManager</code> 元件，它會被 Spring Security 讀取。其用途顧名思義就是在記憶體中管理帳號，建構子接收了 <code>UserDetails</code> 型態的物件。</p>
+<p>至於建立帳號的方式，則是呼叫 <code>User</code> 類別提供的靜態方法，傳入帳號與密碼。此處建立了三個使用者：</p>
+<table>
+<thead>
+<tr>
+<th>帳號</th>
+<th>密碼</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>user1</td>
+<td>111</td>
+</tr>
+<tr>
+<td>user2</td>
+<td>222</td>
+</tr>
+<tr>
+<td>user3</td>
+<td>333</td>
+</tr>
+</tbody></table>
+<p>重新啟動程式後，讀者可在瀏覽器分別用這些帳號前往 <code>http://localhost:8080/home</code>。若成功，則代表這些測試帳號是有用的。</p>
+<h3 id="（二）密碼加密"><a href="#（二）密碼加密" class="headerlink" title="（二）密碼加密"></a>（二）密碼加密</h3><p>設定密碼時，在前面加上了 <code>&#123;noop&#125;</code> 的字串。原因是配置 in-memory user 的密碼時，需指定密碼的加密演算法。以下舉例其中幾項：</p>
+<table>
+<thead>
+<tr>
+<th>前綴</th>
+<th>演算法</th>
+<th>密碼原文</th>
+<th>參數寫法</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>{noop}</td>
+<td>不加密</td>
+<td>123</td>
+<td>{noop}123</td>
+</tr>
+<tr>
+<td>{bcrypt}</td>
+<td>BCrypt</td>
+<td>456</td>
+<td>{bcrypt}$2a$12$YowIkLKzGwPjMt6jtCkvDuCA7Vxb&#x2F;81pQaJvGgtbKjMgVYtMs2DKK</td>
+</tr>
+<tr>
+<td>{sha256}</td>
+<td>SHA256</td>
+<td>password</td>
+<td>{sha256}97cde38028ad898ebc02e690819fa220e88c62e0699403e94fff291cfffaf8410849f27605abcbc0</td>
+</tr>
+</tbody></table>
+<p>在實務上，我們會先將密碼的原文加密後，才儲存資料庫。其用意是為了保護客戶的資料，避免資料庫內容外洩，或者員工監守自盜。在範例程式中指定密碼的加密演算法，便是為了模擬出這個情境。</p>
+<p>為了方便示範，筆者將以未加密的密碼來儲存。其中「noop」是「No Operation」的意思。若讀者有興趣，<a target="_blank" rel="noopener" href="https://bcrypt-generator.com/">這裡</a>也提供 BCrypt 演算法的轉換與驗證工具。</p>
+<h2 id="四、實作授權功能"><a href="#四、實作授權功能" class="headerlink" title="四、實作授權功能"></a>四、實作授權功能</h2><h3 id="（一）準備測試用-API"><a href="#（一）準備測試用-API" class="headerlink" title="（一）準備測試用 API"></a>（一）準備測試用 API</h3><p>上一節，我們已經做到建立測試帳號，並通過登入畫面的「認證」。不過 Spring Security 還有另一個環節，那就是「授權」。</p>
+<p>授權指的是系統允許使用者存取某項服務。換句話說，一個人即便能夠登入，也不代表能使用所有的功能。正如同本文第一節所舉的例子，學生不能編輯課程資料，老師也不能選課。</p>
+<p>在 Controller 中，請讀者準備其他 API。連同先前的「系統首頁」，現在共有 5 支 API。</p>
+<div class="code-wrapper"><pre><code class="hljs java"><span class="hljs-meta">@RestController</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">MyController</span> &#123;
+
+    <span class="hljs-meta">@GetMapping(&quot;/register&quot;)</span>
+    <span class="hljs-keyword">public</span> String <span class="hljs-title function_">register</span><span class="hljs-params">()</span> &#123;
+        <span class="hljs-keyword">return</span> <span class="hljs-string">&quot;註冊畫面&quot;</span>;
+    &#125;
+    
+    <span class="hljs-meta">@GetMapping(&quot;/home&quot;)</span>
+    <span class="hljs-keyword">public</span> String <span class="hljs-title function_">home</span><span class="hljs-params">()</span> &#123;
+        <span class="hljs-keyword">return</span> <span class="hljs-string">&quot;系統首頁&quot;</span>;
+    &#125;
+
+    <span class="hljs-meta">@GetMapping(&quot;/selected-courses&quot;)</span>
+    <span class="hljs-keyword">public</span> String <span class="hljs-title function_">selectedCourses</span><span class="hljs-params">()</span> &#123;
+        <span class="hljs-keyword">return</span> <span class="hljs-string">&quot;修課清單&quot;</span>;
+    &#125;
+
+    <span class="hljs-meta">@GetMapping(&quot;/course-feedback&quot;)</span>
+    <span class="hljs-keyword">public</span> String <span class="hljs-title function_">courseFeedback</span><span class="hljs-params">()</span> &#123;
+        <span class="hljs-keyword">return</span> <span class="hljs-string">&quot;課程回饋&quot;</span>;
+    &#125;
+
+    <span class="hljs-meta">@GetMapping(&quot;/members&quot;)</span>
+    <span class="hljs-keyword">public</span> String <span class="hljs-title function_">members</span><span class="hljs-params">()</span> &#123;
+        <span class="hljs-keyword">return</span> <span class="hljs-string">&quot;使用者列表&quot;</span>;
+    &#125;
+&#125;</code></pre></div>
+
+<p>在這個例子中，我們希望「註冊畫面」不需登入即可存取；「系統首頁」需登入才能存取；「修課清單」只有學生能存取；「課程回饋」只有老師能存取；「使用者列表」只有管理員能存取。</p>
+<h3 id="（二）添加權限"><a href="#（二）添加權限" class="headerlink" title="（二）添加權限"></a>（二）添加權限</h3><p>接著回到 Spring Security 的配置類別，為測試帳號設計「權限」（authority）。</p>
+<div class="code-wrapper"><pre><code class="hljs java"><span class="hljs-meta">@Configuration</span>
+<span class="hljs-meta">@EnableWebSecurity</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">SecurityConfig</span> &#123;
+
+    <span class="hljs-meta">@Bean</span>
+    <span class="hljs-keyword">public</span> InMemoryUserDetailsManager <span class="hljs-title function_">inMemoryUserDetailManager</span><span class="hljs-params">()</span> &#123;
+        <span class="hljs-type">UserDetails</span> <span class="hljs-variable">user1</span> <span class="hljs-operator">=</span> User
+                .withUsername(<span class="hljs-string">&quot;user1&quot;</span>)
+                .password(<span class="hljs-string">&quot;&#123;noop&#125;111&quot;</span>)
+                .authorities(<span class="hljs-string">&quot;STUDENT&quot;</span>)
+                .build();
+        <span class="hljs-type">UserDetails</span> <span class="hljs-variable">user2</span> <span class="hljs-operator">=</span> User
+                .withUsername(<span class="hljs-string">&quot;user2&quot;</span>)
+                .password(<span class="hljs-string">&quot;&#123;noop&#125;222&quot;</span>)
+                .authorities(<span class="hljs-string">&quot;TEACHER&quot;</span>)
+                .build();
+        <span class="hljs-type">UserDetails</span> <span class="hljs-variable">user3</span> <span class="hljs-operator">=</span> User
+                .withUsername(<span class="hljs-string">&quot;user3&quot;</span>)
+                .password(<span class="hljs-string">&quot;&#123;noop&#125;333&quot;</span>)
+                .authorities(<span class="hljs-string">&quot;ADMIN&quot;</span>, <span class="hljs-string">&quot;TEACHER&quot;</span>)
+                .build();
+        <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">InMemoryUserDetailsManager</span>(List.of(user1, user2, user3));
+    &#125;
+&#125;</code></pre></div>
+
+<p>呼叫 <code>authorities</code> 方法，可以為 in-memory user 添加一至多個權限。至於權限的名稱，則是由我們自己取名，此處包含「學生」、「老師」與「管理員」。其中「user3」這個帳號同時具有老師與管理員權限。</p>
+<h3 id="（三）授權規則"><a href="#（三）授權規則" class="headerlink" title="（三）授權規則"></a>（三）授權規則</h3><p>設計好帳號的權限後，接下來要對 Controller 的 API 進行保護，定義它們要開放給具有哪些權限的人存取。</p>
+<p>請在 Spring Security 的配置類別，建立 <code>SecurityFilterChain</code> 元件。</p>
+<div class="code-wrapper"><pre><code class="hljs java"><span class="hljs-meta">@Configuration</span>
+<span class="hljs-meta">@EnableWebSecurity</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">SecurityConfig</span> &#123;
+    <span class="hljs-comment">// ...</span>
+
+    <span class="hljs-meta">@Bean</span>
+    <span class="hljs-keyword">public</span> SecurityFilterChain <span class="hljs-title function_">securityFilterChain</span><span class="hljs-params">(HttpSecurity httpSecurity)</span> <span class="hljs-keyword">throws</span> Exception &#123;
+        <span class="hljs-keyword">return</span> httpSecurity
+                .formLogin(Customizer.withDefaults())
+                .authorizeHttpRequests(requests -&gt; requests
+                        .requestMatchers(HttpMethod.GET, <span class="hljs-string">&quot;/register&quot;</span>).permitAll()
+                        .requestMatchers(HttpMethod.GET, <span class="hljs-string">&quot;/selected-courses&quot;</span>).hasAuthority(<span class="hljs-string">&quot;STUDENT&quot;</span>)
+                        .requestMatchers(HttpMethod.GET, <span class="hljs-string">&quot;/course-feedback&quot;</span>).hasAnyAuthority(<span class="hljs-string">&quot;TEACHER&quot;</span>, <span class="hljs-string">&quot;ADMIN&quot;</span>)
+                        .requestMatchers(HttpMethod.GET, <span class="hljs-string">&quot;/members&quot;</span>).hasAuthority(<span class="hljs-string">&quot;ADMIN&quot;</span>)
+                        .anyRequest().authenticated()
+                )
+                .build();
+    &#125;
+&#125;</code></pre></div>
+
+<p>Spring Security 會將 <code>HttpSecurity</code> 物件注入到建立元件的方法中。透過該物件的一系列方法呼叫，我們能站在安全管理的角度，自定義 request 到達後端時的應對方式。</p>
+<p>一開始的 <code>formLogin</code> 方法，是啟用先前的登入畫面，便於我們繼續進行測試。</p>
+<p>接下來的 <code>authorizeHttpRequests</code> 方法，其用途是設定要如何進行授權。定義時，需提供「API」與「授權規則」這兩個部份。</p>
+<p>呼叫 <code>requestMatchers</code> 方法，可傳入 API 路徑與 HTTP 方法；呼叫 <code>anyRequests</code> 方法，代表要對「其餘」的 API 做設定。這是有先後順序之分的，就像 Java 語言的「if → else if → else」，是由上而下逐一判斷。</p>
+<p>提供完 API 後，接著要定義授權規則。以下舉例幾個可用的方法：</p>
+<table>
+<thead>
+<tr>
+<th>方法名稱</th>
+<th>意義</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>permitAll</td>
+<td>不必登入認證就能存取。</td>
+</tr>
+<tr>
+<td>hasAuthority</td>
+<td>需具備某一個權限才能存取。</td>
+</tr>
+<tr>
+<td>hasAnyAuthority</td>
+<td>只要具備任一個權限就能存取。</td>
+</tr>
+<tr>
+<td>authenticated</td>
+<td>需登入認證才能存取。</td>
+</tr>
+</tbody></table>
+<p>除了上表列出的方法，讀者也可參考 <code>access</code> 方法，搭配 Spring 表達式（Spring Expression Language，SpEL）實現複雜的規則。下面的例子，是只有兼具管理員與老師權限的帳號才能存取 API，用到了「AND」邏輯的語法。</p>
+<div class="code-wrapper"><pre><code class="hljs java">.access(<span class="hljs-keyword">new</span> <span class="hljs-title class_">WebExpressionAuthorizationManager</span>(<span class="hljs-string">&quot;hasAuthority(&#x27;ADMIN&#x27;) AND hasAuthority(&#x27;TEACHER&#x27;)&quot;</span>))</code></pre></div>
+
+<p>撰寫完設定後，讀者可重新啟動程式，在瀏覽器分別使用學生、老師與管理員的帳號存取這 5 支 API，確認是否符合規則。</p>
+<p>最後補充，定義 API 授權規則時，路徑的部份除了精確地逐一寫出來，也能透過萬用字元來「模糊匹配」。下表是用法與範例：</p>
+<table>
+<thead>
+<tr>
+<th>萬用字元</th>
+<th>意義</th>
+<th>範例寫法</th>
+<th>適用</th>
+<th>不適用</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>*</td>
+<td>0 到多個字元</td>
+<td>&#x2F;courses&#x2F;*</td>
+<td>&#x2F;courses、&#x2F;courses&#x2F;123</td>
+<td>&#x2F;courses&#x2F;123&#x2F;draft</td>
+</tr>
+<tr>
+<td>**</td>
+<td>0 到多個階層</td>
+<td>&#x2F;courses&#x2F;**</td>
+<td>任何「&#x2F;courses」開頭的路徑</td>
+<td>-</td>
+</tr>
+<tr>
+<td>?</td>
+<td>1 個字元</td>
+<td>&#x2F;courses&#x2F;?</td>
+<td>&#x2F;courses&#x2F;1</td>
+<td>&#x2F;courses&#x2F;123、&#x2F;courses</td>
+</tr>
+<tr>
+<td>?* 或 *?</td>
+<td>1 到多個字元</td>
+<td>&#x2F;courses&#x2F;?*</td>
+<td>&#x2F;courses&#x2F;1、&#x2F;courses&#x2F;123</td>
+<td>&#x2F;courses</td>
+</tr>
+</tbody></table>
+<p>到目前為止，測試帳號都是使用 in-memory user。下一篇將特別實作自定義的認證方式，抽換成使用資料庫來儲存帳號、密碼與權限。</p>
+<hr>
+<p>本文的完成後專案，請<a target="_blank" rel="noopener" href="https://github.com/ntub46010/SpringBootTutorial/tree/Ch12.1-security-authentication-and-authorization">點我</a>。</p>
+<p>下一課：<a href="/articles/spring-boot-security-authentication-integrating-with-mongodb-database/" target="_blank">【Spring Boot】第12.2課－在 Spring Security 整合資料庫進行認證</a></p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/Spring-Boot/" class="category-chain-item">Spring Boot</a>
+  
+  
+
+      </span>
+    
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/Spring-Security/" class="category-chain-item">Spring Security</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+</div>
+
+
+              
+
+              
+            </div>
+
+            <div style="padding-top: 30px;">
+              <b style="font-size: 1.5rem;">張貼留言</b>
+              <script src="https://utteranc.es/client.js"
+                repo="chikuwacode/chikuwacode.github.io"
+                issue-term="pathname"
+                theme="github-light"
+                crossorigin="anonymous"
+                async>
+              </script>
+            </div>
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+
+
+    
+
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜尋</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">關鍵字</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/5.0.0/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允許 JavaScript 運行的環境下瀏覽效果更佳</div>
+  </noscript>
+</body>
+</html>

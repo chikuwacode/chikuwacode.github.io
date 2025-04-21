@@ -1,0 +1,857 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-TW" >
+
+
+
+<head>
+  <meta charset="UTF-8">
+
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/logo.png">
+  <link rel="icon" href="/img/logo.png">
+  
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#a05926">
+  <meta name="author" content="Vincent">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="控制反轉（IoC）與依賴注入（DI）是 Spring Boot 中的重要觀念。本文首先讓讀者知道物件的依賴關係，接著說明「單例」的重要性。隨後經由這些議題來介紹控制反轉與依賴注入，以及應用的方式。最後帶入物件導向的「多型」特性，示範以介面來操作物件，將有助於實作細節的抽換。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="【Spring Boot】第5課－元件的控制反轉、依賴注入與抽換">
+<meta property="og:url" content="https://ntub46010.github.io/articles/spring-boot-bean-ioc-di-and-swap/">
+<meta property="og:site_name" content="吉古拉的程式拾光">
+<meta property="og:description" content="控制反轉（IoC）與依賴注入（DI）是 Spring Boot 中的重要觀念。本文首先讓讀者知道物件的依賴關係，接著說明「單例」的重要性。隨後經由這些議題來介紹控制反轉與依賴注入，以及應用的方式。最後帶入物件導向的「多型」特性，示範以介面來操作物件，將有助於實作細節的抽換。">
+<meta property="og:locale" content="zh_TW">
+<meta property="og:image" content="https://ntub46010.github.io/img/index_img/spring-boot.jpg">
+<meta property="article:published_time" content="2019-06-04T07:27:40.000Z">
+<meta property="article:modified_time" content="2025-03-22T10:33:37.985Z">
+<meta property="article:author" content="Vincent">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://ntub46010.github.io/img/index_img/spring-boot.jpg">
+  
+  
+  
+  <title>【Spring Boot】第5課－元件的控制反轉、依賴注入與抽換 | 吉古拉的程式拾光</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1736178_k526ubmyhba.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"ntub46010.github.io","root":"/","version":"1.9.8","typing":{"enable":false,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h2,h3","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":false},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"left","headingSelector":"h2,h3","collapseDepth":3},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2,"exclude":[".no-lazy"]},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":"G-BZW5S6P21Naa"},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 40vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>吉古拉的程式拾光</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>文章分類</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>關於本站</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/banner.jpg') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        
+          <div class="h2">
+            
+              <span id="subtitle">【Spring Boot】第5課－元件的控制反轉、依賴注入與抽換</span>
+            
+          </div>
+        
+
+        
+          
+  <div class="mt-3">
+    
+    
+  </div>
+
+  <div class="mt-1">
+    
+
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="padding-left: 2rem; margin-right: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目錄</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">【Spring Boot】第5課－元件的控制反轉、依賴注入與抽換</h1>
+            
+              <p id="updated-time" class="note note-warning" style="">
+                
+                  
+                    本文最後更新於：2025-03-22
+                  
+                
+              </p>
+            
+            
+              <div class="markdown-body">
+                
+                <p>控制反轉（IoC）與依賴注入（DI）是 Spring Boot 中的重要觀念。而筆者選擇在<a href="/articles/spring-boot-three-tier-architecture/" target="_blank">第 4 課（三層式架構）</a>結束，練習用專案的架構成形後，才開始介紹。</p>
+<p>本文首先透過範例專案，讓讀者知道裡頭那些用來封裝程式邏輯的物件，其實存在著依賴關係。接著說明在後端程式運行期間，為何要求這些物件只能存在唯一一個，以及如何做到。</p>
+<p>有了先備的概念後，筆者再經由這些議題，開始介紹控制反轉與依賴注入。最後引進物件導向的「多型」特性，示範以介面來操作物件，有助於實作細節的抽換。</p>
+<hr>
+<p>本文的練習用專案，請<a target="_blank" rel="noopener" href="https://github.com/ntub46010/SpringBootTutorial/tree/Ch04-three-tier-architecture">點我</a>。</p>
+<h2 id="一、依賴關係"><a href="#一、依賴關係" class="headerlink" title="一、依賴關係"></a>一、依賴關係</h2><p>在介紹控制反轉與依賴注入的概念前，讓我們先看看範例專案大概的架構。</p>
+<p>以下是產品和使用者的 Repository 層，它們使用 Java 的 Map 資料結構代替真實 DB。並且提供一些方法供外部呼叫，藉此對資料做存取。</p>
+<div class="code-wrapper"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">ProductRepository</span> &#123;
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">final</span> Map&lt;String, ProductPO&gt; productMap = <span class="hljs-keyword">new</span> <span class="hljs-title class_">HashMap</span>&lt;&gt;();
+
+    <span class="hljs-keyword">public</span> ProductPO <span class="hljs-title function_">getOneById</span><span class="hljs-params">(String id)</span> &#123;
+        <span class="hljs-keyword">return</span> productMap.get(id);
+    &#125;
+
+    <span class="hljs-comment">// ...</span>
+&#125;</code></pre></div>
+<div class="code-wrapper"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">UserRepository</span> &#123;
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">final</span> Map&lt;String, UserPO&gt; userMap = <span class="hljs-keyword">new</span> <span class="hljs-title class_">HashMap</span>&lt;&gt;();
+
+    <span class="hljs-keyword">public</span> UserPO <span class="hljs-title function_">getOneById</span><span class="hljs-params">(String id)</span> &#123;
+        <span class="hljs-keyword">return</span> userMap.get(id);
+    &#125;
+
+    <span class="hljs-comment">// ...</span>
+&#125;</code></pre></div>
+
+<p>以下是產品的 Service 層，提供了商業邏輯。該類別擁有全域的 Repository 物件，讓商業邏輯的程式碼呼叫。</p>
+<div class="code-wrapper"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">ProductService</span> &#123;
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">final</span> <span class="hljs-type">ProductRepository</span> <span class="hljs-variable">productRepository</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">ProductRepository</span>();
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">final</span> <span class="hljs-type">UserRepository</span> <span class="hljs-variable">userRepository</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">UserRepository</span>();
+
+    <span class="hljs-keyword">public</span> ProductVO <span class="hljs-title function_">getProductVO</span><span class="hljs-params">(String id)</span> &#123;
+        <span class="hljs-type">var</span> <span class="hljs-variable">productPO</span> <span class="hljs-operator">=</span> productRepository.getOneById(id);
+        <span class="hljs-comment">// ...</span>
+
+        <span class="hljs-type">var</span> <span class="hljs-variable">userPO</span> <span class="hljs-operator">=</span> userRepository.getOneById(productPO.getCreatorId());
+        <span class="hljs-comment">// ...</span>
+
+        <span class="hljs-keyword">return</span> productVO;
+    &#125;
+
+    <span class="hljs-comment">// ...</span>
+&#125;</code></pre></div>
+
+<p>以下是 Controller 層，提供了 RESTful API。該類別擁有全域的 Service 物件。</p>
+<div class="code-wrapper"><pre><code class="hljs java"><span class="hljs-meta">@RestController</span>
+<span class="hljs-meta">@RequestMapping(path = &quot;/products&quot;)</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">ProductController</span> &#123;
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">final</span> <span class="hljs-type">ProductService</span> <span class="hljs-variable">productService</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">ProductService</span>();
+    <span class="hljs-comment">// ...</span>
+&#125;</code></pre></div>
+
+<p>讀者可以看出它們之間的關係：Controller 呼叫 Service；而 Service 呼叫 Repository。這種「誰呼叫誰」的關係，正式的稱呼為「依賴」（depend）。</p>
+<p>附帶一提，範例專案為了簡便，並未實作使用者的 Controller 和 Service。不然原則上也會是「UserController」依賴「UserService」；而 UserService 依賴 UserRepository 的關係。</p>
+<div class="code-wrapper"><pre><code class="hljs java"><span class="hljs-meta">@RestController</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">UserController</span> &#123;
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">final</span> <span class="hljs-type">UserService</span> <span class="hljs-variable">userService</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">UserService</span>();
+    <span class="hljs-comment">// ...</span>
+&#125;</code></pre></div>
+<div class="code-wrapper"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">UserService</span> &#123;
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">final</span> <span class="hljs-type">UserRepository</span> <span class="hljs-variable">userRepository</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">UserRepository</span>();
+    <span class="hljs-comment">// ...</span>
+&#125;</code></pre></div>
+
+<h2 id="二、元件與單例的概念"><a href="#二、元件與單例的概念" class="headerlink" title="二、元件與單例的概念"></a>二、元件與單例的概念</h2><p>本節將討論，同樣是封裝程式邏輯，為何要特別建立物件呢？並且向讀者介紹「單例」（singleton）的概念。</p>
+<h3 id="（一）元件"><a href="#（一）元件" class="headerlink" title="（一）元件"></a>（一）元件</h3><p>無論是 ProductService、ProductRepository 或 UserRepository，雖然它們都被建立成物件，但目的都是封裝程式邏輯，而非攜帶資料到處傳遞。</p>
+<p>像這種用途的物件，我們給它一個更正式的稱呼，叫做「元件」，英文為「bean」或「component」。元件可以提供方法，來實現商業邏輯、資料處理或存取 DB 等功能。</p>
+<p>既然只是用來封裝邏輯，那為什麼不宣告成靜態（static）的方法就好呢？這樣連物件都不必建立了。示意如下：</p>
+<div class="code-wrapper"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">ProductService</span> &#123;
+    <span class="hljs-keyword">private</span> <span class="hljs-title function_">ProductService</span><span class="hljs-params">()</span> &#123;&#125;
+
+    <span class="hljs-comment">// 宣告為靜態方法</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> ProductVO <span class="hljs-title function_">getProductVO</span><span class="hljs-params">(String id)</span> &#123;
+        <span class="hljs-comment">// ...</span>
+    &#125;
+&#125;</code></pre></div>
+<div class="code-wrapper"><pre><code class="hljs java"><span class="hljs-meta">@RestController</span>
+<span class="hljs-meta">@RequestMapping(path = &quot;/products&quot;)</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">ProductController</span> &#123;
+    
+    <span class="hljs-meta">@GetMapping(&quot;/&#123;id&#125;&quot;)</span>
+    <span class="hljs-keyword">public</span> ResponseEntity&lt;ProductVO&gt; <span class="hljs-title function_">getProduct</span><span class="hljs-params">(<span class="hljs-meta">@PathVariable(&quot;id&quot;)</span> String productId)</span> &#123;
+        <span class="hljs-comment">// 呼叫靜態方法</span>
+        <span class="hljs-type">var</span> <span class="hljs-variable">product</span> <span class="hljs-operator">=</span> ProductService.getProductVO(productId);
+
+        <span class="hljs-comment">// ...</span>
+    &#125;
+&#125;</code></pre></div>
+<p>要知道，系統功能是可以很複雜的，若元件一律提供靜態方法，那就不能善用物件導向中，繼承與多型的特性了。</p>
+<h3 id="（二）單例"><a href="#（二）單例" class="headerlink" title="（二）單例"></a>（二）單例</h3><p>筆者先前建立元件的全域變數，其用意是避免每呼叫一次方法，就建立一次元件，示意如下：</p>
+<div class="code-wrapper"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">ProductService</span> &#123;
+
+    <span class="hljs-keyword">public</span> ProductVO <span class="hljs-title function_">getProductVO</span><span class="hljs-params">(String id)</span> &#123;
+        <span class="hljs-type">var</span> <span class="hljs-variable">productPO</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">ProductRepository</span>().getOneById(id);
+        <span class="hljs-comment">// ...</span>
+
+        <span class="hljs-type">var</span> <span class="hljs-variable">userPO</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">UserRepository</span>().getOneById(productPO.getCreatorId());
+        <span class="hljs-comment">// ...</span>
+    &#125;
+
+    <span class="hljs-comment">// ...</span>
+&#125;</code></pre></div>
+
+<p>建立物件會在記憶體佔一個空間，而用完就又要回收，其實沒必要如此反覆。更別提在用戶多的系統，伺服器是很忙碌的。</p>
+<p>為了確保應用程式運行期間，特定類別的物件只會存在一個，並能讓各個地方共享，於是出現了「單例」的概念。「單」是單一的意思，而「例」是實例（instance）。</p>
+<p>讀者在網路上，能找到各種單例的程式寫法，以下是簡單的範例：</p>
+<div class="code-wrapper"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">ProductRepository</span> &#123;
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">final</span> <span class="hljs-type">ProductRepository</span> <span class="hljs-variable">INSTANCE</span>  <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">ProductRepository</span>();
+
+    <span class="hljs-keyword">private</span> <span class="hljs-title function_">ProductRepository</span><span class="hljs-params">()</span> &#123;
+        <span class="hljs-comment">// 初始化...</span>
+    &#125;
+
+    <span class="hljs-comment">// 提供取得唯一物件的方法</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> ProductRepository <span class="hljs-title function_">getInstance</span><span class="hljs-params">()</span> &#123;
+        <span class="hljs-keyword">return</span> INSTANCE;
+    &#125;
+&#125;</code></pre></div>
+
+<p>但也能顧及執行緒安全而變得複雜：</p>
+<div class="code-wrapper"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">ProductRepository</span> &#123;
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> ProductRepository INSTANCE;
+
+    <span class="hljs-keyword">private</span> <span class="hljs-title function_">ProductRepository</span><span class="hljs-params">()</span> &#123;
+        <span class="hljs-comment">// 初始化...</span>
+    &#125;
+
+    <span class="hljs-comment">// 提供取得唯一物件的方法</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> ProductRepository <span class="hljs-title function_">getInstance</span><span class="hljs-params">()</span> &#123;
+        <span class="hljs-keyword">if</span> (INSTANCE == <span class="hljs-literal">null</span>) &#123;
+            <span class="hljs-keyword">synchronized</span> (ProductRepository.class) &#123;
+                <span class="hljs-keyword">if</span> (INSTANCE == <span class="hljs-literal">null</span>) &#123;
+                    INSTANCE = <span class="hljs-keyword">new</span> <span class="hljs-title class_">ProductRepository</span>();
+                &#125;
+            &#125;
+        &#125;
+        <span class="hljs-keyword">return</span> INSTANCE;
+    &#125;
+&#125;</code></pre></div>
+
+<p>元件的依賴關係，可能會無意間建立出多餘的物件。而手動實現單例，又很不方便。幸好 Spring Boot 有提供「控制反轉」和「依賴注入」的功能，來解決這些問題。</p>
+<h2 id="三、控制反轉（Inversion-of-Control，IoC）"><a href="#三、控制反轉（Inversion-of-Control，IoC）" class="headerlink" title="三、控制反轉（Inversion of Control，IoC）"></a>三、控制反轉（Inversion of Control，IoC）</h2><p>在 Java 語言中建立物件的方式，是在想要的地方使用 new 關鍵字。而「控制反轉」的精神，則是將建立物件的工作轉移給外界。</p>
+<p>也就是說，無論是透過建構子或 setter 方法，只要物件並非在類別內部建立，而是由外部提供，那就可以稱之為控制反轉。</p>
+<p>那要如何讓 Spring Boot 建立單例物件呢？做法是在類別冠上特定的注解（annotation）。Spring Boot 啟動時，會透過 Java 的「反射」（reflection）機制，掃描專案中的哪些類別具有這些注解。</p>
+<p>可使用的注解如下，它們有不同的涵義。</p>
+<ul>
+<li><code>@Controller</code>：代表提供 Web API 的表現層。<code>@RestController</code> 注解便是繼承於它。於<a href="/articles/spring-boot-implement-restful-api-in-controller/" target="_blank">第 3.1 課</a>介紹。</li>
+<li><code>@Service</code>：代表商業邏輯層。</li>
+<li><code>@Repository</code>：代表資料存取層。</li>
+<li><code>@Configuration</code>：代表這裡搭配 <code>@Value</code> 注解，存放了「application.properties」配置檔的值。於<a href="/articles/spring-boot-application-properties-configuration/" target="_blank">第 6 課</a>介紹。或者搭配 <code>@Bean</code> 注解，控制元件的初始化過程。於<a href="/articles/spring-boot-construct-bean-programmatically/" target="_blank">第 7 課</a>介紹。</li>
+<li><code>@Component</code>：以上 4 項皆繼承自此注解，是泛用的選擇。</li>
+</ul>
+<p>接著，我們在範例專案中的元件類別，冠上適當的注解。</p>
+<div class="code-wrapper"><pre><code class="hljs java"><span class="hljs-meta">@Service</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">ProductService</span> &#123;
+    <span class="hljs-comment">// ...</span>
+&#125;</code></pre></div>
+<div class="code-wrapper"><pre><code class="hljs java"><span class="hljs-meta">@Repository</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">ProductRepository</span> &#123;
+    <span class="hljs-comment">// ...</span>
+&#125;</code></pre></div>
+<div class="code-wrapper"><pre><code class="hljs java"><span class="hljs-meta">@Repository</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">UserRepository</span> &#123;
+    <span class="hljs-comment">// ...</span>
+&#125;</code></pre></div>
+
+<p>如此一來，Spring Boot 建立出單例物件後，便會放在記憶體中管理。這個地方稱為「IoC 容器」。為了方便說明，筆者後續都用「元件」來指稱 IoC 容器中的單例物件。</p>
+<h2 id="四、依賴注入（Dependency-Injection，DI）"><a href="#四、依賴注入（Dependency-Injection，DI）" class="headerlink" title="四、依賴注入（Dependency Injection，DI）"></a>四、依賴注入（Dependency Injection，DI）</h2><h3 id="（一）介紹"><a href="#（一）介紹" class="headerlink" title="（一）介紹"></a>（一）介紹</h3><p>第一節展示的範例專案，說明了元件的依賴關係。而依賴注入便是要取代原先在程式碼中 new 物件的做法。</p>
+<p>類別必須具備前面提到的注解，才能被建立為元件。而 Spring Boot 可以把這些元件「注入」到其他的元件。</p>
+<p>範例程式中的 ProductService 依賴 ProductRepository 與 UserRepository。因此這些 Repository 元件，就會被注入到 ProductService 元件中。而 ProductController 又依賴 ProductService，故 Controller 也會被注入。</p>
+<p>我們可以使用 <code>@Autowired</code> 注解，讓 Spring Boot 注入元件。根據使用此注解的方式，又分為「欄位注入」與「建構子注入」。</p>
+<h3 id="（二）欄位注入（Field-Injection）"><a href="#（二）欄位注入（Field-Injection）" class="headerlink" title="（二）欄位注入（Field Injection）"></a>（二）欄位注入（Field Injection）</h3><p>欄位注入的做法，是對元件的全域變數冠上 <code>@Autowired</code> 注解。</p>
+<div class="code-wrapper"><pre><code class="hljs java"><span class="hljs-meta">@RestController</span>
+<span class="hljs-meta">@RequestMapping(path = &quot;/products&quot;)</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">ProductController</span> &#123;
+
+    <span class="hljs-meta">@Autowired</span>
+    <span class="hljs-keyword">private</span> ProductService productService;
+    
+    <span class="hljs-comment">// ...</span>
+&#125;</code></pre></div>
+<div class="code-wrapper"><pre><code class="hljs java"><span class="hljs-meta">@Service</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">ProductService</span> &#123;
+
+    <span class="hljs-meta">@Autowired</span>
+    <span class="hljs-keyword">private</span> ProductRepository productRepository;
+
+    <span class="hljs-meta">@Autowired</span>
+    <span class="hljs-keyword">private</span> UserRepository userRepository;
+
+    <span class="hljs-comment">// ...</span>
+&#125;</code></pre></div>
+
+<p>Spring Boot 會先建立出所有的元件，接著才把每個元件所依賴的其他元件逐一注入。因此元件可能有短暫時間處於初始化不完整的空窗期，這是一項缺點。而優點是寫法方便。</p>
+<h3 id="（三）建構子注入（Constructor-Injection）"><a href="#（三）建構子注入（Constructor-Injection）" class="headerlink" title="（三）建構子注入（Constructor Injection）"></a>（三）建構子注入（Constructor Injection）</h3><p>建構子注入的做法，是宣告包含所有依賴的建構子，再對其加上 <code>@Autowired</code> 注解。</p>
+<div class="code-wrapper"><pre><code class="hljs java"><span class="hljs-meta">@Service</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">ProductService</span> &#123;
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> ProductRepository productRepository;
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> UserRepository userRepository;
+
+    <span class="hljs-meta">@Autowired</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-title function_">ProductService</span><span class="hljs-params">(ProductRepository productRepository, UserRepository userRepository)</span> &#123;
+        <span class="hljs-built_in">this</span>.productRepository = productRepository;
+        <span class="hljs-built_in">this</span>.userRepository = userRepository;
+    &#125;
+    <span class="hljs-comment">// ...</span>
+&#125;</code></pre></div>
+
+<p>Spring Boot 在建立一個元件時，會先確認它所依賴的其他元件是否都建立好了。是的話，便從建構子注入進來。否則就先建立其他元件。意即建立與注入元件是同時進行的。</p>
+<p>這項做法的缺點是讓程式碼變得較冗長。然而瑕不掩瑜，優點是確保元件在被使用時，已經處於完整初始化的狀態。另外也有利於撰寫單元測試（unit test），因為我們可以將設計好的「模擬物件」（mock）由建構子傳入。</p>
+<p>Spring 官方也建議採取這樣的注入方式。</p>
+<h2 id="五、使用介面注入元件"><a href="#五、使用介面注入元件" class="headerlink" title="五、使用介面注入元件"></a>五、使用介面注入元件</h2><p>為了善用物件導向的「多型」特性，我們可以讓元件的類別實作「介面」。而進行依賴注入時，則以介面代替類別。這樣有助於未來更換元件時，不會影響到外部使用的方式。</p>
+<h3 id="（一）多型呼叫"><a href="#（一）多型呼叫" class="headerlink" title="（一）多型呼叫"></a>（一）多型呼叫</h3><p>請讀者透過 Java 語言回想一下，當我們讓類別實作「介面」（interface）時，必須完成介面所定義的 public 方法。</p>
+<p>當建立這種類別的物件時，宣告的型態可以用介面來取代類別。比方說「ArrayList」與「LinkedList」這兩種資料結構，均實作「List」介面。</p>
+<p>用 List 宣告後，使用物件一律都是呼叫該介面所定義的方法。而不必在意實際上是 ArrayList 或者 LinkedList 在運作。示意如下：</p>
+<div class="code-wrapper"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">main</span><span class="hljs-params">(String[] args)</span> &#123;
+    List&lt;String&gt; arrayList = <span class="hljs-keyword">new</span> <span class="hljs-title class_">ArrayList</span>&lt;&gt;();
+    List&lt;String&gt; linkedList = <span class="hljs-keyword">new</span> <span class="hljs-title class_">LinkedList</span>&lt;&gt;();
+    process(arrayList);
+    process(linkedList);
+&#125;
+
+<span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">process</span><span class="hljs-params">(List&lt;String&gt; list)</span> &#123;
+    list.add(<span class="hljs-string">&quot;A&quot;</span>);
+    list.add(<span class="hljs-string">&quot;B&quot;</span>);
+    list.add(<span class="hljs-string">&quot;C&quot;</span>);
+
+    <span class="hljs-keyword">for</span> (<span class="hljs-type">var</span> <span class="hljs-variable">i</span> <span class="hljs-operator">=</span> <span class="hljs-number">0</span>; i &lt; list.size(); i++) &#123;
+        System.out.println(list.get(i));
+    &#125;
+
+    list.clear();
+&#125;</code></pre></div>
+
+<p>回到範例專案，ProductRepository 使用 Map 資料結構來儲存資料。我們同樣也能為 Repository 層設計一個介面，並開發出其他儲存方式的元件。例如用 List 儲存，甚至連接到真實的 DB。</p>
+<p>而 ProductService 則固定以該介面操作 Repository 元件。</p>
+<h3 id="（二）實作介面注入"><a href="#（二）實作介面注入" class="headerlink" title="（二）實作介面注入"></a>（二）實作介面注入</h3><p>以下設計一個叫做「IProductRepository」的介面，並進行實作。此處為避免混淆，故將原先的 ProductRepository 改名為「MapProductRepository」，強調儲存方式。</p>
+<div class="code-wrapper"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">interface</span> <span class="hljs-title class_">IProductRepository</span> &#123;
+    ProductPO <span class="hljs-title function_">getOneById</span><span class="hljs-params">(String id)</span>;
+    ProductPO <span class="hljs-title function_">insert</span><span class="hljs-params">(ProductPO product)</span>;
+    <span class="hljs-keyword">void</span> <span class="hljs-title function_">update</span><span class="hljs-params">(ProductPO product)</span>;
+    <span class="hljs-keyword">void</span> <span class="hljs-title function_">deleteById</span><span class="hljs-params">(String id)</span>;
+    List&lt;ProductPO&gt; <span class="hljs-title function_">getMany</span><span class="hljs-params">(ProductRequestParameter param)</span>;
+&#125;</code></pre></div>
+<div class="code-wrapper"><pre><code class="hljs java"><span class="hljs-meta">@Repository</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">MapProductRepository</span> <span class="hljs-keyword">implements</span> <span class="hljs-title class_">IProductRepository</span> &#123;
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">final</span> Map&lt;String, ProductPO&gt; productMap = <span class="hljs-keyword">new</span> <span class="hljs-title class_">HashMap</span>&lt;&gt;();
+    <span class="hljs-comment">// ...</span>
+
+    <span class="hljs-keyword">public</span> ProductPO <span class="hljs-title function_">getOneById</span><span class="hljs-params">(String id)</span> &#123;
+        <span class="hljs-keyword">return</span> productMap.get(id);
+    &#125;
+
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">deleteById</span><span class="hljs-params">(String id)</span> &#123;
+        productMap.remove(id);
+    &#125;
+
+    <span class="hljs-comment">// ...</span>
+&#125;</code></pre></div>
+
+<p>接著調整 ProductService，改以 IProductRepository 介面來注入。</p>
+<div class="code-wrapper"><pre><code class="hljs java"><span class="hljs-meta">@Service</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">ProductService</span> &#123;
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> IProductRepository productRepository;
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> UserRepository userRepository;
+
+    <span class="hljs-keyword">public</span> <span class="hljs-title function_">ProductService</span><span class="hljs-params">(IProductRepository productRepository, UserRepository userRepository)</span> &#123;
+        <span class="hljs-built_in">this</span>.productRepository = productRepository;
+        <span class="hljs-built_in">this</span>.userRepository = userRepository;
+    &#125;
+
+    <span class="hljs-comment">// ...</span>
+&#125;</code></pre></div>
+
+<p>經過這樣的修改，ProductService 呼叫的都是 IProductRepository 介面的方法，而實際執行的是被注入元件的內部邏輯。</p>
+<p>現在 Spring Boot 啟動時，就會尋找專案中有哪些元件實作了 IProductRepository 介面。目前只有一個，理所當然注入 MapProductRepository。</p>
+<h2 id="六、抽換相同介面的元件"><a href="#六、抽換相同介面的元件" class="headerlink" title="六、抽換相同介面的元件"></a>六、抽換相同介面的元件</h2><p>為了說明如何在相同介面更換元件，筆者準備了另一個實作 IProductRepository 介面的元件。下面是以 List 來儲存產品資料，程式碼寫法將完全不同。</p>
+<div class="code-wrapper"><pre><code class="hljs java"><span class="hljs-meta">@Repository</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">ListProductRepository</span> <span class="hljs-keyword">implements</span> <span class="hljs-title class_">IProductRepository</span> &#123;
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">final</span> List&lt;ProductPO&gt; productList = <span class="hljs-keyword">new</span> <span class="hljs-title class_">ArrayList</span>&lt;&gt;();
+    <span class="hljs-comment">// ...</span>
+    
+    <span class="hljs-keyword">public</span> ProductPO <span class="hljs-title function_">getOneById</span><span class="hljs-params">(String id)</span> &#123;
+        <span class="hljs-keyword">return</span> productList
+                .stream()
+                .filter(p -&gt; p.getId().equals(id))
+                .findFirst()
+                .orElse(<span class="hljs-literal">null</span>);
+    &#125;
+
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">deleteById</span><span class="hljs-params">(String id)</span> &#123;
+        productList.removeIf(p -&gt; p.getId().equals(id));
+    &#125;
+
+    <span class="hljs-comment">// ...</span>
+&#125;</code></pre></div>
+
+<p>上面的 ListProductRepository 需依照介面的規範，完成所有 public 方法。完整的範例程式，請參考文末附上的專案。</p>
+<p>此時專案中存在多個相同介面的元件。由於 Spring Boot 不知道要注入哪一個，所以啟動會失敗，錯誤訊息節錄如下：</p>
+<div class="code-wrapper"><pre><code class="hljs text">Parameter 0 of constructor in com.example.demo.service.ProductService required a single bean, but 2 were found:
+    - listProductRepository: ...
+    - mapProductRepository: ...
+...
+Consider marking one of the beans as @Primary, updating the consumer to accept multiple beans, or using @Qualifier to identify the bean that should be consumed</code></pre></div>
+
+<p>為了告訴 Spring Boot 要注入哪一個元件，我們可在其中一個類別冠上 <code>@Primary</code> 注解。</p>
+<div class="code-wrapper"><pre><code class="hljs java"><span class="hljs-meta">@Repository</span>
+<span class="hljs-meta">@Primary</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">ListProductRepository</span> <span class="hljs-keyword">implements</span> <span class="hljs-title class_">IProductRepository</span> &#123;
+    <span class="hljs-comment">// ...</span>
+&#125;</code></pre></div>
+
+<p>這會讓所有依賴 IProductRepository 介面的地方，都注入 ListProductRepository。</p>
+<p>或者也能透過 <code>@Qualifier</code> 注解，在不同的元件注入不同的依賴。</p>
+<div class="code-wrapper"><pre><code class="hljs java"><span class="hljs-meta">@Service</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">ProductService</span> &#123;
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> IProductRepository productRepository;
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> UserRepository userRepository;
+
+    <span class="hljs-meta">@Autowired</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-title function_">ProductService</span><span class="hljs-params">(<span class="hljs-meta">@Qualifier(&quot;mapProductRepository&quot;)</span> IProductRepository productRepository,</span>
+<span class="hljs-params">                          UserRepository userRepository)</span> &#123;
+        <span class="hljs-built_in">this</span>.productRepository = productRepository;
+        <span class="hljs-built_in">this</span>.userRepository = userRepository;
+    &#125;
+
+    <span class="hljs-comment">// ...</span>
+&#125;</code></pre></div>
+
+<p>以上是在建構子注入的場合使用 <code>@Qualifier</code> 注解，需傳入「元件名稱」作為參數。</p>
+<p>元件名稱預設是類別名稱的駝峰字。若想自定義，可在 <code>@Repository</code>、<code>@Service</code> 等元件的注解，傳入參數做設定。</p>
+<div class="code-wrapper"><pre><code class="hljs java"><span class="hljs-meta">@Repository(&quot;mapProductRepository&quot;)</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">MapProductRepository</span> <span class="hljs-keyword">implements</span> <span class="hljs-title class_">IProductRepository</span> &#123;
+    <span class="hljs-comment">// ...</span>
+&#125;</code></pre></div>
+
+<p>至於在欄位注入的場合使用 <code>@Qualifier</code> 注解，則與 <code>@Autowired</code> 注解一併冠在全域變數之上即可。</p>
+<div class="code-wrapper"><pre><code class="hljs java"><span class="hljs-meta">@Service</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">ProductService</span> &#123;
+
+    <span class="hljs-meta">@Autowired</span>
+    <span class="hljs-meta">@Qualifier(&quot;mapProductRepository&quot;)</span>
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> IProductRepository productRepository;
+
+    <span class="hljs-comment">// ...</span>
+&#125;</code></pre></div>
+
+
+<hr>
+<p>本文的完成後專案，請<a target="_blank" rel="noopener" href="https://github.com/ntub46010/SpringBootTutorial/tree/Ch05-bean-ioc-di-and-swap">點我</a>。</p>
+<p>上一課：<a href="/articles/spring-boot-three-tier-architecture/" target="_blank">【Spring Boot】第4課－實作三層式架構的 Service 與 Repository</a></p>
+<p>下一課：<a href="/articles/spring-boot-application-properties-configuration/" target="_blank">【Spring Boot】第6課－在 application.properties 配置檔提供設定值（以 Java Mail 為例）</a></p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/Spring-Boot/" class="category-chain-item">Spring Boot</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+</div>
+
+
+              
+
+              
+            </div>
+
+            <div style="padding-top: 30px;">
+              <b style="font-size: 1.5rem;">張貼留言</b>
+              <script src="https://utteranc.es/client.js"
+                repo="chikuwacode/chikuwacode.github.io"
+                issue-term="pathname"
+                theme="github-light"
+                crossorigin="anonymous"
+                async>
+              </script>
+            </div>
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+
+
+    
+
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜尋</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">關鍵字</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/5.0.0/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允許 JavaScript 運行的環境下瀏覽效果更佳</div>
+  </noscript>
+</body>
+</html>

@@ -1,0 +1,678 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-TW" >
+
+
+
+<head>
+  <meta charset="UTF-8">
+
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/logo.png">
+  <link rel="icon" href="/img/logo.png">
+  
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#a05926">
+  <meta name="author" content="Vincent">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="前端程式如 App、Web，是由使用者親手去操作的，而後端程式則是被呼叫時才有所反應。前端與後端之間的溝通方式，我們稱為「API」，這是本課要介紹的觀念。此外也會講解 HTTP 請求方法，認識它們後才能開始撰寫 API 的程式碼。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="【Spring Boot】第2課－認識 RESTful API 與前後端的資料交換">
+<meta property="og:url" content="https://ntub46010.github.io/articles/spring-boot-restful-api/">
+<meta property="og:site_name" content="吉古拉的程式拾光">
+<meta property="og:description" content="前端程式如 App、Web，是由使用者親手去操作的，而後端程式則是被呼叫時才有所反應。前端與後端之間的溝通方式，我們稱為「API」，這是本課要介紹的觀念。此外也會講解 HTTP 請求方法，認識它們後才能開始撰寫 API 的程式碼。">
+<meta property="og:locale" content="zh_TW">
+<meta property="og:image" content="https://ntub46010.github.io/img/index_img/spring-boot.jpg">
+<meta property="article:published_time" content="2019-05-19T07:01:03.000Z">
+<meta property="article:modified_time" content="2025-03-22T10:33:38.453Z">
+<meta property="article:author" content="Vincent">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://ntub46010.github.io/img/index_img/spring-boot.jpg">
+  
+  
+  
+  <title>【Spring Boot】第2課－認識 RESTful API 與前後端的資料交換 | 吉古拉的程式拾光</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1736178_k526ubmyhba.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"ntub46010.github.io","root":"/","version":"1.9.8","typing":{"enable":false,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h2,h3","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":false},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"left","headingSelector":"h2,h3","collapseDepth":3},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2,"exclude":[".no-lazy"]},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":"G-BZW5S6P21Naa"},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 40vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>吉古拉的程式拾光</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>文章分類</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>關於本站</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/banner.jpg') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        
+          <div class="h2">
+            
+              <span id="subtitle">【Spring Boot】第2課－認識 RESTful API 與前後端的資料交換</span>
+            
+          </div>
+        
+
+        
+          
+  <div class="mt-3">
+    
+    
+  </div>
+
+  <div class="mt-1">
+    
+
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="padding-left: 2rem; margin-right: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目錄</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">【Spring Boot】第2課－認識 RESTful API 與前後端的資料交換</h1>
+            
+              <p id="updated-time" class="note note-warning" style="">
+                
+                  
+                    本文最後更新於：2025-03-22
+                  
+                
+              </p>
+            
+            
+              <div class="markdown-body">
+                
+                <p>在認識前端與後端的差別後，本文將介紹它們之間的溝通媒介，即 Web API，其中又以 RESTful API 的類型最為常見。另外也會介紹查詢字串、負載（payload）、標頭及 HTTP 狀態碼，這些都是前後端所交換的資料。最後透過 Postman 這項工具，存取實際的 API。</p>
+<p>若讀者未曾接觸後端領域，建議先從本文建立 Web API 的觀念。如此在<a href="/articles/spring-boot-implement-restful-api-in-controller/" target="_blank">第 3 課</a>開始撰寫 Spring Boot 程式，以及工作時設計 API 時，才能更加得心應手。</p>
+<hr>
+<h2 id="一、什麼是-API"><a href="#一、什麼是-API" class="headerlink" title="一、什麼是 API"></a>一、什麼是 API</h2><p>API 的全名是「Application Program Interface」，中文為「應用程式介面」，它定義了軟體之間的互動方式。</p>
+<p>從廣義的角度來看，即便只是程式中寫好的一個方法（method），我們都能視為一個 API。畢竟它定義了應傳入的參數，以及回傳的值，讓我們知道如何使用。</p>
+<p>以生活情境來比喻，我們到餐廳點餐，菜單就像是 API。雖然每家餐廳的菜單格式都長得不一樣，但只要客人會填寫，而店員或廚房也看得懂客人的點餐，整個流程便能正常進行。</p>
+<p>如果放在前端發出請求（request），後端給予回應（response）的話題上，則 API 就是定義前端如何傳遞資料給後端，而後端又會回傳什麼結果。我們用「Web API」來稱呼。</p>
+<p>在工作上，前端與後端的同事只要事先制定好 API，就能分頭在各自的程式專案進行開發了，雙方的程式碼也不會混在一起形成雜亂。這種做法稱為「前後端分離」，是業界工程師們推崇的模式。</p>
+<h2 id="二、RESTful-API"><a href="#二、RESTful-API" class="headerlink" title="二、RESTful API"></a>二、RESTful API</h2><p>REST 的全名為「Representational State Transfer」，中文為「表現層狀態轉換」。它是一種 Web API 的設計風格，將網路上的東西都視為「資源」，並且有不同的操作方式。</p>
+<h3 id="（一）HTTP-請求方法"><a href="#（一）HTTP-請求方法" class="headerlink" title="（一）HTTP 請求方法"></a>（一）HTTP 請求方法</h3><p>當使用者發出請求，意味著要對某種東西進行操作，比方說取得產品或新增使用者。操作的方式包含新增、取得、更新、刪除等，如同資料庫的操作也有 CRUD。</p>
+<p>HTTP 協定以這個概念為基礎，定義了「請求方法」，常見的方法如下。</p>
+<ul>
+<li>GET：取得資源。</li>
+<li>POST：新增資源。或是一個不容易歸類在其他方法的動作，例如登入。</li>
+<li>PUT：更新整個資源，也就是覆寫。</li>
+<li>PATCH：更新資源的一部份。</li>
+<li>DELETE：刪除資源。</li>
+</ul>
+<h3 id="（二）表示方式"><a href="#（二）表示方式" class="headerlink" title="（二）表示方式"></a>（二）表示方式</h3><p>RESTful API 是以「動詞 + 資源」這個想法為出發點，也就是 HTTP 請求方法加上資源的位置。而資源位置的表達方式就像網址，我們以「端點」（endpoint）來稱呼它。</p>
+<p>假設社群網站上有篇文章的編號是「P1」，那麼這項資源在網路上的位置，可能就會被設計成 <code>https://social.com/articles/P1</code>。此時搭配各種 HTTP 請求方法，即可組合出 RESTful API，表現出不同的意義。以下是一些範例。</p>
+<ul>
+<li>GET &#x2F;articles&#x2F;P1：取得編號為 P1 的文章。</li>
+<li>PUT &#x2F;articles&#x2F;P1：更新編號為 P1 的文章。</li>
+<li>DELETE &#x2F;articles&#x2F;P1：刪除編號為 P1 的文章。</li>
+<li>POST &#x2F;articles：新增文章。</li>
+<li>GET &#x2F;articles：取得所有文章。</li>
+</ul>
+<p>其中「新增文章」的 API 是沒有編號的。從語意上，已經足夠表達出要在「articles」的路徑下新增資源了。</p>
+<p>同理，「取得所有文章」的 API 也意味著取得 articles 路徑下的所有資源。但實際開發上通常不會真的回傳 DB 中的所有資料給前端啦，應該會限制一個範圍才對。例如某個人的所有文章、某個分類的所有文章、最新的 30 篇文章等。</p>
+<p>最後要提醒讀者的是，RESTful 並非一套要遵守的標準。只是鼓勵開發者在設計時可以參考此風格，縮短大家認知上的差異。</p>
+<h2 id="三、在-API-攜帶資料"><a href="#三、在-API-攜帶資料" class="headerlink" title="三、在 API 攜帶資料"></a>三、在 API 攜帶資料</h2><p>前端在呼叫 API 時，可以攜帶資料給後端，而後端同樣也能回傳資料，就像在交換一樣。</p>
+<p>以上述的 RESTful API 為例子，新增文章時勢必要傳遞內容給後端吧！又或者是想查看某人的文章，也要將這項條件告訴後端。而取得文章時，則從後端得到對應的資料。本節將介紹攜帶資料的方式。</p>
+<h3 id="（一）查詢字串（query-string）"><a href="#（一）查詢字串（query-string）" class="headerlink" title="（一）查詢字串（query string）"></a>（一）查詢字串（query string）</h3><p>查詢字串是呼叫後端 API 時，在端點後方所攜帶的資料。舉例來說，在論壇 Dcard 查看科技業板的最新文章之列表，瀏覽器的網址是這樣：<br>「<a target="_blank" rel="noopener" href="https://www.dcard.tw/f/tech_job?tab=latest">https://www.dcard.tw/f/tech_job?tab&#x3D;latest</a>」。</p>
+<p>其中「?」符號後方的就是查詢字串，它只有「tab&#x3D;latest」一筆資料，代表最新的意思。</p>
+<p>又或者是在 YouTube 觀看一部影片，瀏覽器的網址大概長這樣：<br>「<a target="_blank" rel="noopener" href="https://www.youtube.com/watch?v=u6FcPuCs57o&=80s">https://www.youtube.com/watch?v=u6FcPuCs57o&amp;=80s</a>」。</p>
+<p>其包含「v&#x3D;u6FcPuCs57o」與「t&#x3D;80s」兩筆資料，分別代表影片編號與開始播放的秒數。它們之間用「&amp;」符號隔開。</p>
+<h3 id="（二）負載／酬載（payload）"><a href="#（二）負載／酬載（payload）" class="headerlink" title="（二）負載／酬載（payload）"></a>（二）負載／酬載（payload）</h3><p>負載（又稱酬載）在維基百科的解釋是：「資料傳輸中所欲傳輸的實際資訊，通常也被稱作實際資料或者資料體」。在本文，我們可以理解成前後端之間傳遞資料的「主要內容」。</p>
+<p>前端發出請求時的 payload，亦可稱作「request body」；而後端給予回應時的 payload，也能稱為「response body」。</p>
+<p>那麼所要傳遞的資料，應該如何提供呢？使用 JSON 和 XML 格式來表示，是較為常見的做法。筆者會以 JSON 為例來說明。</p>
+<p>JSON 的英文全名是「JavaScript Object Notation」，是將資料寫成 Java Script 物件的樣子。以下是一份 JSON 格式的範例資料。</p>
+<div class="code-wrapper"><pre><code class="hljs json"><span class="hljs-punctuation">&#123;</span>
+    <span class="hljs-attr">&quot;title&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;這是文章標題&quot;</span><span class="hljs-punctuation">,</span>
+    <span class="hljs-attr">&quot;content&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;這是文章內容&quot;</span><span class="hljs-punctuation">,</span>
+    <span class="hljs-attr">&quot;tag&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">[</span><span class="hljs-string">&quot;閒聊&quot;</span><span class="hljs-punctuation">,</span> <span class="hljs-string">&quot;程式&quot;</span><span class="hljs-punctuation">]</span><span class="hljs-punctuation">,</span>
+    <span class="hljs-attr">&quot;like&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">&#123;</span>
+        <span class="hljs-attr">&quot;isLiked&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-literal"><span class="hljs-keyword">true</span></span><span class="hljs-punctuation">,</span>
+        <span class="hljs-attr">&quot;count&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-number">28</span>
+    <span class="hljs-punctuation">&#125;</span>
+<span class="hljs-punctuation">&#125;</span></code></pre></div>
+
+<p>JSON 資料的內容，都是以 欄位: 值 的格式來撰寫。而物件寫成大括弧，陣列寫成中括弧。</p>
+<h3 id="（三）標頭（header）"><a href="#（三）標頭（header）" class="headerlink" title="（三）標頭（header）"></a>（三）標頭（header）</h3><p>標頭是用來存放一些輔助資訊。以生活情境來比喻，header 彷彿信封袋上寫的資料，而 payload 則是信件內容。在 header 所能提供的資料，是有一套標準存在的。就像信封袋會寫郵遞區號、地址和收件人。</p>
+<p>根據 header 是由前端還是後端所提供，又可分別稱呼為「request header」與「response header」。</p>
+<p>以下舉例幾種 header。</p>
+<ul>
+<li>Content-Type：Payload 內容的格式。如 application&#x2F;json、image&#x2F;jpeg、text&#x2F;html、multipart&#x2F;form-data 等。</li>
+<li>Location：資源的端點。比方說建立新資源後，後端可回傳此標頭，提供該資源的路徑。</li>
+<li>Authorization：身份認證資訊。向後端發出請求時可攜帶，就像是出示識別證一樣。</li>
+</ul>
+<h2 id="四、HTTP-狀態碼"><a href="#四、HTTP-狀態碼" class="headerlink" title="四、HTTP 狀態碼"></a>四、HTTP 狀態碼</h2><p>當後端進行回應時，會用一組數字來「概略」表達結果，稱為狀態碼。前端可以簡單地從狀態碼，判斷自己下一步該做什麼事，而未必要去取用 payload 的內容。</p>
+<p>狀態碼的第一個數字會在 1 ~ 5 之間，藉此分為五大類型。後端會在不同的狀況，使用不同的狀態碼。除了 1 系列幾乎沒人在用之外，筆者挑出一些常見的，在以下分別介紹。</p>
+<h3 id="（一）2-系列（成功）"><a href="#（一）2-系列（成功）" class="headerlink" title="（一）2 系列（成功）"></a>（一）2 系列（成功）</h3><table>
+<thead>
+<tr>
+<th>狀態碼</th>
+<th>意義</th>
+<th>說明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>200</td>
+<td>OK</td>
+<td>單純表示成功，是一種泛用的選擇。</td>
+</tr>
+<tr>
+<td>201</td>
+<td>Created</td>
+<td>資源已經建立完成。後端可進一步在「Location」標頭提供該資源的端點，讓前端搭配 GET 請求方法取得該資料。</td>
+</tr>
+<tr>
+<td>204</td>
+<td>No Content</td>
+<td>伺服器成功處理請求，只是回傳的 payload 沒有內容罷了。例如「按讚」這項簡單的功能，若 API 不需要回傳 payload，則不妨採用此狀態碼。</td>
+</tr>
+</tbody></table>
+<h3 id="（二）3-系列（重導向）"><a href="#（二）3-系列（重導向）" class="headerlink" title="（二）3 系列（重導向）"></a>（二）3 系列（重導向）</h3><table>
+<thead>
+<tr>
+<th>狀態碼</th>
+<th>意義</th>
+<th>說明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>301</td>
+<td>Moved Permanently</td>
+<td>該資源已經永久被移動到另一個地方。建議後端在「Location」標頭提供該資源的新端點。會用到此狀態的場合，可能是網頁搬家，或是端點的設計更新了（例如網址上多了一個「v2」的階層，代表版本 2）。</td>
+</tr>
+<tr>
+<td>304</td>
+<td>Not Modified</td>
+<td>用於快取機制。假設前端先前有將某資源快取在本地，那麼若嘗試再取得資源，後端可透過此狀態，通知前端該資源的內容並未更新過，請繼續用快取的資料即可。此機制需搭配數個 header 來實作，本文不贅述。</td>
+</tr>
+</tbody></table>
+<h3 id="（三）4-系列（客戶端錯誤）"><a href="#（三）4-系列（客戶端錯誤）" class="headerlink" title="（三）4 系列（客戶端錯誤）"></a>（三）4 系列（客戶端錯誤）</h3><p>代表前端發送的資料有問題。</p>
+<table>
+<thead>
+<tr>
+<th>狀態碼</th>
+<th>意義</th>
+<th>說明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>400</td>
+<td>Bad Request</td>
+<td>發送請求時所攜帶的資料有明顯錯誤。例如 email 格式不正確、價格是負數等。</td>
+</tr>
+<tr>
+<td>401</td>
+<td>Unauthorized</td>
+<td>沒有通過身份認證，所以後端不允許使用該 API。例如沒有登入某社群網站，就無法查看裡面的任何文章。</td>
+</tr>
+<tr>
+<td>403</td>
+<td>Forbidden</td>
+<td>即便完成身份認證，但沒有權限存取該資源。例如已經登入某社群網站，但我不是某篇文章的分享對象，所以無法觀看。</td>
+</tr>
+<tr>
+<td>404</td>
+<td>Not Found</td>
+<td>該資源不存在。例如試圖透過編號取得一篇不存在的文章。</td>
+</tr>
+<tr>
+<td>422</td>
+<td>Unprocessable Entity</td>
+<td>前端發送請求，單看資料內容的話是沒問題（未被判為 400），但後端處理時才發現這份資料並不符合情境。例如下單購買商品時，前端發送「以歐元付款」，結果後端發現賣方不接受這個幣別（<a target="_blank" rel="noopener" href="https://pawelpluta.com/why-should-you-return-http-422/">參考資料</a>）。</td>
+</tr>
+</tbody></table>
+<h3 id="（四）5-系列（服務端錯誤）"><a href="#（四）5-系列（服務端錯誤）" class="headerlink" title="（四）5 系列（服務端錯誤）"></a>（四）5 系列（服務端錯誤）</h3><p>代表後端在處理請求時發生問題。</p>
+<table>
+<thead>
+<tr>
+<th>狀態碼</th>
+<th>意義</th>
+<th>說明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>500</td>
+<td>Internal Server Error</td>
+<td>後端程式可能發生例外（exception），例如 NullPointerException 或是連不到資料庫之類的。若無更適當的狀態碼，一般狀況均可選擇這種泛用的。</td>
+</tr>
+<tr>
+<td>503</td>
+<td>Service Unavailable</td>
+<td>代表雖然後端程式仍在運行，但因為一些原因（例如流量太大、正在維護），暫時無法提供服務了。</td>
+</tr>
+<tr>
+<td>504</td>
+<td>Gateway Timeout</td>
+<td>後端處理請求的時間過久。然而前端一直在等待回應，不能丟著不管，故可回傳此狀態碼進行告知。</td>
+</tr>
+</tbody></table>
+<h2 id="五、API-測試工具"><a href="#五、API-測試工具" class="headerlink" title="五、API 測試工具"></a>五、API 測試工具</h2><p>最後介紹一款叫做「<a target="_blank" rel="noopener" href="https://www.postman.com/downloads/">Postman</a>」的工具，它能讓我們在沒有前端的情況下，存取後端提供的 Web API。</p>
+<p>一般來說，生活中使用各種軟體都是透過操作前端畫面來存取後端 API。但有時只是想「試用」API，當下並沒有對應的前端去配合。那麼利用這類工具，我們就能發送請求，傳送自己想要的資料，藉此測試 API 的效果。</p>
+<p>以下兩個操作範例，是「<a target="_blank" rel="noopener" href="https://reqres.in/">Reqres</a>」網站免費提供的 API 測試資料。不需註冊，讀者直接使用即可。</p>
+<p>下圖是發出 GET 請求，並搭配查詢字串。<br><img src="https://ntub46010.github.io/articles/spring-boot-restful-api/postman-get-request.png" srcset="/img/loading.gif" lazyload></p>
+<p>下圖是發出 POST 請求，並傳送 JSON 格式的 payload。<br><img src="https://ntub46010.github.io/articles/spring-boot-restful-api/postman-post-request.png" srcset="/img/loading.gif" lazyload></p>
+<p>從操作畫面的右方，也能看見耗時與 HTTP 狀態碼。將「Body」的下拉式選單打開，還能切換查看 response header。</p>
+<hr>
+<p>上一課：<a href="/articles/spring-boot-create-project/" target="_blank">【Spring Boot】第1課－從環境準備、建立專案、打包到啟動程式</a></p>
+<p>下一課：<a href="/articles/spring-boot-implement-restful-api-in-controller/" target="_blank">【Spring Boot】第3.1課－在 Controller 實作 RESTful API</a></p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/Spring-Boot/" class="category-chain-item">Spring Boot</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+</div>
+
+
+              
+
+              
+            </div>
+
+            <div style="padding-top: 30px;">
+              <b style="font-size: 1.5rem;">張貼留言</b>
+              <script src="https://utteranc.es/client.js"
+                repo="chikuwacode/chikuwacode.github.io"
+                issue-term="pathname"
+                theme="github-light"
+                crossorigin="anonymous"
+                async>
+              </script>
+            </div>
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+
+
+    
+
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜尋</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">關鍵字</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/5.0.0/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允許 JavaScript 運行的環境下瀏覽效果更佳</div>
+  </noscript>
+</body>
+</html>

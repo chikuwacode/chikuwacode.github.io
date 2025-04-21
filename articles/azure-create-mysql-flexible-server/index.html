@@ -1,0 +1,595 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-TW" >
+
+
+
+<head>
+  <meta charset="UTF-8">
+
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/logo.png">
+  <link rel="icon" href="/img/logo.png">
+  
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#a05926">
+  <meta name="author" content="Vincent">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="若能將資料庫放上雲端服務，便能簡化伺服器的管理工作。本文介紹如何在 Azure 上建立 MySQL 資料庫，並分別在 Workbench 這款 GUI 工具，以及 Spring Boot 後端程式來連線。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="在 Azure 上建立 MySQL 資料庫，並進行連線">
+<meta property="og:url" content="https://ntub46010.github.io/articles/azure-create-mysql-flexible-server/">
+<meta property="og:site_name" content="吉古拉的程式拾光">
+<meta property="og:description" content="若能將資料庫放上雲端服務，便能簡化伺服器的管理工作。本文介紹如何在 Azure 上建立 MySQL 資料庫，並分別在 Workbench 這款 GUI 工具，以及 Spring Boot 後端程式來連線。">
+<meta property="og:locale" content="zh_TW">
+<meta property="og:image" content="https://ntub46010.github.io/img/index_img/azure.jpg">
+<meta property="article:published_time" content="2024-12-06T06:14:13.000Z">
+<meta property="article:modified_time" content="2025-03-01T16:27:49.009Z">
+<meta property="article:author" content="Vincent">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://ntub46010.github.io/img/index_img/azure.jpg">
+  
+  
+  
+  <title>在 Azure 上建立 MySQL 資料庫，並進行連線 | 吉古拉的程式拾光</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1736178_k526ubmyhba.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"ntub46010.github.io","root":"/","version":"1.9.8","typing":{"enable":false,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h2,h3","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":false},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"left","headingSelector":"h2,h3","collapseDepth":3},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2,"exclude":[".no-lazy"]},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":"G-BZW5S6P21Naa"},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 40vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>吉古拉的程式拾光</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>文章分類</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>關於本站</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/banner.jpg') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        
+          <div class="h2">
+            
+              <span id="subtitle">在 Azure 上建立 MySQL 資料庫，並進行連線</span>
+            
+          </div>
+        
+
+        
+          
+  <div class="mt-3">
+    
+    
+  </div>
+
+  <div class="mt-1">
+    
+
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="padding-left: 2rem; margin-right: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目錄</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">在 Azure 上建立 MySQL 資料庫，並進行連線</h1>
+            
+              <p id="updated-time" class="note note-warning" style="">
+                
+                  
+                    本文最後更新於：2025-03-02
+                  
+                
+              </p>
+            
+            
+              <div class="markdown-body">
+                
+                <p>在軟體開發時，我們會搭配資料庫來儲存資料。以前的傳統做法是下載安裝程式，在電腦上安裝。後來也可選擇利用 Docker，下載 image 並運行 container。</p>
+<p>但這兩個方法，都必須準備一台電腦作為伺服器。若能放上雲端服務，便能減少伺服器的管理工作。</p>
+<p>本文介紹如何在 Azure 上建立 MySQL 資料庫，並分別在 Workbench 這款 GUI 工具，以及 Spring Boot 後端程式來連線。</p>
+<hr>
+<h2 id="一、建立資料庫"><a href="#一、建立資料庫" class="headerlink" title="一、建立資料庫"></a>一、建立資料庫</h2><p>首先在 Azure 上搜尋「適用於 MySQL 彈性伺服器的 Azure 資料庫」。進入頁面後，點擊建立。<br><img src="https://ntub46010.github.io/articles/azure-create-mysql-flexible-server/azure-mysql-list.png" srcset="/img/loading.gif" lazyload></p>
+<p>選擇「彈性伺服器」的「進階建立」，可看到比較多的設定選項。<br><img src="https://ntub46010.github.io/articles/azure-create-mysql-flexible-server/azure-mysql-choose-flexible-server.png" srcset="/img/loading.gif" lazyload></p>
+<p>以下是筆者選擇的設定，並提供 MySQL 的帳號與密碼。其餘則使用預設值，讀者可視自己的情況調整。</p>
+<ul>
+<li>伺服器名稱：vincentdemomysql</li>
+<li>區域：East Asia</li>
+<li>MySQL 版本：8.0</li>
+<li>工作負載類型：適用於開發或嗜好專案</li>
+<li>驗證方法：只有 MySQL 驗證</li>
+<li>管理使用者名稱：vincent</li>
+</ul>
+<img src="https://ntub46010.github.io/articles/azure-create-mysql-flexible-server/azure-mysql-basic-setting.png" srcset="/img/loading.gif" lazyload>
+
+<p>接著切換到「網路」頁籤，設定防火牆規則。設定的目的，是開放哪些 IP 可以連線到這台資料庫。<br><img src="https://ntub46010.github.io/articles/azure-create-mysql-flexible-server/azure-mysql-firewall-rule-setting.png" srcset="/img/loading.gif" lazyload></p>
+<p>本文為了測試用途，只簡單地選擇「新增 0.0.0.0 - 255.255.255.255」，代表網路上的所有 IP 都可以連進來。此時 Azure 會跳出安全性的警告，我們點擊繼續即可。</p>
+<p>最後並按下「檢閱 + 建立」。確認設定後，再按下「建立」，等待 Azure 部署完成。<br><img src="https://ntub46010.github.io/articles/azure-create-mysql-flexible-server/azure-mysql-review-and-create.png" srcset="/img/loading.gif" lazyload></p>
+<p>雖然 Azure 會顯示 MySQL 彈性伺服器的預估使用成本，但<a target="_blank" rel="noopener" href="https://learn.microsoft.com/zh-tw/azure/mysql/flexible-server/how-to-deploy-on-azure-free-account">官方說明</a>有提到，只要使用免費帳戶，且使用量在每月限制內，就不需要支付費用。</p>
+<h2 id="二、基本管理"><a href="#二、基本管理" class="headerlink" title="二、基本管理"></a>二、基本管理</h2><p>前往 MySQL 的資源畫面，在「概觀」能看見基本資訊，包含伺服器名稱、管理員名稱等。<br><img src="https://ntub46010.github.io/articles/azure-create-mysql-flexible-server/azure-mysql-overview.png" srcset="/img/loading.gif" lazyload></p>
+<p>在「設定」→「資料庫」的畫面，可建立與刪除資料庫。此處筆者建立一個叫「demo」的資料庫。<br><img src="https://ntub46010.github.io/articles/azure-create-mysql-flexible-server/azure-mysql-create-database.png" srcset="/img/loading.gif" lazyload></p>
+<p>在「設定」→「備份與還原」的畫面，可確認資料庫的備份及其時間點。Azure 每天會自動備份一次，我們也可手動立即備份。<br><img src="https://ntub46010.github.io/articles/azure-create-mysql-flexible-server/azure-mysql-backup.png" srcset="/img/loading.gif" lazyload></p>
+<p>在「設定」→「網路」的畫面，可找到建立資料庫時所設定的防火牆規則。若日後想更改，可在此進行設定。<br><img src="https://ntub46010.github.io/articles/azure-create-mysql-flexible-server/azure-mysql-firewall-rule-setting-2.png" srcset="/img/loading.gif" lazyload></p>
+<p>在「設定」→「連線」的畫面，可看見關於連線至資料庫的相關說明。例如從本機的 command line 使用 MySQL 指令進行連線、匯入與匯出資料。另外也有使用 Workbench 進行連線的步驟。<br><img src="https://ntub46010.github.io/articles/azure-create-mysql-flexible-server/azure-mysql-connection.png" srcset="/img/loading.gif" lazyload></p>
+<h2 id="三、在-Workbench-連線"><a href="#三、在-Workbench-連線" class="headerlink" title="三、在 Workbench 連線"></a>三、在 Workbench 連線</h2><p>本節讓我們使用 <a target="_blank" rel="noopener" href="https://dev.mysql.com/downloads/workbench/">Workbench</a> 這款 GUI 工具，連線到 Azure 上建立好的 MySQL 資料庫。</p>
+<p>在建立新連線的視窗中，請於 Hostname 填寫第二節在「概觀」中看到的伺服器名稱。在 Username 填寫伺服器系統管理員登入名稱。而 Password 則點擊「Store in Valut」後，再填寫密碼。<br><img src="https://ntub46010.github.io/articles/azure-create-mysql-flexible-server/azure-mysql-workbench-setup-new-connection.png" srcset="/img/loading.gif" lazyload></p>
+<p>接著可點擊「Test Connection」，進行測試。最後建立完成後，點擊該連線便可進入。</p>
+<p>進入後，讀者就能在左方看見先前建立的「demo」資料庫。<br><img src="https://ntub46010.github.io/articles/azure-create-mysql-flexible-server/mysql-workbench-schema-list.png" srcset="/img/loading.gif" lazyload></p>
+<p>後續也能順利進行 CRUD 操作。</p>
+<h2 id="四、在-Spring-Boot-連線"><a href="#四、在-Spring-Boot-連線" class="headerlink" title="四、在 Spring Boot 連線"></a>四、在 Spring Boot 連線</h2><p>本節讓我們在 Spring Boot 後端程式中，針對 Azure 上的 MySQL 資料庫進行配置。</p>
+<p>首先在 pom.xml 檔案中，添加依賴，包含 Spring Data JPA 框架和 MySQL 驅動程式。</p>
+<div class="code-wrapper"><pre><code class="hljs xml"><span class="hljs-tag">&lt;<span class="hljs-name">dependency</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">groupId</span>&gt;</span>org.springframework.boot<span class="hljs-tag">&lt;/<span class="hljs-name">groupId</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">artifactId</span>&gt;</span>spring-boot-starter-data-jpa<span class="hljs-tag">&lt;/<span class="hljs-name">artifactId</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-name">dependency</span>&gt;</span>
+
+<span class="hljs-tag">&lt;<span class="hljs-name">dependency</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">groupId</span>&gt;</span>com.mysql<span class="hljs-tag">&lt;/<span class="hljs-name">groupId</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">artifactId</span>&gt;</span>mysql-connector-j<span class="hljs-tag">&lt;/<span class="hljs-name">artifactId</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">scope</span>&gt;</span>runtime<span class="hljs-tag">&lt;/<span class="hljs-name">scope</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-name">dependency</span>&gt;</span></code></pre></div>
+
+<p>接著在 application.properties 檔案中，提供 Spring Data JPA 的相關配置。</p>
+<div class="code-wrapper"><pre><code class="hljs stylus">spring<span class="hljs-selector-class">.datasource</span>.url=jdbc:mysql:<span class="hljs-comment">//vincentdemomysql.mysql.database.azure.com:3306/demo</span>
+spring<span class="hljs-selector-class">.datasource</span>.username=vincent
+spring<span class="hljs-selector-class">.datasource</span>.password=your_password
+spring<span class="hljs-selector-class">.datasource</span>.driver-class-name=com<span class="hljs-selector-class">.mysql</span><span class="hljs-selector-class">.cj</span><span class="hljs-selector-class">.jdbc</span><span class="hljs-selector-class">.Driver</span>
+
+spring<span class="hljs-selector-class">.jpa</span><span class="hljs-selector-class">.properties</span><span class="hljs-selector-class">.hibernate</span>.dialect=org<span class="hljs-selector-class">.hibernate</span><span class="hljs-selector-class">.dialect</span><span class="hljs-selector-class">.MySQLDialect</span>
+spring<span class="hljs-selector-class">.jpa</span><span class="hljs-selector-class">.properties</span><span class="hljs-selector-class">.hibernate</span>.dialect_version=<span class="hljs-number">8</span>
+spring<span class="hljs-selector-class">.jpa</span><span class="hljs-selector-class">.properties</span><span class="hljs-selector-class">.hibernate</span><span class="hljs-selector-class">.dialect</span>.storage_engine=innodb
+
+spring<span class="hljs-selector-class">.jpa</span><span class="hljs-selector-class">.hibernate</span>.ddl-auto=update
+
+spring<span class="hljs-selector-class">.jpa</span><span class="hljs-selector-class">.properties</span><span class="hljs-selector-class">.hibernate</span>.show_sql=true
+spring<span class="hljs-selector-class">.jpa</span><span class="hljs-selector-class">.properties</span><span class="hljs-selector-class">.hibernate</span>.format_sql=true</code></pre></div>
+
+<p>由於本文是介紹連線到 Azure 上的資料庫，因此請讀者留意前三項配置，也就是連線字串中的伺服器名稱、資料庫名稱，以及帳密。</p>
+<p>完成後，啟動 Spring Boot 程式。若 console 沒有出現錯誤訊息，代表成功連線。</p>
+<p>後續也能使用 Spring Data JPA 提供的注解（annotation），進行資料表設計。</p>
+<div class="code-wrapper"><pre><code class="hljs java"><span class="hljs-meta">@Entity</span>
+<span class="hljs-meta">@Table(name = &quot;student&quot;)</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">Student</span> &#123;
+
+    <span class="hljs-meta">@Id</span>
+    <span class="hljs-meta">@GeneratedValue(strategy = GenerationType.IDENTITY)</span>
+    <span class="hljs-keyword">private</span> Long id;
+
+    <span class="hljs-meta">@Column(name = &quot;name&quot;, length = 30, unique = true, nullable = false)</span>
+    <span class="hljs-keyword">private</span> String name;
+
+    <span class="hljs-meta">@Column(name = &quot;grade&quot;)</span>
+    <span class="hljs-keyword">private</span> <span class="hljs-type">int</span> grade;
+
+    <span class="hljs-comment">// getter, setter ...</span>
+&#125;</code></pre></div>
+
+<p>重新啟動 Spring Boot 後，讀者可回到 Workbench 確認產生後的資料表。</p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/Azure/" class="category-chain-item">Azure</a>
+  
+  
+
+      </span>
+    
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/MySQL/" class="category-chain-item">MySQL</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+</div>
+
+
+              
+
+              
+            </div>
+
+            <div style="padding-top: 30px;">
+              <b style="font-size: 1.5rem;">張貼留言</b>
+              <script src="https://utteranc.es/client.js"
+                repo="chikuwacode/chikuwacode.github.io"
+                issue-term="pathname"
+                theme="github-light"
+                crossorigin="anonymous"
+                async>
+              </script>
+            </div>
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+
+
+    
+
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜尋</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">關鍵字</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/5.0.0/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允許 JavaScript 運行的環境下瀏覽效果更佳</div>
+  </noscript>
+</body>
+</html>

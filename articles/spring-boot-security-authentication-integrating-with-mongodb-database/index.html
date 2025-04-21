@@ -1,0 +1,849 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-TW" >
+
+
+
+<head>
+  <meta charset="UTF-8">
+
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/logo.png">
+  <link rel="icon" href="/img/logo.png">
+  
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#a05926">
+  <meta name="author" content="Vincent">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="實務開發中，我們是透過資料庫來儲存使用者的帳號與密碼。本文首先會將專案串接上資料庫。接著向讀者介紹 Spring Security 認證的相關介面，並實作自定義的認證程式。藉此將資料庫所儲存的帳號、密碼與權限資料，整合到認證流程中。最後介紹加密密碼的方式，以提高安全性。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="【Spring Boot】第12.2課－在 Spring Security 整合資料庫進行認證">
+<meta property="og:url" content="https://ntub46010.github.io/articles/spring-boot-security-authentication-integrating-with-mongodb-database/">
+<meta property="og:site_name" content="吉古拉的程式拾光">
+<meta property="og:description" content="實務開發中，我們是透過資料庫來儲存使用者的帳號與密碼。本文首先會將專案串接上資料庫。接著向讀者介紹 Spring Security 認證的相關介面，並實作自定義的認證程式。藉此將資料庫所儲存的帳號、密碼與權限資料，整合到認證流程中。最後介紹加密密碼的方式，以提高安全性。">
+<meta property="og:locale" content="zh_TW">
+<meta property="og:image" content="https://ntub46010.github.io/img/index_img/spring-boot.jpg">
+<meta property="article:published_time" content="2023-11-03T05:21:00.000Z">
+<meta property="article:modified_time" content="2025-03-23T08:48:26.266Z">
+<meta property="article:author" content="Vincent">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://ntub46010.github.io/img/index_img/spring-boot.jpg">
+  
+  
+  
+  <title>【Spring Boot】第12.2課－在 Spring Security 整合資料庫進行認證 | 吉古拉的程式拾光</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1736178_k526ubmyhba.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"ntub46010.github.io","root":"/","version":"1.9.8","typing":{"enable":false,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h2,h3","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":false},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"left","headingSelector":"h2,h3","collapseDepth":3},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2,"exclude":[".no-lazy"]},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":"G-BZW5S6P21Naa"},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 40vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>吉古拉的程式拾光</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>文章分類</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>關於本站</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/banner.jpg') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        
+          <div class="h2">
+            
+              <span id="subtitle">【Spring Boot】第12.2課－在 Spring Security 整合資料庫進行認證</span>
+            
+          </div>
+        
+
+        
+          
+  <div class="mt-3">
+    
+    
+  </div>
+
+  <div class="mt-1">
+    
+
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="padding-left: 2rem; margin-right: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目錄</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">【Spring Boot】第12.2課－在 Spring Security 整合資料庫進行認證</h1>
+            
+              <p id="updated-time" class="note note-warning" style="">
+                
+                  
+                    本文最後更新於：2025-03-23
+                  
+                
+              </p>
+            
+            
+              <div class="markdown-body">
+                
+                <p>在上一篇，我們建立了 Spring Security 認證與授權的概念，並利用 in-memory user 的功能準備測試帳號。然而實務開發中，是透過資料庫來儲存使用者的帳號與密碼。</p>
+<p>本文首先會將專案串接上資料庫。接著向讀者介紹 Spring Security 認證的相關介面，並實作自定義的認證程式。藉此將資料庫所儲存的使用者帳號、密碼與權限資料，整合到認證流程中。最後介紹加密密碼的方式，以提高安全性。</p>
+<hr>
+<h2 id="一、串接資料庫"><a href="#一、串接資料庫" class="headerlink" title="一、串接資料庫"></a>一、串接資料庫</h2><h3 id="（一）準備-MongoDB-服務"><a href="#（一）準備-MongoDB-服務" class="headerlink" title="（一）準備 MongoDB 服務"></a>（一）準備 MongoDB 服務</h3><p>本文使用 MongoDB 作為資料庫，來儲存使用者的帳號、密碼與權限資料。</p>
+<p>讀者可利用 Docker 啟動 MongoDB 的服務，預設的 port 號是 27017。</p>
+<div class="code-wrapper"><pre><code class="hljs sh">docker run -d --name <span class="hljs-string">&quot;MongoDB_4.4.29&quot;</span> -p 27017:27017 mongo:4.4.29</code></pre></div>
+
+<p>回到程式專案，請在 pom.xml 檔案添加 MongoDB 的依賴。</p>
+<div class="code-wrapper"><pre><code class="hljs xml"><span class="hljs-tag">&lt;<span class="hljs-name">dependency</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">groupId</span>&gt;</span>org.springframework.boot<span class="hljs-tag">&lt;/<span class="hljs-name">groupId</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">artifactId</span>&gt;</span>spring-boot-starter-data-mongodb<span class="hljs-tag">&lt;/<span class="hljs-name">artifactId</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-name">dependency</span>&gt;</span></code></pre></div>
+
+<p>接著在「application.properties」配置檔中，添加連線字串。以下是連線到叫做「school」的資料庫。</p>
+<div class="code-wrapper"><pre><code class="hljs properties"><span class="hljs-attr">spring.data.mongodb.uri</span>=<span class="hljs-string">mongodb://localhost:27017/school</span></code></pre></div>
+
+<p>最後可以試著啟動 Spring Boot。若 console 沒有出現 exception 訊息，代表有成功連線到 MongoDB 的服務。</p>
+<h3 id="（二）使用者-Model"><a href="#（二）使用者-Model" class="headerlink" title="（二）使用者 Model"></a>（二）使用者 Model</h3><p>為了將使用者資料儲存到資料庫，以下設計一個叫做「Member」的類別。其包含使用者的 id、帳號、密碼與權限，共 4 個欄位。</p>
+<div class="code-wrapper"><pre><code class="hljs java"><span class="hljs-meta">@Document(collection = &quot;member&quot;)</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">Member</span> &#123;
+
+    <span class="hljs-meta">@Id</span>
+    <span class="hljs-keyword">private</span> String id;
+    <span class="hljs-keyword">private</span> String username;
+    <span class="hljs-keyword">private</span> String password;
+    <span class="hljs-keyword">private</span> List&lt;MemberAuthority&gt; authorities = <span class="hljs-keyword">new</span> <span class="hljs-title class_">ArrayList</span>&lt;&gt;();
+
+    <span class="hljs-comment">// getter, setter ...</span>
+&#125;</code></pre></div>
+
+<p>而一個使用者可能包含多個權限，本文設計有「學生」、「老師」與「管理員」這 3 個權限。</p>
+<div class="code-wrapper"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">enum</span> <span class="hljs-title class_">MemberAuthority</span> &#123;
+    STUDENT, TEACHER, ADMIN
+&#125;</code></pre></div>
+
+<p>上述的 Member 類別使用了 <code>@Document</code> 注解，讓該類別的物件在資料庫中，會被儲存到叫做「member」的集合（collection），概念上相當於資料表（table）。</p>
+<p>至於 <code>@Id</code> 注解，則代表該欄位會對應到 MongoDB 為每一筆資料自動產生的唯一編號（類似主鍵），在此直接做為使用者 id。</p>
+<h3 id="（三）Repository-層"><a href="#（三）Repository-層" class="headerlink" title="（三）Repository 層"></a>（三）Repository 層</h3><p>透過 Spring Data 框架，我們可以在程式碼中輕鬆存取資料庫。</p>
+<p>以下建立一個叫做「MemberRepository」的介面。它繼承了 <code>MongoRepository</code> 介面，並傳入「Member」到泛型類別，代表與資料庫中的對應 collection 做串接。</p>
+<div class="code-wrapper"><pre><code class="hljs java"><span class="hljs-meta">@Repository</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">interface</span> <span class="hljs-title class_">MemberRepository</span> <span class="hljs-keyword">extends</span> <span class="hljs-title class_">MongoRepository</span>&lt;Member, String&gt; &#123;
+    Member <span class="hljs-title function_">findByUsername</span><span class="hljs-params">(String username)</span>;
+&#125;</code></pre></div>
+
+<p>在 <code>MongoRepository</code> 介面中，已經內含 <code>findById</code>、<code>deleteById</code> 等多個方法。此處我們自行宣告了叫做「findByUsername」的方法，代表要查詢 username 欄位相等的資料。</p>
+<p>Spring Data 會在啟動 Spring Boot 時，自動解讀方法名稱，背地產生能實現這些目的的程式。更多介紹可參考筆者的「<a href="/articles/spring-boot-data-mongodb-repository-crud/" target="_blank">【Spring Boot】第8.2課－使用 Spring Data 存取 MongoDB 資料庫，進行基本 CRUD 操作</a>」文章。</p>
+<h2 id="二、準備-RESTful-API"><a href="#二、準備-RESTful-API" class="headerlink" title="二、準備 RESTful API"></a>二、準備 RESTful API</h2><p>本節會在 Controller 建立多支 RESTful API，目的是為了在本文第六節測試不同權限的帳號，能否被 Spring Security 授權存取。如下表：</p>
+<table>
+<thead>
+<tr>
+<th>API</th>
+<th>用途</th>
+<th>授權對象</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>POST &#x2F;members</td>
+<td>建立使用者，並回傳 id</td>
+<td>所有人，無論是否登入</td>
+</tr>
+<tr>
+<td>GET &#x2F;members</td>
+<td>取得所有使用者</td>
+<td>管理員</td>
+</tr>
+<tr>
+<td>GET &#x2F;selected-courses</td>
+<td>回傳「修課清單」字串</td>
+<td>學生</td>
+</tr>
+<tr>
+<td>GET &#x2F;course-feedback</td>
+<td>回傳「課程回饋」字串</td>
+<td>老師</td>
+</tr>
+<tr>
+<td>GET &#x2F;home</td>
+<td>回傳「系統首頁」字串</td>
+<td>已登入的任何人</td>
+</tr>
+</tbody></table>
+<p>以下為 Controller 的程式碼，部份 API 會呼叫本文第一節建立的 MemberRepository 來存取 MongoDB 資料庫。</p>
+<div class="code-wrapper"><pre><code class="hljs java"><span class="hljs-meta">@RestController</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">MyController</span> &#123;
+
+    <span class="hljs-meta">@Autowired</span>
+    <span class="hljs-keyword">private</span> MemberRepository memberRepository;
+
+    <span class="hljs-meta">@PostMapping(&quot;/members&quot;)</span>
+    <span class="hljs-keyword">public</span> String <span class="hljs-title function_">createMember</span><span class="hljs-params">(<span class="hljs-meta">@RequestBody</span> Member member)</span> &#123;
+        member.setId(<span class="hljs-literal">null</span>);
+        memberRepository.insert(member);
+        <span class="hljs-keyword">return</span> member.getId();
+    &#125;
+
+    <span class="hljs-meta">@GetMapping(&quot;/members&quot;)</span>
+    <span class="hljs-keyword">public</span> List&lt;Member&gt; <span class="hljs-title function_">getMembers</span><span class="hljs-params">()</span> &#123;
+        <span class="hljs-keyword">return</span> memberRepository.findAll();
+    &#125;
+
+    <span class="hljs-meta">@GetMapping(&quot;/selected-courses&quot;)</span>
+    <span class="hljs-keyword">public</span> String <span class="hljs-title function_">selectedCourses</span><span class="hljs-params">()</span> &#123;
+        <span class="hljs-keyword">return</span> <span class="hljs-string">&quot;修課清單&quot;</span>;
+    &#125;
+
+    <span class="hljs-meta">@GetMapping(&quot;/course-feedback&quot;)</span>
+    <span class="hljs-keyword">public</span> String <span class="hljs-title function_">courseFeedback</span><span class="hljs-params">()</span> &#123;
+        <span class="hljs-keyword">return</span> <span class="hljs-string">&quot;課程回饋&quot;</span>;
+    &#125;
+
+    <span class="hljs-meta">@GetMapping(&quot;/home&quot;)</span>
+    <span class="hljs-keyword">public</span> String <span class="hljs-title function_">home</span><span class="hljs-params">()</span> &#123;
+        <span class="hljs-keyword">return</span> <span class="hljs-string">&quot;系統首頁&quot;</span>;
+    &#125;
+&#125;</code></pre></div>
+
+<h2 id="三、配置-Spring-Security"><a href="#三、配置-Spring-Security" class="headerlink" title="三、配置 Spring Security"></a>三、配置 Spring Security</h2><h3 id="（一）一般配置"><a href="#（一）一般配置" class="headerlink" title="（一）一般配置"></a>（一）一般配置</h3><p>本節進行 Spring Security 的配置，請確認 pom.xml 檔案已經添加以下依賴。</p>
+<div class="code-wrapper"><pre><code class="hljs xml"><span class="hljs-tag">&lt;<span class="hljs-name">dependency</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">groupId</span>&gt;</span>org.springframework.boot<span class="hljs-tag">&lt;/<span class="hljs-name">groupId</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">artifactId</span>&gt;</span>spring-boot-starter-security<span class="hljs-tag">&lt;/<span class="hljs-name">artifactId</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-name">dependency</span>&gt;</span></code></pre></div>
+
+<p>以下是進行 Spring Security 相關配置的類別。</p>
+<div class="code-wrapper"><pre><code class="hljs java"><span class="hljs-meta">@Configuration</span>
+<span class="hljs-meta">@EnableWebSecurity</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">SecurityConfig</span> &#123;
+
+    <span class="hljs-meta">@Bean</span>
+    <span class="hljs-keyword">public</span> SecurityFilterChain <span class="hljs-title function_">securityFilterChain</span><span class="hljs-params">(HttpSecurity httpSecurity)</span> <span class="hljs-keyword">throws</span> Exception &#123;
+        <span class="hljs-keyword">return</span> httpSecurity
+                .authorizeHttpRequests(requests -&gt; requests
+                        .requestMatchers(HttpMethod.POST, <span class="hljs-string">&quot;/members&quot;</span>).permitAll()
+                        .requestMatchers(HttpMethod.GET, <span class="hljs-string">&quot;/members&quot;</span>).hasAuthority(<span class="hljs-string">&quot;ADMIN&quot;</span>)
+                        .requestMatchers(HttpMethod.GET, <span class="hljs-string">&quot;/selected-courses&quot;</span>).hasAuthority(<span class="hljs-string">&quot;STUDENT&quot;</span>)
+                        .requestMatchers(HttpMethod.GET, <span class="hljs-string">&quot;/course-feedback&quot;</span>).hasAnyAuthority(<span class="hljs-string">&quot;TEACHER&quot;</span>, <span class="hljs-string">&quot;ADMIN&quot;</span>)
+                        .anyRequest().authenticated()
+                )
+                .formLogin(Customizer.withDefaults())
+                .csrf(csrf -&gt; csrf.disable())
+                .build();
+    &#125;
+&#125;</code></pre></div>
+
+<p>呼叫 <code>authorizeHttpRequests</code> 方法，可進一步設計各個 API 的授權規則。這裡依照本文第二節的說明進行實作，在此不贅述。</p>
+<p>呼叫 <code>formLogin</code> 方法，可啟用內建的登入畫面，便於我們在瀏覽器做測試。</p>
+<h3 id="（二）停用-CSRF-保護"><a href="#（二）停用-CSRF-保護" class="headerlink" title="（二）停用 CSRF 保護"></a>（二）停用 CSRF 保護</h3><p>呼叫 <code>csrf</code> 方法，可進一步停用對於「跨站請求偽造」（Cross-Site Request Forgery， CSRF）攻擊的保護機制。</p>
+<p>所謂的 CSRF 攻擊，是指惡意網站利用瀏覽器存取外部網域的 API 時，會自動攜帶目標網域 Cookie 的特性，偷偷存取我們先前使用過的正常網站。</p>
+<p>上一篇我們在登入畫面通過認證後，Spring Security 其實會儲存含有認證資訊的 Cookie 在瀏覽器中。之後存取其他 GET API 時，瀏覽器都會自動攜帶此 Cookie。</p>
+<p>然而建立使用者的 <code>POST /members</code> 這支 API，是無法用瀏覽器存取，必須透過 Postman 或前端程式才行。雖然該 API 被設為公開，但簡單來說，由於 Postman 發送請求時缺少 Cookie，因此會遭到 Spring Security 的 CSRF 保護機制阻擋。</p>
+<p>本系列文章中，為了能順利使用 Postman 存取 API，一律停用此機制。而實務開發中，若系統本來就不使用 Cookie，可以直接停用也無妨。但若有使用 Cookie，則需考慮進行另外的配置來防禦 CSRF 攻擊。</p>
+<h2 id="四、UserDetailsService-認證服務"><a href="#四、UserDetailsService-認證服務" class="headerlink" title="四、UserDetailsService 認證服務"></a>四、UserDetailsService 認證服務</h2><h3 id="（一）UserDetails-介面"><a href="#（一）UserDetails-介面" class="headerlink" title="（一）UserDetails 介面"></a>（一）UserDetails 介面</h3><p>在上一篇，我們透過 <code>InMemoryUserDetailsManager</code> 元件，建立 in-memory 的測試使用者。示意程式如下：</p>
+<div class="code-wrapper"><pre><code class="hljs java"><span class="hljs-meta">@Configuration</span>
+<span class="hljs-meta">@EnableWebSecurity</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">SecurityConfig</span> &#123;
+
+    <span class="hljs-meta">@Bean</span>
+    <span class="hljs-keyword">public</span> InMemoryUserDetailsManager <span class="hljs-title function_">inMemoryUserDetailManager</span><span class="hljs-params">()</span> &#123;
+        <span class="hljs-type">UserDetails</span> <span class="hljs-variable">user1</span> <span class="hljs-operator">=</span> User
+                .withUsername(<span class="hljs-string">&quot;user1&quot;</span>)
+                .password(<span class="hljs-string">&quot;&#123;noop&#125;111&quot;</span>)
+                .authorities(<span class="hljs-string">&quot;STUDENT&quot;</span>)
+                .build();
+        <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">InMemoryUserDetailsManager</span>(List.of(user1));
+    &#125;
+&#125;</code></pre></div>
+
+<p>而本文的目的是在資料庫儲存使用者。在這之前，讓我們先認識 Spring Security 認證的相關介面，才能了解如何進行抽換。</p>
+<p>首先根據上面的示意程式，<code>InMemoryUserDetailsManager</code> 的建構子接收了 <code>UserDetails</code> 物件。<code>UserDetails</code> 是一個介面，在 Spring Security 中都是透過該介面來傳遞使用者資料。</p>
+<p>該介面提供了 7 個方法，如下：</p>
+<div class="code-wrapper"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">interface</span> <span class="hljs-title class_">UserDetails</span> <span class="hljs-keyword">extends</span> <span class="hljs-title class_">Serializable</span> &#123;
+    String <span class="hljs-title function_">getUsername</span><span class="hljs-params">()</span>;
+    String <span class="hljs-title function_">getPassword</span><span class="hljs-params">()</span>;
+    Collection&lt;? <span class="hljs-keyword">extends</span> <span class="hljs-title class_">GrantedAuthority</span>&gt; getAuthorities();
+    <span class="hljs-type">boolean</span> <span class="hljs-title function_">isAccountNonExpired</span><span class="hljs-params">()</span>;
+    <span class="hljs-type">boolean</span> <span class="hljs-title function_">isAccountNonLocked</span><span class="hljs-params">()</span>;
+    <span class="hljs-type">boolean</span> <span class="hljs-title function_">isCredentialsNonExpired</span><span class="hljs-params">()</span>;
+    <span class="hljs-type">boolean</span> <span class="hljs-title function_">isEnabled</span><span class="hljs-params">()</span>;
+&#125;</code></pre></div>
+
+<p>其中 <code>getUsername</code>、<code>getPassword</code> 與 <code>getAuthorities</code> 是最重要的 3 個方法，分別用來取得帳號、密碼與權限。關於權限的部份，是透過 <code>GrantedAuthority</code> 介面的物件來傳遞，到了本文第五節會有相關實作。</p>
+<p>至於另外 4 個方法，從名稱便能看出是回傳使用者的各種「狀態」，包含帳號過期、帳號鎖定、密碼過期、是否啟用等。登入時，即便帳號與密碼正確，我們也能設計成請 Spring Security 不要讓具有異常狀態的使用者通過認證。</p>
+<p>Spring Security 內建了一個實作 <code>UserDetails</code> 介面的類別，那就是 <code>User</code>。在建立物件時，我們也能賦予這些狀態，只要其中 1 個是 false（預設值為 true），則將導致認證失敗。</p>
+<h3 id="（二）UserDetailsService-介面"><a href="#（二）UserDetailsService-介面" class="headerlink" title="（二）UserDetailsService 介面"></a>（二）UserDetailsService 介面</h3><p>若觀看 <code>InMemoryUserDetailsManager</code> 類別的原始碼，會發現它頂層實作了 <code>UserDetailsService</code> 介面。</p>
+<p>該介面是 Spring Security 用來進行認證的重要元件。它提供一個叫做 <code>loadUserByUsername</code> 的方法，用途是接收帳號的值，並回傳內含使用者資料的 <code>UserDetails</code> 介面物件。</p>
+<p>繼續追蹤 <code>InMemoryUserDetailsManager</code> 的原始碼，會發現它是用 Map 資料結構來儲存使用者。</p>
+<div class="code-wrapper"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">InMemoryUserDetailsManager</span> <span class="hljs-keyword">implements</span> <span class="hljs-title class_">UserDetailsManager</span> &#123;
+    <span class="hljs-comment">// 用 Map 儲存使用者</span>
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> Map&lt;String, MutableUserDetails&gt; users = <span class="hljs-keyword">new</span> <span class="hljs-title class_">HashMap</span>();
+
+    <span class="hljs-comment">// ...</span>
+
+    <span class="hljs-keyword">public</span> UserDetails <span class="hljs-title function_">loadUserByUsername</span><span class="hljs-params">(String username)</span> <span class="hljs-keyword">throws</span> UsernameNotFoundException &#123;
+        <span class="hljs-comment">// 從 Map 取得使用者</span>
+        <span class="hljs-type">UserDetails</span> <span class="hljs-variable">user</span> <span class="hljs-operator">=</span> (UserDetails) <span class="hljs-built_in">this</span>.users.get(username.toLowerCase());
+        
+        <span class="hljs-keyword">if</span> (user == <span class="hljs-literal">null</span>) &#123;
+            <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">UsernameNotFoundException</span>(username);
+        &#125; <span class="hljs-keyword">else</span> &#123;
+            <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">User</span>(
+                user.getUsername(),
+                user.getPassword(),
+                user.isEnabled(),
+                user.isAccountNonExpired(),
+                user.isCredentialsNonExpired(),
+                user.isAccountNonLocked(),
+                user.getAuthorities()
+            );
+        &#125;
+    &#125;
+&#125;</code></pre></div>
+
+<p>在上一篇的練習中，Spring Security 是將我們在登入畫面輸入的帳號，傳入 <code>UserDetailsService.loadUserByUsername</code> 方法。等到該方法將使用者資料包裝成 <code>UserDetails</code> 物件後回傳，其 <code>getPassword</code> 方法又會被呼叫，並與登入畫面的密碼進行比對。當帳號與密碼相符，則認證成功。</p>
+<p>下圖以 UML 的類別圖，呈現這些介面與類別的關係。<br><img src="https://ntub46010.github.io/articles/spring-boot-security-authentication-integrating-with-mongodb-database/spring-security-user-details-service-class-diagram.jpg" srcset="/img/loading.gif" lazyload></p>
+<p>從圖中下方，讀者可察覺只要提供作自定義的 <code>UserDetailsService</code>，就能調整認證方式。</p>
+<h2 id="五、實作自定義認證服務"><a href="#五、實作自定義認證服務" class="headerlink" title="五、實作自定義認證服務"></a>五、實作自定義認證服務</h2><p>啟動程式時，Spring Security 會檢查專案中是否有 <code>UserDetailsService</code> 元件。若無，則自動建立一個 <code>InMemoryUserDetailsManager</code> 元件，並附帶一個使用者，帳號為「user」，密碼為隨機（可在 console 找到）。</p>
+<p>若程式專案中存在我們自行提供的 <code>UserDetailsService</code> 元件，例如上一篇手動建立了 <code>InMemoryUserDetailsManager</code>，則 Spring Security 會自動採用。</p>
+<p>同樣的道理，本文為了抽換成資料庫中的使用者資料，我們需要實作自己的 <code>UserDetailsService</code>。</p>
+<div class="code-wrapper"><pre><code class="hljs java"><span class="hljs-meta">@Service</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">UserDetailsServiceImpl</span> <span class="hljs-keyword">implements</span> <span class="hljs-title class_">UserDetailsService</span> &#123;
+
+    <span class="hljs-meta">@Autowired</span>
+    <span class="hljs-keyword">private</span> MemberRepository memberRepository;
+
+    <span class="hljs-meta">@Override</span>
+    <span class="hljs-keyword">public</span> UserDetails <span class="hljs-title function_">loadUserByUsername</span><span class="hljs-params">(String username)</span> <span class="hljs-keyword">throws</span> UsernameNotFoundException &#123;
+        <span class="hljs-type">Member</span> <span class="hljs-variable">member</span> <span class="hljs-operator">=</span> memberRepository.findByUsername(username);
+        <span class="hljs-keyword">if</span> (member == <span class="hljs-literal">null</span>) &#123;
+            <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">UsernameNotFoundException</span>(<span class="hljs-string">&quot;Can&#x27;t find member: &quot;</span> + username);
+        &#125;
+
+        List&lt;SimpleGrantedAuthority&gt; authorities = member.getAuthorities()
+                .stream()
+                .map(auth -&gt; <span class="hljs-keyword">new</span> <span class="hljs-title class_">SimpleGrantedAuthority</span>(auth.name()))
+                .toList();
+
+        <span class="hljs-keyword">return</span> User
+                .withUsername(username)
+                .password(member.getPassword())
+                .authorities(authorities)
+                .build();
+    &#125;
+&#125;</code></pre></div>
+
+<p>範例程式中實作了 <code>loadUserByUsername</code> 方法，它的 <code>username</code> 參數，來自於登入畫面所輸入的帳號。</p>
+<p>接著呼叫本文第一節實作的 MemberRepository 來查詢資料庫，得到我們自己設計的使用者資料。當找不到使用者，就拋出例外，代表認證失敗。最後將帳號、密碼與權限包裝成 <code>UserDetails</code> 物件，回傳給 Spring Security。</p>
+<p>權限資料是透過 <code>GrantedAuthority</code> 介面來傳遞。Spring Security 內建了一個叫做 <code>SimpleGrantedAuthority</code> 的實作類別，此處在建構子中傳入權限的名稱，如本文第一節所設計的學生、老師與管理員。</p>
+<p>以生活情境來比喻撰寫這段程式的過程，就像是求職時，即便我們準備了自製的履歷（Member 類別），但依然要填寫公司內部的制式履歷（<code>UserDetails</code> 介面），因公司只認制式的人事資料。</p>
+<h2 id="六、密碼加密"><a href="#六、密碼加密" class="headerlink" title="六、密碼加密"></a>六、密碼加密</h2><h3 id="（一）PasswordEncoder-元件"><a href="#（一）PasswordEncoder-元件" class="headerlink" title="（一）PasswordEncoder 元件"></a>（一）PasswordEncoder 元件</h3><p>在使用資料庫儲存密碼時，實務上會先將密碼的原文加密後才儲存，稱之為「密文」。用意是為了保護客戶的資料，避免資料庫內容外洩，或者員工監守自盜。</p>
+<p>本節的目標就是對密碼加密。讓我們先認識 Spring Security 的 <code>PasswordEncoder</code> 元件，請讀者建立該介面的元件。</p>
+<div class="code-wrapper"><pre><code class="hljs java"><span class="hljs-meta">@Configuration</span>
+<span class="hljs-meta">@EnableWebSecurity</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">SecurityConfig</span> &#123;
+    <span class="hljs-comment">// ...</span>
+
+    <span class="hljs-meta">@Bean</span>
+    <span class="hljs-keyword">public</span> PasswordEncoder <span class="hljs-title function_">passwordEncoder</span><span class="hljs-params">()</span> &#123;
+        <span class="hljs-keyword">return</span> NoOpPasswordEncoder.getInstance();
+    &#125;
+&#125;</code></pre></div>
+
+<p>Spring Security 內建數個 <code>PasswordEncoder</code> 的實作類別。此處暫時選擇 <code>NoOpPasswordEncoder</code>，代表不加密。對應到上一篇建立的 <code>InMemoryUserDetailsManager</code> 元件，就相當於在密碼的值加上 <code>&#123;noop&#125;</code> 的前綴。</p>
+<p>該介面提供 2 個重要的方法，如下：</p>
+<div class="code-wrapper"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">interface</span> <span class="hljs-title class_">PasswordEncoder</span> &#123;
+    String <span class="hljs-title function_">encode</span><span class="hljs-params">(CharSequence rawPassword)</span>;
+    <span class="hljs-type">boolean</span> <span class="hljs-title function_">matches</span><span class="hljs-params">(CharSequence rawPassword, String encodedPassword)</span>;
+&#125;</code></pre></div>
+
+<p>其中 <code>encode</code> 方法的用途，是將密碼原文透過某種演算法運算後，得到密文。而 <code>matches</code> 方法，則是將密碼原文進行運算後，與另外傳入的密文做比對，藉此確認密碼是否相符。</p>
+<p>在登入畫面進行帳密認證時，Spring Security 會呼叫 <code>PasswordEncoder.matches</code> 方法，將我們輸入的密碼原文，加密成密文。接著再比對該值是否與 <code>UserDetailsService</code> 回傳 <code>UserDetails</code> 物件所包含的密碼密文相同。</p>
+<p>讓我們在 Controller 注入 <code>PasswordEncoder</code>，並在建立使用者時對密碼做加密。由於目前的實作類別是 <code>NoOpPasswordEncoder</code>，因此密文就等於原文。</p>
+<div class="code-wrapper"><pre><code class="hljs java"><span class="hljs-meta">@RestController</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">MyController</span> &#123;
+
+    <span class="hljs-meta">@Autowired</span>
+    <span class="hljs-keyword">private</span> MemberRepository memberRepository;
+
+    <span class="hljs-meta">@Autowired</span>
+    <span class="hljs-keyword">private</span> PasswordEncoder passwordEncoder;
+
+    <span class="hljs-meta">@PostMapping(&quot;/members&quot;)</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">createMember</span><span class="hljs-params">(<span class="hljs-meta">@RequestBody</span> Member member)</span> &#123;
+        <span class="hljs-comment">// 加密密碼</span>
+        <span class="hljs-type">String</span> <span class="hljs-variable">encodedPwd</span> <span class="hljs-operator">=</span> passwordEncoder.encode(member.getPassword());
+        member.setPassword(encodedPwd);
+        
+        member.setId(<span class="hljs-literal">null</span>);
+        memberRepository.insert(member);
+    &#125;
+
+    <span class="hljs-comment">// ...</span>
+&#125;</code></pre></div>
+
+<h3 id="（二）建立測試使用者"><a href="#（二）建立測試使用者" class="headerlink" title="（二）建立測試使用者"></a>（二）建立測試使用者</h3><p>請透過 Postman 之類的工具，存取 <code>POST /members</code> 這個 API，分別建立 3 個測試使用者。Request body 如下：</p>
+<div class="code-wrapper"><pre><code class="hljs json"><span class="hljs-punctuation">&#123;</span>
+    <span class="hljs-attr">&quot;username&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;user1&quot;</span><span class="hljs-punctuation">,</span>
+    <span class="hljs-attr">&quot;password&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;111&quot;</span><span class="hljs-punctuation">,</span>
+    <span class="hljs-attr">&quot;authorities&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">[</span><span class="hljs-string">&quot;STUDENT&quot;</span><span class="hljs-punctuation">]</span>
+<span class="hljs-punctuation">&#125;</span>
+
+<span class="hljs-punctuation">&#123;</span>
+    <span class="hljs-attr">&quot;username&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;user2&quot;</span><span class="hljs-punctuation">,</span>
+    <span class="hljs-attr">&quot;password&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;222&quot;</span><span class="hljs-punctuation">,</span>
+    <span class="hljs-attr">&quot;authorities&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">[</span><span class="hljs-string">&quot;TEACHER&quot;</span><span class="hljs-punctuation">]</span>
+<span class="hljs-punctuation">&#125;</span>
+
+<span class="hljs-punctuation">&#123;</span>
+    <span class="hljs-attr">&quot;username&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;user3&quot;</span><span class="hljs-punctuation">,</span>
+    <span class="hljs-attr">&quot;password&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;333&quot;</span><span class="hljs-punctuation">,</span>
+    <span class="hljs-attr">&quot;authorities&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">[</span><span class="hljs-string">&quot;TEACHER&quot;</span><span class="hljs-punctuation">,</span> <span class="hljs-string">&quot;ADMIN&quot;</span><span class="hljs-punctuation">]</span>
+<span class="hljs-punctuation">&#125;</span></code></pre></div>
+
+<p>第一個使用者為學生身份；第二個為老師身份；第三個是兼具老師與管理員身份。</p>
+<p>此時讀者可分別登入這些帳號，在瀏覽器前往 <code>/selected-courses</code>、<code>/course-feedback</code>、<code>/members</code> 與 <code>/home</code> 這 4 支 API，確認有符合在本文第二節所設計的授權規則。</p>
+<h3 id="（三）使用-BCrypt-來加密密碼"><a href="#（三）使用-BCrypt-來加密密碼" class="headerlink" title="（三）使用 BCrypt 來加密密碼"></a>（三）使用 BCrypt 來加密密碼</h3><p>接下來讓我們抽換成另一種叫做「BCrypt」的加密方式。如此一來，新建立的使用者，其密碼就真的會被加密為看不懂的密文了。</p>
+<div class="code-wrapper"><pre><code class="hljs java"><span class="hljs-meta">@Configuration</span>
+<span class="hljs-meta">@EnableWebSecurity</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">SecurityConfig</span> &#123;
+    <span class="hljs-comment">// ...</span>
+
+    <span class="hljs-meta">@Bean</span>
+    <span class="hljs-keyword">public</span> PasswordEncoder <span class="hljs-title function_">passwordEncoder</span><span class="hljs-params">()</span> &#123;
+         <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">BCryptPasswordEncoder</span>();
+    &#125;
+&#125;</code></pre></div>
+
+<p>BCrypt 是相當流行的加密方式。它使用雜湊函數對資料進行運算，且運算後的結果無法被反推回原始資料。此外還透過隨機加鹽（salt）的方式，讓相同的原始資料，每次都能產生不同的結果，提升加密的安全性。</p>
+<p>此時在登入畫面進行認證，由於我們所輸入密碼的原文也會被加密，因此資料庫中原本儲存的未加密密碼將隨之失效，畢竟比對方式的細節已經改變。</p>
+<p>下圖是再建立一位有管理員權限的使用者後（帳號為 user4，密碼為 444），在瀏覽器查看所有使用者資料的示意畫面。可看見密碼已經是密文了。<br><img src="https://ntub46010.github.io/articles/spring-boot-security-authentication-integrating-with-mongodb-database/spring-security-member-list.png" srcset="/img/loading.gif" lazyload></p>
+<p>到目前為止，我們都是透過 Spring Security 的登入畫面進行認證，藉此在瀏覽器存取 Controller 中的 GET API。但該畫面只是方便在學習時進行測試，一旦前後端分離，終究會獨立於 Spring Boot 之外，用各種 HTTP 方法對 API 發出 request。</p>
+<p>下一篇會介紹「HTTP Basic」這項認證方式，經由在 request header 攜帶帳密，來存取受保護的 API。</p>
+<hr>
+<p>本文的完成後專案，請<a target="_blank" rel="noopener" href="https://github.com/ntub46010/SpringBootTutorial/tree/Ch12.2-security-authentication-integrating-with-mongodb-database">點我</a>。</p>
+<p>上一課：<a href="/articles/spring-boot-security-authentication-and-authorization/" target="_blank">【Spring Boot】第12.1課－初探 Spring Security 的認證與授權</a></p>
+<p>下一課：<a href="/articles/spring-boot-security-http-basic-authentication/" target="_blank">【Spring Boot】第12.3課－在 Spring Security 使用 HTTP Basic 認證</a></p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/Spring-Boot/" class="category-chain-item">Spring Boot</a>
+  
+  
+
+      </span>
+    
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/Spring-Security/" class="category-chain-item">Spring Security</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+</div>
+
+
+              
+
+              
+            </div>
+
+            <div style="padding-top: 30px;">
+              <b style="font-size: 1.5rem;">張貼留言</b>
+              <script src="https://utteranc.es/client.js"
+                repo="chikuwacode/chikuwacode.github.io"
+                issue-term="pathname"
+                theme="github-light"
+                crossorigin="anonymous"
+                async>
+              </script>
+            </div>
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+
+
+    
+
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜尋</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">關鍵字</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/5.0.0/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允許 JavaScript 運行的環境下瀏覽效果更佳</div>
+  </noscript>
+</body>
+</html>

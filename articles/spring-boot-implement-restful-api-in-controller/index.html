@@ -1,0 +1,664 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-TW" >
+
+
+
+<head>
+  <meta charset="UTF-8">
+
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/logo.png">
+  <link rel="icon" href="/img/logo.png">
+  
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#a05926">
+  <meta name="author" content="Vincent">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="後端領域的初學者，應該先具備 Web API 的概念，並且也知道前後端會透過 payload 與 HTTP 狀態碼來交換資料。本文一開始先簡介 MVC 架構。接著在 Spring Boot 中撰寫 RESTful API，將相關概念加以活用。最後會完成 GET、POST、PUT 與 DELETE 這 4 支 API，分別進行 CRUD 操作。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="【Spring Boot】第3.1課－在 Controller 實作 RESTful API">
+<meta property="og:url" content="https://ntub46010.github.io/articles/spring-boot-implement-restful-api-in-controller/">
+<meta property="og:site_name" content="吉古拉的程式拾光">
+<meta property="og:description" content="後端領域的初學者，應該先具備 Web API 的概念，並且也知道前後端會透過 payload 與 HTTP 狀態碼來交換資料。本文一開始先簡介 MVC 架構。接著在 Spring Boot 中撰寫 RESTful API，將相關概念加以活用。最後會完成 GET、POST、PUT 與 DELETE 這 4 支 API，分別進行 CRUD 操作。">
+<meta property="og:locale" content="zh_TW">
+<meta property="og:image" content="https://ntub46010.github.io/img/index_img/spring-boot.jpg">
+<meta property="article:published_time" content="2019-05-19T07:16:46.000Z">
+<meta property="article:modified_time" content="2025-04-20T09:42:58.707Z">
+<meta property="article:author" content="Vincent">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://ntub46010.github.io/img/index_img/spring-boot.jpg">
+  
+  
+  
+  <title>【Spring Boot】第3.1課－在 Controller 實作 RESTful API | 吉古拉的程式拾光</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1736178_k526ubmyhba.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"ntub46010.github.io","root":"/","version":"1.9.8","typing":{"enable":false,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h2,h3","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":false},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"left","headingSelector":"h2,h3","collapseDepth":3},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2,"exclude":[".no-lazy"]},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":"G-BZW5S6P21Naa"},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 40vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>吉古拉的程式拾光</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>文章分類</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>關於本站</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/banner.jpg') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        
+          <div class="h2">
+            
+              <span id="subtitle">【Spring Boot】第3.1課－在 Controller 實作 RESTful API</span>
+            
+          </div>
+        
+
+        
+          
+  <div class="mt-3">
+    
+    
+  </div>
+
+  <div class="mt-1">
+    
+
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="padding-left: 2rem; margin-right: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目錄</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">【Spring Boot】第3.1課－在 Controller 實作 RESTful API</h1>
+            
+              <p id="updated-time" class="note note-warning" style="">
+                
+                  
+                    本文最後更新於：2025-04-20
+                  
+                
+              </p>
+            
+            
+              <div class="markdown-body">
+                
+                <p>若讀者是後端領域的初學者，看完<a href="/articles/spring-boot-restful-api/" target="_blank">第 2 課</a>後，應該具備 Web API 的概念了，並且也知道前後端會透過 payload 與 HTTP 狀態碼來交換資料。</p>
+<p>本文一開始先簡介知名的 MVC 架構，讓讀者知道 Controller 的由來。接著在 Spring Boot 中撰寫 RESTful API，將相關概念加以活用。最後會完成 4 支 API，分別能進行 CRUD。</p>
+<hr>
+<p>本文的練習用專案，請<a target="_blank" rel="noopener" href="https://github.com/ntub46010/SpringBootTutorial/tree/Ch01-create-project">點我</a>。</p>
+<h2 id="一、MVC-架構簡介"><a href="#一、MVC-架構簡介" class="headerlink" title="一、MVC 架構簡介"></a>一、MVC 架構簡介</h2><p>不知讀者以前是否聽過「MVC 架構」？筆者在此簡單地介紹。一套系統，依照職責可區分為 Model、View 與 Controller 三個部份。</p>
+<p>其中 View 屬於畫面的呈現，在前後端分離的系統中，View 這塊就是前端的工作了。</p>
+<p>另外兩項屬於後端。Model 涵蓋資料處理與存取 DB，範圍最廣。至於 Controller 則負責接收請求，呼叫 Model 進行處理，並將結果回傳給 View。</p>
+<p>以生活情境來比喻，就像客人跟櫃台點餐，店員會將菜單送到廚房，之後再將餐點交給我們。此時客人、櫃台店員與廚房，分別為 View、Controller 與 Model。</p>
+<p>Controller 接收的請求，內容包括了<a href="/articles/spring-boot-restful-api/" target="_blank">第 2 課</a>提到的 query string、payload 與 header。而給予的回應，在本文的實作中，則是將處理結果作為 payload，連同 HTTP 狀態碼一併回傳。</p>
+<p>若將原本屬於 Model 職責的資料處理寫在 Controller，或是有些 JSP 專案是把程式碼跟 HTML 寫在一起，那系統越做越大，程式碼就會變得臃腫又混亂。MVC 架構的思想，便是讓程式碼分門別類、各司其職。</p>
+<h2 id="二、配置-Controller"><a href="#二、配置-Controller" class="headerlink" title="二、配置 Controller"></a>二、配置 Controller</h2><h3 id="（一）測試資料"><a href="#（一）測試資料" class="headerlink" title="（一）測試資料"></a>（一）測試資料</h3><p>在實作前，讓我們先準備測試資料，這樣後端才有東西可以回傳。</p>
+<p>以下的自訂類別，描述了產品的編號、名稱與價格。</p>
+<div class="code-wrapper"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">Product</span> &#123;
+    <span class="hljs-keyword">private</span> String id;
+    <span class="hljs-keyword">private</span> String name;
+    <span class="hljs-keyword">private</span> <span class="hljs-type">int</span> price;
+
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> Product <span class="hljs-title function_">of</span><span class="hljs-params">(String id, String name, <span class="hljs-type">int</span> price)</span> &#123;
+        <span class="hljs-type">var</span> <span class="hljs-variable">p</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">Product</span>();
+        p.id = id;
+        p.name = name;
+        p.price = price;
+
+        <span class="hljs-keyword">return</span> p;
+    &#125;
+
+    <span class="hljs-comment">// getter, setter ...</span>
+&#125;</code></pre></div>
+
+<h3 id="（二）Controller-類別"><a href="#（二）Controller-類別" class="headerlink" title="（二）Controller 類別"></a>（二）Controller 類別</h3><p>接著請建立一個類別，筆者取名為 ProductController。在第三節，會在這裡定義跟產品直接相關的 RESTful API。</p>
+<div class="code-wrapper"><pre><code class="hljs java"><span class="hljs-meta">@RestController</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">ProductController</span> &#123;
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">final</span> Map&lt;String, Product&gt; productMap = <span class="hljs-keyword">new</span> <span class="hljs-title class_">HashMap</span>&lt;&gt;();
+
+    <span class="hljs-keyword">static</span> &#123;
+        Stream.of(
+                Product.of(<span class="hljs-string">&quot;B1&quot;</span>, <span class="hljs-string">&quot;Android Development (Java)&quot;</span>, <span class="hljs-number">380</span>),
+                Product.of(<span class="hljs-string">&quot;B2&quot;</span>, <span class="hljs-string">&quot;Android Development (Kotlin)&quot;</span>, <span class="hljs-number">420</span>),
+                Product.of(<span class="hljs-string">&quot;B3&quot;</span>, <span class="hljs-string">&quot;Data Structure (Java)&quot;</span>, <span class="hljs-number">250</span>),
+                Product.of(<span class="hljs-string">&quot;B4&quot;</span>, <span class="hljs-string">&quot;Finance Management&quot;</span>, <span class="hljs-number">450</span>),
+                Product.of(<span class="hljs-string">&quot;B5&quot;</span>, <span class="hljs-string">&quot;Human Resource Management&quot;</span>, <span class="hljs-number">330</span>)
+        ).forEach(p -&gt; productMap.put(p.getId(), p));
+    &#125;
+    <span class="hljs-comment">// TODO</span>
+&#125;</code></pre></div>
+
+<p>本文沒有串接真實的 DB，作為替代，筆者將測試資料存放在 Java 的 Map 資料結構中。其中 key 為編號，value 為整筆產品資料。</p>
+<p>Controller 類別還需加上 <code>@RestController</code> 這個「注解」（annotation），告訴 Spring Boot 這是一個 Controller，否則它只是普通的類別。Spring Boot 會使用各式各樣的注解來進行一些定義，讀者在學習過程中將一一認識。</p>
+<p>透過 Java 的「反射」（Reflection），Spring Boot 會在啟動時掃描程式專案中的每個類別，以及內部的欄位、方法及其參數，是否具有特定的注解。有的話，便納入管理。此過程稱為「元件掃描」（component scan）。</p>
+<h2 id="三、實作-RESTful-API"><a href="#三、實作-RESTful-API" class="headerlink" title="三、實作 RESTful API"></a>三、實作 RESTful API</h2><h3 id="（一）GET-請求（取得資源）"><a href="#（一）GET-請求（取得資源）" class="headerlink" title="（一）GET 請求（取得資源）"></a>（一）GET 請求（取得資源）</h3><p>本節讓我們正式在 Controller 實作 API。以下是透過產品編號來取得資料。這個範例的呼叫方式為 <code>GET /products/B1</code>。</p>
+<div class="code-wrapper"><pre><code class="hljs java"><span class="hljs-meta">@RestController</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">ProductController</span> &#123;
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">final</span> Map&lt;String, Product&gt; productMap = <span class="hljs-keyword">new</span> <span class="hljs-title class_">HashMap</span>&lt;&gt;();
+    <span class="hljs-comment">// ...</span>
+
+    <span class="hljs-meta">@GetMapping(&quot;/products/&#123;id&#125;&quot;)</span>
+    <span class="hljs-keyword">public</span> Product <span class="hljs-title function_">getProduct</span><span class="hljs-params">(<span class="hljs-meta">@PathVariable(&quot;id&quot;)</span> String productId)</span> &#123;
+        <span class="hljs-type">var</span> <span class="hljs-variable">product</span> <span class="hljs-operator">=</span> productMap.get(productId);
+        <span class="hljs-keyword">return</span> product == <span class="hljs-literal">null</span> ? <span class="hljs-keyword">new</span> <span class="hljs-title class_">Product</span>() : product;
+    &#125;
+&#125;</code></pre></div>
+
+<p>首先宣告一個叫做 getProduct 的方法，用來處理請求。而它的回傳值 Product 會是 response body 的內容。</p>
+<p>接著再冠上 <code>@GetMapping</code> 注解，並傳入資源的 endpoint 路徑。我們在 endpoint 上以「{id}」字串來「挖空格」，代表這個位置的值將由前端來提供。</p>
+<p>最後看到該方法的「productId」參數，也冠上了 <code>@PathVariable</code> 注解，且傳入了「id」字串。代表要將 endpoint 上 {id} 位置的值，賦予給 productId。</p>
+<p>這個方法的程式邏輯很簡單，從存放測試資料的 Map 取得資料後回傳即可。若該編號無對應的產品，此處暫時回傳空的內容。</p>
+<p>完成後，請啟動 Spring Boot，就能用 Postman 工具試著呼叫看看。<br><img src="https://ntub46010.github.io/articles/spring-boot-implement-restful-api-in-controller/restful-get-product.png" srcset="/img/loading.gif" lazyload></p>
+<p>確實收到了回應。讀者如果有開發過前端或是 App，且串接過 API，那麼心中應該知道這份 JSON 格式的資料要如何使用了吧！基本上後端的目的就是像這樣回傳內容。</p>
+<h3 id="（二）提供-HTTP-狀態碼"><a href="#（二）提供-HTTP-狀態碼" class="headerlink" title="（二）提供 HTTP 狀態碼"></a>（二）提供 HTTP 狀態碼</h3><p>上面的程式略過了一件事，那就是找不到產品時，應該要回傳 404 的 HTTP 狀態碼。</p>
+<p>Spring Boot 提供了 <code>ResponseEntity</code> 類別物件，讓我們可以自定義 response 的其他地方，而不是只能回傳 payload 而已。以下將進行改寫。</p>
+<div class="code-wrapper"><pre><code class="hljs java"><span class="hljs-meta">@RestController</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">ProductController</span> &#123;
+    <span class="hljs-comment">// ...</span>
+
+    <span class="hljs-meta">@GetMapping(&quot;/products/&#123;id&#125;&quot;)</span>
+    <span class="hljs-keyword">public</span> ResponseEntity&lt;Product&gt; <span class="hljs-title function_">getProduct</span><span class="hljs-params">(<span class="hljs-meta">@PathVariable(&quot;id&quot;)</span> String productId)</span> &#123;
+        <span class="hljs-type">var</span> <span class="hljs-variable">product</span> <span class="hljs-operator">=</span> productMap.get(productId);
+        <span class="hljs-keyword">return</span> product == <span class="hljs-literal">null</span>
+                ? ResponseEntity.status(HttpStatus.NOT_FOUND).build()
+                : ResponseEntity.status(HttpStatus.OK).body(product);
+    &#125;
+&#125;</code></pre></div>
+
+<p>在上面的程式中，透過 <code>ResponseEntity.status</code> 方法，可傳入想要的狀態。此處傳入「OK」（200）或「Not Found」（400）。</p>
+<p>接著繼續呼叫 <code>body</code> 方法，可傳入要回傳的 payload。若無 payload，則呼叫 <code>build</code> 方法建立出物件。</p>
+<p>最後，getProduct 方法的回傳值要同步修改成 <code>ResponseEntity</code>，並於泛型類別提供 payload 的類別。</p>
+<h2 id="四、處理-POST-請求（建立資源）"><a href="#四、處理-POST-請求（建立資源）" class="headerlink" title="四、處理 POST 請求（建立資源）"></a>四、處理 POST 請求（建立資源）</h2><p>將實作 RESTful API 的過程走過一遍後，對於其他種類的請求，我們就能依樣畫葫蘆了。</p>
+<p>以下是處理 POST 請求，將 payload 中的內容，與現有的測試資料一起放在 Map 中。</p>
+<div class="code-wrapper"><pre><code class="hljs java"><span class="hljs-meta">@RestController</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">ProductController</span> &#123;
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">final</span> Map&lt;String, Product&gt; productMap = <span class="hljs-keyword">new</span> <span class="hljs-title class_">HashMap</span>&lt;&gt;();
+    <span class="hljs-comment">// ...</span>
+
+    <span class="hljs-meta">@PostMapping(&quot;/products&quot;)</span>
+    <span class="hljs-keyword">public</span> ResponseEntity&lt;Void&gt; <span class="hljs-title function_">createProduct</span><span class="hljs-params">(<span class="hljs-meta">@RequestBody</span> Product product)</span> &#123;
+        <span class="hljs-keyword">if</span> (product.getId() == <span class="hljs-literal">null</span>) &#123;
+            <span class="hljs-keyword">return</span> ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        &#125;
+
+        <span class="hljs-keyword">if</span> (productMap.containsKey(product.getId())) &#123;
+            <span class="hljs-keyword">return</span> ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).build();
+        &#125;
+
+        productMap.put(product.getId(), product);
+        <span class="hljs-keyword">return</span> ResponseEntity.status(HttpStatus.CREATED).build();
+    &#125;
+&#125;</code></pre></div>
+
+<p>接收 payload 時，需使用 <code>@RequestBody</code> 注解。Spring Boot 會根據 JSON 資料的欄位，自動去呼叫 Product 類別中，其名稱相符的「set」方法，藉此將 payload 的內容填充到 Java 物件上。舉例來說，若偵測 JSON 中有名稱為「name」的欄位，那就會尋找「setName」方法來呼叫。</p>
+<p>這個 createProduct 方法的程式邏輯，會先檢查是否有附上產品編號。若無，意味著前端的 payload 有明顯錯誤，故回傳 400 狀態碼（Bad Request）。</p>
+<p>接著再檢查 Map 中是否已有相同編號的產品資料。若有，則情境上不合理，故回傳 422 狀態碼（Unprocessable Entity）。</p>
+<p>如果資料沒有其他問題，就將它放進 Map 中，並回傳 201 狀態碼（Created），代表成功建立資源。</p>
+<p>至於回傳的 <code>ResponseEntity</code>，由於筆者在這個範例設計成無 payload，因此泛型類別給予「Void」，代表沒有即可。</p>
+<h2 id="五、處理-PUT、DELETE-請求"><a href="#五、處理-PUT、DELETE-請求" class="headerlink" title="五、處理 PUT、DELETE 請求"></a>五、處理 PUT、DELETE 請求</h2><h3 id="（一）PUT-請求（更新資源）"><a href="#（一）PUT-請求（更新資源）" class="headerlink" title="（一）PUT 請求（更新資源）"></a>（一）PUT 請求（更新資源）</h3><p>以下是處理 PUT 請求，會同時接收 endpoint 上的參數，以及 payload。</p>
+<div class="code-wrapper"><pre><code class="hljs java"><span class="hljs-meta">@RestController</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">ProductController</span> &#123;
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">final</span> Map&lt;String, Product&gt; productMap = <span class="hljs-keyword">new</span> <span class="hljs-title class_">HashMap</span>&lt;&gt;();
+    <span class="hljs-comment">// ...</span>
+
+    <span class="hljs-meta">@PutMapping(&quot;/products/&#123;id&#125;&quot;)</span>
+    <span class="hljs-keyword">public</span> ResponseEntity&lt;Void&gt; <span class="hljs-title function_">updateProduct</span><span class="hljs-params">(</span>
+<span class="hljs-params">            <span class="hljs-meta">@PathVariable(&quot;id&quot;)</span> String productId, <span class="hljs-meta">@RequestBody</span> Product request)</span> &#123;
+        <span class="hljs-type">var</span> <span class="hljs-variable">product</span> <span class="hljs-operator">=</span> productMap.get(productId);
+        <span class="hljs-keyword">if</span> (product == <span class="hljs-literal">null</span>) &#123;
+            <span class="hljs-keyword">return</span> ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        &#125;
+
+        product.setName(request.getName());
+        product.setPrice(request.getPrice());
+
+        <span class="hljs-keyword">return</span> ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+    &#125;
+&#125;</code></pre></div>
+
+<p>這個方法的程式邏輯，是先檢查 Map 中是否有對應編號的產品。若無，則回傳 404 狀態碼，代表不存在。</p>
+<p>如果存在，就將 payload 中的欄位值，覆蓋到原有資料上。</p>
+<h3 id="（二）DELETE-請求（刪除資源）"><a href="#（二）DELETE-請求（刪除資源）" class="headerlink" title="（二）DELETE 請求（刪除資源）"></a>（二）DELETE 請求（刪除資源）</h3><p>以下是處理 DELETE 請求，只有接收 endpoint 上的參數而已。</p>
+<div class="code-wrapper"><pre><code class="hljs java"><span class="hljs-meta">@RestController</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">ProductController</span> &#123;
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">final</span> Map&lt;String, Product&gt; productMap = <span class="hljs-keyword">new</span> <span class="hljs-title class_">HashMap</span>&lt;&gt;();
+    <span class="hljs-comment">// ...</span>
+
+    <span class="hljs-meta">@DeleteMapping(&quot;/products/&#123;id&#125;&quot;)</span>
+    <span class="hljs-keyword">public</span> ResponseEntity&lt;Void&gt; <span class="hljs-title function_">deleteProduct</span><span class="hljs-params">(<span class="hljs-meta">@PathVariable(&quot;id&quot;)</span> String productId)</span> &#123;
+        <span class="hljs-keyword">if</span> (!productMap.containsKey(productId)) &#123;
+            <span class="hljs-keyword">return</span> ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        &#125;
+
+        productMap.remove(productId);
+        <span class="hljs-keyword">return</span> ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+    &#125;
+&#125;</code></pre></div>
+
+<p>同樣會先檢查是否有對應的資料。若有，就將其從 Map 中移除。</p>
+<p>以上的實作都完成後，讀者在 Controller 將擁有四支 RESTful API，能進行 CRUD。</p>
+<hr>
+<p>本文的完成後專案，請<a target="_blank" rel="noopener" href="https://github.com/ntub46010/SpringBootTutorial/tree/Ch03.1-implement-restful-api-in-controller">點我</a>。</p>
+<p>上一課：<a href="/articles/spring-boot-restful-api/" target="_blank">【Spring Boot】第2課－認識 RESTful API 與前後端的資料交換</a></p>
+<p>下一課：<a href="/articles/spring-boot-use-query-string-and-header-in-controller/" target="_blank">【Spring Boot】第3.2課－在 Controller 接收 query string 與操作 header</a></p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/Spring-Boot/" class="category-chain-item">Spring Boot</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+</div>
+
+
+              
+
+              
+            </div>
+
+            <div style="padding-top: 30px;">
+              <b style="font-size: 1.5rem;">張貼留言</b>
+              <script src="https://utteranc.es/client.js"
+                repo="chikuwacode/chikuwacode.github.io"
+                issue-term="pathname"
+                theme="github-light"
+                crossorigin="anonymous"
+                async>
+              </script>
+            </div>
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+
+
+    
+
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜尋</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">關鍵字</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/5.0.0/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允許 JavaScript 運行的環境下瀏覽效果更佳</div>
+  </noscript>
+</body>
+</html>
