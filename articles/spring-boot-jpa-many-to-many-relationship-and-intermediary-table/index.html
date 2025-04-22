@@ -22,16 +22,16 @@
     <meta name="description" content="本文將進一步以「學生」選修「課程」為情境，建立多對多關聯，並撰寫 RESTful API 進行測試。過程中也會介紹多對多關聯特有的「中間表」（intermediary table），並說明如何在程式中正確地操作實體，讓 JPA 維護雙方的關聯。">
 <meta property="og:type" content="article">
 <meta property="og:title" content="【Spring Boot】第9.6課－使用 JPA 建立多對多關聯，並配置中間表">
-<meta property="og:url" content="https://chikuwacode.github.io/articles/spring-boot-jpa-many-to-many-relationship-and-intermediary-table/">
+<meta property="og:url" content="https://ntub46010.github.io/articles/spring-boot-jpa-many-to-many-relationship-and-intermediary-table/">
 <meta property="og:site_name" content="吉古拉的程式拾光">
 <meta property="og:description" content="本文將進一步以「學生」選修「課程」為情境，建立多對多關聯，並撰寫 RESTful API 進行測試。過程中也會介紹多對多關聯特有的「中間表」（intermediary table），並說明如何在程式中正確地操作實體，讓 JPA 維護雙方的關聯。">
 <meta property="og:locale" content="zh_TW">
-<meta property="og:image" content="https://chikuwacode.github.io/img/index_img/spring-boot.jpg">
+<meta property="og:image" content="https://ntub46010.github.io/img/index_img/spring-boot.jpg">
 <meta property="article:published_time" content="2024-06-12T03:30:00.000Z">
 <meta property="article:modified_time" content="2025-03-22T10:33:37.985Z">
 <meta property="article:author" content="Vincent">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:image" content="https://chikuwacode.github.io/img/index_img/spring-boot.jpg">
+<meta name="twitter:image" content="https://ntub46010.github.io/img/index_img/spring-boot.jpg">
   
   
   
@@ -71,7 +71,7 @@
   <script id="fluid-configs">
     var Fluid = window.Fluid || {};
     Fluid.ctx = Object.assign({}, Fluid.ctx)
-    var CONFIG = {"hostname":"chikuwacode.github.io","root":"/","version":"1.9.8","typing":{"enable":false,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h2,h3","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":false},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"left","headingSelector":"h2,h3","collapseDepth":3},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2,"exclude":[".no-lazy"]},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":{"measurement_id":"G-BZW5S6P21N"},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/local-search.xml","include_content_in_search":true};
+    var CONFIG = {"hostname":"ntub46010.github.io","root":"/","version":"1.9.8","typing":{"enable":false,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h2,h3","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":false},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"left","headingSelector":"h2,h3","collapseDepth":3},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2,"exclude":[".no-lazy"]},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":"G-BZW5S6P21N"},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/local-search.xml","include_content_in_search":true};
 
     if (CONFIG.web_analytics.follow_dnt) {
       var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
@@ -81,31 +81,6 @@
   <script  src="/js/utils.js" ></script>
   <script  src="/js/color-schema.js" ></script>
   
-
-  
-
-  
-    <!-- Google tag (gtag.js) -->
-    <script async>
-      if (!Fluid.ctx.dnt) {
-        Fluid.utils.createScript("https://www.googletagmanager.com/gtag/js?id=G-BZW5S6P21N", function() {
-          window.dataLayer = window.dataLayer || [];
-          function gtag() {
-            dataLayer.push(arguments);
-          }
-          gtag('js', new Date());
-          gtag('config', 'G-BZW5S6P21N');
-        });
-      }
-    </script>
-  
-
-  
-
-  
-
-  
-
 
 
   
@@ -340,7 +315,7 @@
 <td>審計學</td>
 </tr>
 </tbody></table>
-<p>而下圖是 table 的設計，讀者可看出除了學生表與課程表，還準備了一個叫做「student_course」的中間表。<br><img src="https://chikuwacode.github.io/articles/spring-boot-jpa-many-to-many-relationship-and-intermediary-table/many-to-many-relationship-student-course.png" srcset="/img/loading.gif" lazyload></p>
+<p>而下圖是 table 的設計，讀者可看出除了學生表與課程表，還準備了一個叫做「student_course」的中間表。<br><img src="https://ntub46010.github.io/articles/spring-boot-jpa-many-to-many-relationship-and-intermediary-table/many-to-many-relationship-student-course.png" srcset="/img/loading.gif" lazyload></p>
 <p>從圖中可看到，中間表的欄位有學生與課程編號。這 2 個欄位會一起做為 PK 欄位（複合主鍵），確保該組合不重複，意即學生不可重複選修相同的課程。</p>
 <p>中間表的用途是記錄兩張 table 的資料對應關係，欄位均作為 FK，分別關聯到雙方 table 的 PK。也就是說，多對多關聯是讓 2 張 table 對中間表建立一對多關聯來達成。</p>
 <h3 id="（二）程式配置"><a href="#（二）程式配置" class="headerlink" title="（二）程式配置"></a>（二）程式配置</h3><p>回到程式專案，以下是在 Student 實體類別配置關聯。</p>
