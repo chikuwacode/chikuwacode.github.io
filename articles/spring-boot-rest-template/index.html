@@ -28,7 +28,7 @@
 <meta property="og:locale" content="zh_TW">
 <meta property="og:image" content="https://ntub46010.github.io/img/index_img/spring-boot.jpg">
 <meta property="article:published_time" content="2021-07-21T02:36:00.000Z">
-<meta property="article:modified_time" content="2025-05-09T03:21:05.926Z">
+<meta property="article:modified_time" content="2025-05-09T03:42:42.414Z">
 <meta property="article:author" content="Vincent">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:image" content="https://ntub46010.github.io/img/index_img/spring-boot.jpg">
@@ -518,8 +518,8 @@
 	restTemplate.exchange(url, HttpMethod.GET, entity, UserResponse[].class);</code></pre></div>
 
 <p>另一種方式，是改為傳入 <code>ParameterizedTypeReference</code> 物件，示意如下。</p>
-<div class="code-wrapper"><pre><code class="hljs java">ResponseEntity&lt;List&lt;UserResponse&gt;&gt; responseEntity =
-	restTemplate.exchange(url, HttpMethod.GET, entity, <span class="hljs-keyword">new</span> <span class="hljs-title class_">ParameterizedTypeReference</span>&lt;List&lt;UserResponse&gt;&gt;() &#123;&#125;);</code></pre></div>
+<div class="code-wrapper"><pre><code class="hljs java">ResponseEntity&lt;List&lt;UserResponse&gt;&gt; responseEntity =	restTemplate.exchange(
+    url, HttpMethod.GET, entity, <span class="hljs-keyword">new</span> <span class="hljs-title class_">ParameterizedTypeReference</span>&lt;List&lt;UserResponse&gt;&gt;() &#123;&#125;);</code></pre></div>
 
 <p>建立 <code>ParameterizedTypeReference</code> 物件時，需傳入一個泛型類別。我們可以在此指定任何類別，包含一般類別，或是帶泛型的 List 或 Map 都行。</p>
 <h2 id="七、封裝成物件"><a href="#七、封裝成物件" class="headerlink" title="七、封裝成物件"></a>七、封裝成物件</h2><p>前面在示範 <code>RestTemplate</code> 的用法時，都是在測試案例的程式中進行。本節讓我們封裝成一個物件，除了增加可讀性，使用上也更便利。</p>
