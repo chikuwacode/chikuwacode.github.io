@@ -22,16 +22,16 @@
     <meta name="description" content="JWT 經常被攜帶於 request header 中，用來表明自己的身份。本文將以 JWT 為基礎，實作一個認證 Filter。過程中會將 header 中的 JWT 轉化為認證後的使用者資料。最後在 Controller 中透過 Security Context 取用。">
 <meta property="og:type" content="article">
 <meta property="og:title" content="【Spring Boot】第12.6課－實作 Spring Security 的認證 Filter（以 JWT 為例）">
-<meta property="og:url" content="https://chikuwacode.github.io/articles/spring-boot-security-implement-authentication-filter-with-jwt/">
+<meta property="og:url" content="https://ntub46010.github.io/articles/spring-boot-security-implement-authentication-filter-with-jwt/">
 <meta property="og:site_name" content="吉古拉的程式拾光">
 <meta property="og:description" content="JWT 經常被攜帶於 request header 中，用來表明自己的身份。本文將以 JWT 為基礎，實作一個認證 Filter。過程中會將 header 中的 JWT 轉化為認證後的使用者資料。最後在 Controller 中透過 Security Context 取用。">
 <meta property="og:locale" content="zh_TW">
-<meta property="og:image" content="https://chikuwacode.github.io/img/index_img/spring-boot.jpg">
+<meta property="og:image" content="https://ntub46010.github.io/img/index_img/spring-boot.jpg">
 <meta property="article:published_time" content="2021-06-06T07:58:00.000Z">
 <meta property="article:modified_time" content="2025-04-22T01:04:04.293Z">
 <meta property="article:author" content="Vincent">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:image" content="https://chikuwacode.github.io/img/index_img/spring-boot.jpg">
+<meta name="twitter:image" content="https://ntub46010.github.io/img/index_img/spring-boot.jpg">
   
   
   
@@ -71,7 +71,7 @@
   <script id="fluid-configs">
     var Fluid = window.Fluid || {};
     Fluid.ctx = Object.assign({}, Fluid.ctx)
-    var CONFIG = {"hostname":"chikuwacode.github.io","root":"/","version":"1.9.8","typing":{"enable":false,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h2,h3","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":false},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"left","headingSelector":"h2,h3","collapseDepth":3},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2,"exclude":[".no-lazy"]},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":{"measurement_id":"G-BZW5S6P21N"},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/local-search.xml","include_content_in_search":true};
+    var CONFIG = {"hostname":"ntub46010.github.io","root":"/","version":"1.9.8","typing":{"enable":false,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h2,h3","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":false},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"left","headingSelector":"h2,h3","collapseDepth":3},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2,"exclude":[".no-lazy"]},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":"G-BZW5S6P21N"},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/local-search.xml","include_content_in_search":true};
 
     if (CONFIG.web_analytics.follow_dnt) {
       var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
@@ -81,31 +81,6 @@
   <script  src="/js/utils.js" ></script>
   <script  src="/js/color-schema.js" ></script>
   
-
-  
-
-  
-    <!-- Google tag (gtag.js) -->
-    <script async>
-      if (!Fluid.ctx.dnt) {
-        Fluid.utils.createScript("https://www.googletagmanager.com/gtag/js?id=G-BZW5S6P21N", function() {
-          window.dataLayer = window.dataLayer || [];
-          function gtag() {
-            dataLayer.push(arguments);
-          }
-          gtag('js', new Date());
-          gtag('config', 'G-BZW5S6P21N');
-        });
-      }
-    </script>
-  
-
-  
-
-  
-
-  
-
 
 
   
@@ -542,7 +517,7 @@
 <p>上面的範例程式中，從 <code>SecurityContext</code> 取出了 principal 的資料。如果存取 API 時未攜帶 JWT，principal 的值固定會是「anonymousUser」字串。針對此情形，僅回傳簡單的字串。</p>
 <p>若 JwtAuthenticationFilter 有將解析成功的結果轉換為 MemberUserDetails，並放入 <code>SecurityContext</code>，則 principal 的值將會是這份 <code>UserDetails</code>。</p>
 <p>如果讀者對 Security Context 不太了解，可參考<a href="/articles/spring-boot-security-context-authentication-info/" target="_blank">第 12.4 課</a>。或者想將存取 Security Context 的過程封裝成元件，該文亦有範例程式。</p>
-<p>下圖是使用 Postman 進行測試的結果。<br><img src="https://chikuwacode.github.io/articles/spring-boot-security-implement-authentication-filter-with-jwt/spring-security-postman-send-jwt-to-get-context.png" srcset="/img/loading.gif" lazyload></p>
+<p>下圖是使用 Postman 進行測試的結果。<br><img src="https://ntub46010.github.io/articles/spring-boot-security-implement-authentication-filter-with-jwt/spring-security-postman-send-jwt-to-get-context.png" srcset="/img/loading.gif" lazyload></p>
 <p>可看到 API 回傳了 id、帳號、暱稱與權限，成功以 JWT 取代 HTTP Basic 的認證方式。</p>
 <hr>
 <p>本文的完成後專案，請<a target="_blank" rel="noopener" href="https://github.com/ntub46010/SpringBootTutorial/tree/Ch12.6-security-implement-authentication-filter-with-jwt">點我</a>。</p>

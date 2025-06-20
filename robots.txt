@@ -9,4 +9,4 @@ Disallow: /schedule/
 Disallow: /tags/
 Disallow: /categories/
 
-Sitemap: https://chikuwacode.github.io/sitemap.xml
+Sitemap: https://ntub46010.github.io/sitemap.xml
