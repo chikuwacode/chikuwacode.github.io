@@ -22,16 +22,16 @@
     <meta name="description" content="在先前文章的練習中，若要進行測試，都是先啟動程式，再使用 Postman 這項工具呼叫 API，隨後確認結果。但手動測試非常麻煩，因此本文將利用 Spring Boot 提供的 MockMvc，幫助我們以程式化的方式進行測試。">
 <meta property="og:type" content="article">
 <meta property="og:title" content="【Spring Boot】第10.1課 - 使用 MockMvc 進行 API 整合測試">
-<meta property="og:url" content="https://ntub46010.github.io/articles/spring-boot-mockmvc-integration-test/">
+<meta property="og:url" content="https://chikuwacode.github.io/articles/spring-boot-mockmvc-integration-test/">
 <meta property="og:site_name" content="吉古拉的程式拾光">
 <meta property="og:description" content="在先前文章的練習中，若要進行測試，都是先啟動程式，再使用 Postman 這項工具呼叫 API，隨後確認結果。但手動測試非常麻煩，因此本文將利用 Spring Boot 提供的 MockMvc，幫助我們以程式化的方式進行測試。">
 <meta property="og:locale" content="zh_TW">
-<meta property="og:image" content="https://ntub46010.github.io/img/index_img/spring-boot.jpg">
+<meta property="og:image" content="https://chikuwacode.github.io/img/index_img/spring-boot.jpg">
 <meta property="article:published_time" content="2019-07-07T08:53:47.000Z">
 <meta property="article:modified_time" content="2025-06-20T09:45:28.694Z">
 <meta property="article:author" content="Vincent">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:image" content="https://ntub46010.github.io/img/index_img/spring-boot.jpg">
+<meta name="twitter:image" content="https://chikuwacode.github.io/img/index_img/spring-boot.jpg">
   
   
   
@@ -71,7 +71,7 @@
   <script id="fluid-configs">
     var Fluid = window.Fluid || {};
     Fluid.ctx = Object.assign({}, Fluid.ctx)
-    var CONFIG = {"hostname":"ntub46010.github.io","root":"/","version":"1.9.8","typing":{"enable":false,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h2,h3","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":false},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"left","headingSelector":"h2,h3","collapseDepth":3},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2,"exclude":[".no-lazy"]},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":"G-BZW5S6P21N"},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/local-search.xml","include_content_in_search":true};
+    var CONFIG = {"hostname":"chikuwacode.github.io","root":"/","version":"1.9.8","typing":{"enable":false,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h2,h3","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":false},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"left","headingSelector":"h2,h3","collapseDepth":3},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2,"exclude":[".no-lazy"]},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":{"measurement_id":"G-BZW5S6P21N"},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/local-search.xml","include_content_in_search":true};
 
     if (CONFIG.web_analytics.follow_dnt) {
       var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
@@ -81,6 +81,31 @@
   <script  src="/js/utils.js" ></script>
   <script  src="/js/color-schema.js" ></script>
   
+
+  
+
+  
+    <!-- Google tag (gtag.js) -->
+    <script async>
+      if (!Fluid.ctx.dnt) {
+        Fluid.utils.createScript("https://www.googletagmanager.com/gtag/js?id=G-BZW5S6P21N", function() {
+          window.dataLayer = window.dataLayer || [];
+          function gtag() {
+            dataLayer.push(arguments);
+          }
+          gtag('js', new Date());
+          gtag('config', 'G-BZW5S6P21N');
+        });
+      }
+    </script>
+  
+
+  
+
+  
+
+  
+
 
 
   
@@ -438,9 +463,9 @@
 <p>隨後我們可進行一些後續的動作。使用 <code>andExpect</code> 方法，可傳入各式各樣的規則來驗證 response。比方說 <code>status()</code> 方法可驗證 HTTP 狀態碼，有 200（OK）、201（Created）、404（Not Found）等許多選項可用。</p>
 <p>使用 <code>jsonPath().value()</code> 方法，可驗證 response body 的欄位值。<code>jsonPath</code> 方法的欄位路徑寫法，會以「$」符號作為第一層，並以「.」符號，指向該層的欄位。更深層的欄位，就以「.」繼續串接欄位名稱。而 <code>value</code> 方法則傳入預期的欄位值。</p>
 <p>使用 <code>andDo(print())</code> 方法，可以將 request 和 response 的資訊印在 Console 窗格。</p>
-<h3 id="（三）執行測試"><a href="#（三）執行測試" class="headerlink" title="（三）執行測試"></a>（三）執行測試</h3><p>撰寫好測試程式後，左鍵按下方法名稱旁邊的綠色圖案即可執行，有 Run 和 Debug 兩個選項。<br><img src="https://ntub46010.github.io/articles/spring-boot-mockmvc-integration-test/spring-boot-run-test-menu.png" srcset="/img/loading.gif" lazyload></p>
-<p>執行完後，在左下方窗格可看到測試方法名稱旁的綠色勾勾，代表通過。而黃色圖案代表驗證失敗，紅色代表發生例外。在右方的 Console 窗格，可看到印出的 request 與 response 資訊。<br><img src="https://ntub46010.github.io/articles/spring-boot-mockmvc-integration-test/spring-boot-test-request-info.png" srcset="/img/loading.gif" lazyload><br><img src="https://ntub46010.github.io/articles/spring-boot-mockmvc-integration-test/spring-boot-test-response-info.png" srcset="/img/loading.gif" lazyload></p>
-<p>若讀者想一次執行多個測試，可以左鍵點擊測試類別名稱旁的綠色圖案。或者在專案瀏覽窗格中，右鍵點擊含有測試類別的資料夾。一樣都有 Run 和 Debug 可選擇。<br><img src="https://ntub46010.github.io/articles/spring-boot-mockmvc-integration-test/spring-boot-batch-run-tests-menu.png" srcset="/img/loading.gif" lazyload></p>
+<h3 id="（三）執行測試"><a href="#（三）執行測試" class="headerlink" title="（三）執行測試"></a>（三）執行測試</h3><p>撰寫好測試程式後，左鍵按下方法名稱旁邊的綠色圖案即可執行，有 Run 和 Debug 兩個選項。<br><img src="https://chikuwacode.github.io/articles/spring-boot-mockmvc-integration-test/spring-boot-run-test-menu.png" srcset="/img/loading.gif" lazyload></p>
+<p>執行完後，在左下方窗格可看到測試方法名稱旁的綠色勾勾，代表通過。而黃色圖案代表驗證失敗，紅色代表發生例外。在右方的 Console 窗格，可看到印出的 request 與 response 資訊。<br><img src="https://chikuwacode.github.io/articles/spring-boot-mockmvc-integration-test/spring-boot-test-request-info.png" srcset="/img/loading.gif" lazyload><br><img src="https://chikuwacode.github.io/articles/spring-boot-mockmvc-integration-test/spring-boot-test-response-info.png" srcset="/img/loading.gif" lazyload></p>
+<p>若讀者想一次執行多個測試，可以左鍵點擊測試類別名稱旁的綠色圖案。或者在專案瀏覽窗格中，右鍵點擊含有測試類別的資料夾。一樣都有 Run 和 Debug 可選擇。<br><img src="https://chikuwacode.github.io/articles/spring-boot-mockmvc-integration-test/spring-boot-batch-run-tests-menu.png" srcset="/img/loading.gif" lazyload></p>
 <h2 id="四、測試執行前與後的處理"><a href="#四、測試執行前與後的處理" class="headerlink" title="四、測試執行前與後的處理"></a>四、測試執行前與後的處理</h2><p>在撰寫下一支測試程式前，讀者要先知道一件事：每個測試情境所用的資料都是獨立的，不應該被其他殘留資料干擾。</p>
 <p>舉例來說，下一節我們會撰寫取得多個產品的測試。若沒有將 repository 的資料清空，那麼 API 回傳的資料筆數可能就會不如預期。</p>
 <p>本節將介紹如何在測試程式執行前與後，進行想要的動作。根據上述的例子，請宣告一個方法，用來清空 repository。</p>
