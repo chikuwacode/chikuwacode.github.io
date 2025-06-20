@@ -22,16 +22,16 @@
     <meta name="description" content="我們可能會想在 request 到達 Controller 前，或 response 離開 Controller 後，固定執行一些程式。本文將解說如何透過「Filter」元件來擷取資料，包含打印出處理的時間，以及 request、response 的 body。">
 <meta property="og:type" content="article">
 <meta property="og:title" content="【Spring Boot】第11課－使用 Filter 取出 request 與 response 中的資料">
-<meta property="og:url" content="https://chikuwacode.github.io/articles/spring-boot-filter-request-response-and-get-data/">
+<meta property="og:url" content="https://ntub46010.github.io/articles/spring-boot-filter-request-response-and-get-data/">
 <meta property="og:site_name" content="吉古拉的程式拾光">
 <meta property="og:description" content="我們可能會想在 request 到達 Controller 前，或 response 離開 Controller 後，固定執行一些程式。本文將解說如何透過「Filter」元件來擷取資料，包含打印出處理的時間，以及 request、response 的 body。">
 <meta property="og:locale" content="zh_TW">
-<meta property="og:image" content="https://chikuwacode.github.io/img/index_img/spring-boot.jpg">
+<meta property="og:image" content="https://ntub46010.github.io/img/index_img/spring-boot.jpg">
 <meta property="article:published_time" content="2021-05-30T14:54:47.000Z">
 <meta property="article:modified_time" content="2025-06-20T09:14:17.384Z">
 <meta property="article:author" content="Vincent">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:image" content="https://chikuwacode.github.io/img/index_img/spring-boot.jpg">
+<meta name="twitter:image" content="https://ntub46010.github.io/img/index_img/spring-boot.jpg">
   
   
   
@@ -71,7 +71,7 @@
   <script id="fluid-configs">
     var Fluid = window.Fluid || {};
     Fluid.ctx = Object.assign({}, Fluid.ctx)
-    var CONFIG = {"hostname":"chikuwacode.github.io","root":"/","version":"1.9.8","typing":{"enable":false,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h2,h3","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":false},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"left","headingSelector":"h2,h3","collapseDepth":3},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2,"exclude":[".no-lazy"]},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":{"measurement_id":"G-BZW5S6P21N"},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/local-search.xml","include_content_in_search":true};
+    var CONFIG = {"hostname":"ntub46010.github.io","root":"/","version":"1.9.8","typing":{"enable":false,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h2,h3","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":false},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"left","headingSelector":"h2,h3","collapseDepth":3},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2,"exclude":[".no-lazy"]},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":"G-BZW5S6P21N"},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/local-search.xml","include_content_in_search":true};
 
     if (CONFIG.web_analytics.follow_dnt) {
       var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
@@ -81,31 +81,6 @@
   <script  src="/js/utils.js" ></script>
   <script  src="/js/color-schema.js" ></script>
   
-
-  
-
-  
-    <!-- Google tag (gtag.js) -->
-    <script async>
-      if (!Fluid.ctx.dnt) {
-        Fluid.utils.createScript("https://www.googletagmanager.com/gtag/js?id=G-BZW5S6P21N", function() {
-          window.dataLayer = window.dataLayer || [];
-          function gtag() {
-            dataLayer.push(arguments);
-          }
-          gtag('js', new Date());
-          gtag('config', 'G-BZW5S6P21N');
-        });
-      }
-    </script>
-  
-
-  
-
-  
-
-  
-
 
 
   
@@ -383,7 +358,7 @@
 <p>此處建立的 <code>FilterRegistrationBean</code> 元件，並不是要注入到其他地方，而是會被 Spring Boot 讀取。</p>
 <p>在元件的建立過程中，我們只要呼叫 <code>setFilter</code>  方法，將自己實作的 Filter 附加上去，即可完成註冊。</p>
 <p>這種做法的好處，是能讓我們在元件的建立過程中，做自己想要的客製化。</p>
-<h3 id="（三）確認執行結果"><a href="#（三）確認執行結果" class="headerlink" title="（三）確認執行結果"></a>（三）確認執行結果</h3><p>接下來可以啟動專案，試著對 API 發出請求。<br><img src="https://chikuwacode.github.io/articles/spring-boot-filter-request-response-and-get-data/spring-boot-filter-print-process-time.png" srcset="/img/loading.gif" lazyload></p>
+<h3 id="（三）確認執行結果"><a href="#（三）確認執行結果" class="headerlink" title="（三）確認執行結果"></a>（三）確認執行結果</h3><p>接下來可以啟動專案，試著對 API 發出請求。<br><img src="https://ntub46010.github.io/articles/spring-boot-filter-request-response-and-get-data/spring-boot-filter-print-process-time.png" srcset="/img/loading.gif" lazyload></p>
 <p>確認 Filter 程式確實有在 Console 視窗印出訊息。</p>
 <h3 id="四、取得-Request-與-Response-的資料"><a href="#四、取得-Request-與-Response-的資料" class="headerlink" title="四、取得 Request 與 Response 的資料"></a>四、取得 Request 與 Response 的資料</h3><p><code>OncePerRequestFilter.doFilterInternal</code> 方法，接收了 request 與 response 的參數。本節介紹我們可以從中取出哪些資料。</p>
 <h3 id="（一）HttpServletRequest-的資料"><a href="#（一）HttpServletRequest-的資料" class="headerlink" title="（一）HttpServletRequest 的資料"></a>（一）HttpServletRequest 的資料</h3><p>以下列出 <code>HttpServletRequest</code> 的部份方法及回傳值：</p>
@@ -472,7 +447,7 @@
     &#125;
 &#125;</code></pre></div>
 
-<img src="https://chikuwacode.github.io/articles/spring-boot-filter-request-response-and-get-data/spring-boot-filter-print-request-response-meta-data.png" srcset="/img/loading.gif" lazyload>
+<img src="https://ntub46010.github.io/articles/spring-boot-filter-request-response-and-get-data/spring-boot-filter-print-request-response-meta-data.png" srcset="/img/loading.gif" lazyload>
 
 <h2 id="五、取得-Body"><a href="#五、取得-Body" class="headerlink" title="五、取得 Body"></a>五、取得 Body</h2><p>筆者曾經看過一個需求，是想要將 request 與 response 的 body 給寫入 log。這一節就讓我們將 body 的值給取出來。</p>
 <p>事實上，Controller 收到的 request body，是來自 <code>HttpServletRequest</code> 中的 InputStream。而前端收到的 response body，則是來自 <code>HttpServletResponse</code> 中的 OutputStream。</p>
@@ -537,7 +512,7 @@
 &#125;</code></pre></div>
 
 <p>在範例程式中，會先將 body 的 byte array 轉為字串，並去除換行等特殊符號，最後印在 Console 視窗。</p>
-<img src="https://chikuwacode.github.io/articles/spring-boot-filter-request-response-and-get-data/spring-boot-filter-print-request-response-body.png" srcset="/img/loading.gif" lazyload>
+<img src="https://ntub46010.github.io/articles/spring-boot-filter-request-response-and-get-data/spring-boot-filter-print-request-response-body.png" srcset="/img/loading.gif" lazyload>
 
 <p>要注意的是，讀取完 <code>ContentCachingResponseWrapper</code> 的資料後，要額外呼叫 <code>copyBodyToResponse</code> 方法，將暫存的 byte array 複製到 response 的 OutputStream 中，否則前端將收不到真正的 response body 喔！</p>
 <h2 id="六、其他設定"><a href="#六、其他設定" class="headerlink" title="六、其他設定"></a>六、其他設定</h2><h3 id="（一）套用-API-路徑"><a href="#（一）套用-API-路徑" class="headerlink" title="（一）套用 API 路徑"></a>（一）套用 API 路徑</h3><p>若希望 Filter 只在特定的 API 路徑生效，可以在建立 <code>FilterRegistrationBean</code> 時，或是在 <code>OncePerRequestFilter</code> 中來設定。</p>

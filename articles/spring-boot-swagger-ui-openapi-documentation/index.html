@@ -22,16 +22,16 @@
     <meta name="description" content="當我們想將後端的 API 開放給其他人串接時，我們會整理出文件，列出 API 的使用說明。然而維護這種文件也是一種成本。本文會引進叫做「Swagger」的工具，它能自動偵測 RESTful API，產生美觀的文件。它可以在網頁上供人觀看，甚至能直接在上面呼叫，十分便利。">
 <meta property="og:type" content="article">
 <meta property="og:title" content="【Spring Boot】第13課－使用 Swagger UI 製作 API 文件與呼叫介面">
-<meta property="og:url" content="https://chikuwacode.github.io/articles/spring-boot-swagger-ui-openapi-documentation/">
+<meta property="og:url" content="https://ntub46010.github.io/articles/spring-boot-swagger-ui-openapi-documentation/">
 <meta property="og:site_name" content="吉古拉的程式拾光">
 <meta property="og:description" content="當我們想將後端的 API 開放給其他人串接時，我們會整理出文件，列出 API 的使用說明。然而維護這種文件也是一種成本。本文會引進叫做「Swagger」的工具，它能自動偵測 RESTful API，產生美觀的文件。它可以在網頁上供人觀看，甚至能直接在上面呼叫，十分便利。">
 <meta property="og:locale" content="zh_TW">
-<meta property="og:image" content="https://chikuwacode.github.io/img/index_img/spring-boot.jpg">
+<meta property="og:image" content="https://ntub46010.github.io/img/index_img/spring-boot.jpg">
 <meta property="article:published_time" content="2021-08-06T12:30:00.000Z">
 <meta property="article:modified_time" content="2025-04-22T01:27:10.417Z">
 <meta property="article:author" content="Vincent">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:image" content="https://chikuwacode.github.io/img/index_img/spring-boot.jpg">
+<meta name="twitter:image" content="https://ntub46010.github.io/img/index_img/spring-boot.jpg">
   
   
   
@@ -71,7 +71,7 @@
   <script id="fluid-configs">
     var Fluid = window.Fluid || {};
     Fluid.ctx = Object.assign({}, Fluid.ctx)
-    var CONFIG = {"hostname":"chikuwacode.github.io","root":"/","version":"1.9.8","typing":{"enable":false,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h2,h3","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":false},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"left","headingSelector":"h2,h3","collapseDepth":3},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2,"exclude":[".no-lazy"]},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":{"measurement_id":"G-BZW5S6P21N"},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/local-search.xml","include_content_in_search":true};
+    var CONFIG = {"hostname":"ntub46010.github.io","root":"/","version":"1.9.8","typing":{"enable":false,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h2,h3","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":false},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"left","headingSelector":"h2,h3","collapseDepth":3},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2,"exclude":[".no-lazy"]},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":"G-BZW5S6P21N"},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/local-search.xml","include_content_in_search":true};
 
     if (CONFIG.web_analytics.follow_dnt) {
       var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
@@ -81,31 +81,6 @@
   <script  src="/js/utils.js" ></script>
   <script  src="/js/color-schema.js" ></script>
   
-
-  
-
-  
-    <!-- Google tag (gtag.js) -->
-    <script async>
-      if (!Fluid.ctx.dnt) {
-        Fluid.utils.createScript("https://www.googletagmanager.com/gtag/js?id=G-BZW5S6P21N", function() {
-          window.dataLayer = window.dataLayer || [];
-          function gtag() {
-            dataLayer.push(arguments);
-          }
-          gtag('js', new Date());
-          gtag('config', 'G-BZW5S6P21N');
-        });
-      }
-    </script>
-  
-
-  
-
-  
-
-  
-
 
 
   
@@ -264,7 +239,7 @@
 <hr>
 <p>本文的練習用專案，請<a target="_blank" rel="noopener" href="https://github.com/ntub46010/SpringBootTutorial/tree/Ch13-start-swagger-openapi-specification">點我</a>。</p>
 <h2 id="一、Swagger-UI-介紹"><a href="#一、Swagger-UI-介紹" class="headerlink" title="一、Swagger UI 介紹"></a>一、Swagger UI 介紹</h2><p>Swagger UI 是一個開源工具，能夠根據程式專案中定義的 RESTful API，產生文件網頁。若有人想要串接這些 API，可以前往像這樣的網頁進行「試用」。</p>
-<p>下圖是中央氣象局開放資料平台的 API 文件。<br><img src="https://chikuwacode.github.io/articles/spring-boot-swagger-ui-openapi-documentation/taiwan-cwa-open-data-api-swagger.png" srcset="/img/loading.gif" lazyload></p>
+<p>下圖是中央氣象局開放資料平台的 API 文件。<br><img src="https://ntub46010.github.io/articles/spring-boot-swagger-ui-openapi-documentation/taiwan-cwa-open-data-api-swagger.png" srcset="/img/loading.gif" lazyload></p>
 <p>讀者可以看到，在使用時能夠填寫自己想要的參數，並呼叫 API。本文要產生的就是類似這樣子的文件。</p>
 <h2 id="二、範例專案介紹"><a href="#二、範例專案介紹" class="headerlink" title="二、範例專案介紹"></a>二、範例專案介紹</h2><p>在範例專案中，筆者已經在 Controller 準備好 RESTful API。</p>
 <p>以下的 Product 類別，會同時作為 request 與 response body。</p>
@@ -377,11 +352,11 @@
     <span class="hljs-tag">&lt;<span class="hljs-name">version</span>&gt;</span>2.8.6<span class="hljs-tag">&lt;/<span class="hljs-name">version</span>&gt;</span>
 <span class="hljs-tag">&lt;/<span class="hljs-name">dependency</span>&gt;</span></code></pre></div>
 
-<p>啟動程式後，前往網址 <code>http://localhost:8080/swagger-ui/index.html</code>，就能看到 API 文件的網頁了！<br><img src="https://chikuwacode.github.io/articles/spring-boot-swagger-ui-openapi-documentation/spring-boot-swagger-document.png" srcset="/img/loading.gif" lazyload></p>
+<p>啟動程式後，前往網址 <code>http://localhost:8080/swagger-ui/index.html</code>，就能看到 API 文件的網頁了！<br><img src="https://ntub46010.github.io/articles/spring-boot-swagger-ui-openapi-documentation/spring-boot-swagger-document.png" srcset="/img/loading.gif" lazyload></p>
 <p>若讀者的專案有引進 Spring Security，可能無法順利看見網頁，這部份會在第八節處理。</p>
 <p>點開其中一個 API，除了能看到規格，透過右上方的「Try it out」按鈕，我們還能實際呼叫它。</p>
-<p>下圖是呼叫 PUT 方法的 API，可自行填寫 URL 上的參數，以及 request body。<br><img src="https://chikuwacode.github.io/articles/spring-boot-swagger-ui-openapi-documentation/spring-boot-swagger-path-parameter-and-request-body.png" srcset="/img/loading.gif" lazyload></p>
-<p>下圖是呼叫 GET 方法的 API，除了能看見 response 的資料，Swagger 也會自動組出 Curl 指令與完整 URL。<br><img src="https://chikuwacode.github.io/articles/spring-boot-swagger-ui-openapi-documentation/spring-boot-swagger-response-body.png" srcset="/img/loading.gif" lazyload></p>
+<p>下圖是呼叫 PUT 方法的 API，可自行填寫 URL 上的參數，以及 request body。<br><img src="https://ntub46010.github.io/articles/spring-boot-swagger-ui-openapi-documentation/spring-boot-swagger-path-parameter-and-request-body.png" srcset="/img/loading.gif" lazyload></p>
+<p>下圖是呼叫 GET 方法的 API，除了能看見 response 的資料，Swagger 也會自動組出 Curl 指令與完整 URL。<br><img src="https://ntub46010.github.io/articles/spring-boot-swagger-ui-openapi-documentation/spring-boot-swagger-response-body.png" srcset="/img/loading.gif" lazyload></p>
 <p>附帶一提，若讀者的程式專案有使用 Spring Security，那就需要在「Authorization」這個 request header，攜帶認證用的資料才能呼叫。這部份我們留到第八節再來處理。</p>
 <h2 id="四、說明-Controller"><a href="#四、說明-Controller" class="headerlink" title="四、說明 Controller"></a>四、說明 Controller</h2><p>Swagger 會產生基本的文件內容，而函式庫也提供許多注解，幫助我們做更詳細的說明。</p>
 <h3 id="（一）說明-API"><a href="#（一）說明-API" class="headerlink" title="（一）說明 API"></a>（一）說明 API</h3><p>在 Controller 類別冠上 <code>@Tag</code> 注解，可以為 Controller 添加說明。</p>
@@ -391,7 +366,7 @@
 	<span class="hljs-comment">// ...</span>
 &#125;</code></pre></div>
 
-<p>我們把 Controller 想像成 API 的「群組」。那麼 <code>@Tag</code> 注解的 <code>name</code> 參數就是定義群組的「標題」，字體較大。而 <code>description</code> 參數則定義說明文字，字體較小。<br><img src="https://chikuwacode.github.io/articles/spring-boot-swagger-ui-openapi-documentation/spring-boot-swagger-tag-annotation.png" srcset="/img/loading.gif" lazyload></p>
+<p>我們把 Controller 想像成 API 的「群組」。那麼 <code>@Tag</code> 注解的 <code>name</code> 參數就是定義群組的「標題」，字體較大。而 <code>description</code> 參數則定義說明文字，字體較小。<br><img src="https://ntub46010.github.io/articles/spring-boot-swagger-ui-openapi-documentation/spring-boot-swagger-tag-annotation.png" srcset="/img/loading.gif" lazyload></p>
 <p>在 API 處理方法冠上 <code>@Operation</code> 注解，可以為 API 添加說明。</p>
 <div class="code-wrapper"><pre><code class="hljs java"><span class="hljs-comment">// ...</span>
 <span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">ProductController</span> &#123;
@@ -432,7 +407,7 @@
     &#125;
 &#125;</code></pre></div>
 
-<p>該注解的 <code>summary</code> 參數，可簡要說明 API 的用途。而 <code>description</code> 參數，可做詳細一點的描述，點開 API 規格便能看到。<br><img src="https://chikuwacode.github.io/articles/spring-boot-swagger-ui-openapi-documentation/spring-boot-swagger-operation-annotation-collapse.png" srcset="/img/loading.gif" lazyload><br><img src="https://chikuwacode.github.io/articles/spring-boot-swagger-ui-openapi-documentation/spring-boot-swagger-operation-annotation-expand.png" srcset="/img/loading.gif" lazyload></p>
+<p>該注解的 <code>summary</code> 參數，可簡要說明 API 的用途。而 <code>description</code> 參數，可做詳細一點的描述，點開 API 規格便能看到。<br><img src="https://ntub46010.github.io/articles/spring-boot-swagger-ui-openapi-documentation/spring-boot-swagger-operation-annotation-collapse.png" srcset="/img/loading.gif" lazyload><br><img src="https://ntub46010.github.io/articles/spring-boot-swagger-ui-openapi-documentation/spring-boot-swagger-operation-annotation-expand.png" srcset="/img/loading.gif" lazyload></p>
 <h3 id="（二）說明-HTTP-狀態碼"><a href="#（二）說明-HTTP-狀態碼" class="headerlink" title="（二）說明 HTTP 狀態碼"></a>（二）說明 HTTP 狀態碼</h3><p>在 API 處理方法冠上 <code>@ApiResponses</code> 注解，並傳入一到多個 <code>@ApiResponse</code> 注解，可說明該 API 會回傳的 HTTP 狀態碼。</p>
 <div class="code-wrapper"><pre><code class="hljs java"><span class="hljs-comment">// ...</span>
 <span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">ProductController</span> &#123;
@@ -514,7 +489,7 @@
 </tr>
 </tbody></table>
 <p>關於 <code>content</code> 參數，若 API 沒有 response body，可提供「無參數的」<code>@Content</code> 注解。否則在 Swagger 上顯示的 response body，預設會是方法的回傳值。</p>
-<p>下圖是 Swagger 上呈現的樣子。<br><img src="https://chikuwacode.github.io/articles/spring-boot-swagger-ui-openapi-documentation/spring-boot-swagger-api-response-annotation.png" srcset="/img/loading.gif" lazyload></p>
+<p>下圖是 Swagger 上呈現的樣子。<br><img src="https://ntub46010.github.io/articles/spring-boot-swagger-ui-openapi-documentation/spring-boot-swagger-api-response-annotation.png" srcset="/img/loading.gif" lazyload></p>
 <p>若讀者想在不同的 HTTP 狀態碼提供不同的 response body，那就需要定義好 <code>@Content</code> 注解，這部份我們將在第五節處理。</p>
 <h2 id="五、展示-response-body-的結構"><a href="#五、展示-response-body-的結構" class="headerlink" title="五、展示 response body 的結構"></a>五、展示 response body 的結構</h2><p>使用 <code>@ApiResponse</code> 注解，除了能對 API 會回傳的 HTTP 狀態碼做說明，也能提供 response body 的結構。</p>
 <p>本節讓我們參考<a href="/articles/spring-boot-validate-request-body-and-query-string/" target="_blank">第 3.3 課</a>文末的情境。那篇文章透過 <code>@Valid</code> 注解，在 request body 的資料不合規定時，回傳 HTTP 400 狀態碼，並將錯誤訊息整理成 response body。</p>
@@ -554,7 +529,7 @@
 &#125;</code></pre></div>
 
 <p>此處將 <code>@Schema</code> 注解傳入 <code>schema</code> 參數，最後將類別傳入 <code>implementation</code> 參數即可。</p>
-<p>下圖是 Swagger 上呈現的樣子，在對應 HTTP 狀態碼的區塊可看見規格。<br><img src="https://chikuwacode.github.io/articles/spring-boot-swagger-ui-openapi-documentation/spring-boot-swagger-api-response-annotation-content-schema.png" srcset="/img/loading.gif" lazyload></p>
+<p>下圖是 Swagger 上呈現的樣子，在對應 HTTP 狀態碼的區塊可看見規格。<br><img src="https://ntub46010.github.io/articles/spring-boot-swagger-ui-openapi-documentation/spring-boot-swagger-api-response-annotation-content-schema.png" srcset="/img/loading.gif" lazyload></p>
 <h3 id="（二）回傳-List"><a href="#（二）回傳-List" class="headerlink" title="（二）回傳 List"></a>（二）回傳 List</h3><p>若 API 回傳的 response body 是多個物件組成的 List，物件類別如下。</p>
 <div class="code-wrapper"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">ValidationFailInfo</span> &#123;
     <span class="hljs-keyword">private</span> String field;
@@ -592,7 +567,7 @@
     &#125;
 &#125;</code></pre></div>
 
-<p>下圖是 Swagger 上呈現的樣子。<br><img src="https://chikuwacode.github.io/articles/spring-boot-swagger-ui-openapi-documentation/spring-boot-swagger-api-response-annotation-content-array-schema.png" srcset="/img/loading.gif" lazyload></p>
+<p>下圖是 Swagger 上呈現的樣子。<br><img src="https://ntub46010.github.io/articles/spring-boot-swagger-ui-openapi-documentation/spring-boot-swagger-api-response-annotation-content-array-schema.png" srcset="/img/loading.gif" lazyload></p>
 <p>關於 request body 資料驗證的程式實作，並非本文重點。有興趣的讀者可參考文末附上的完成後專案。</p>
 <h2 id="六、說明-URL-上的參數"><a href="#六、說明-URL-上的參數" class="headerlink" title="六、說明 URL 上的參數"></a>六、說明 URL 上的參數</h2><h3 id="（一）說明路徑參數"><a href="#（一）說明路徑參數" class="headerlink" title="（一）說明路徑參數"></a>（一）說明路徑參數</h3><p>使用 <code>@Parameter</code> 注解，可說明 API 路徑上的參數，例如 <code>/products/&#123;id&#125;</code> 路徑中的 <code>&#123;id&#125;</code>。</p>
 <div class="code-wrapper"><pre><code class="hljs java"><span class="hljs-comment">// ...</span>
@@ -649,7 +624,7 @@
 <td>定義是否必填。呼叫 API 時，若必填欄位未給值，Swagger 會跳出提示訊息。</td>
 </tr>
 </tbody></table>
-<p>下圖是 Swagger 上呈現的樣子。<br><img src="https://chikuwacode.github.io/articles/spring-boot-swagger-ui-openapi-documentation/spring-boot-swagger-parameter-annotation-path-parameter.png" srcset="/img/loading.gif" lazyload></p>
+<p>下圖是 Swagger 上呈現的樣子。<br><img src="https://ntub46010.github.io/articles/spring-boot-swagger-ui-openapi-documentation/spring-boot-swagger-parameter-annotation-path-parameter.png" srcset="/img/loading.gif" lazyload></p>
 <p>在畫面中，可看見欄位旁有必填的標示。若呼叫 API 時未填，Swagger 會跳出提示訊息。</p>
 <h3 id="（二）說明-query-string"><a href="#（二）說明-query-string" class="headerlink" title="（二）說明 query string"></a>（二）說明 query string</h3><p><code>@Parameter</code> 注解也能用來說明 query string。</p>
 <div class="code-wrapper"><pre><code class="hljs java"><span class="hljs-comment">// ...</span>
@@ -670,7 +645,7 @@
 	&#125;
 &#125;</code></pre></div>
 
-<p>下圖是 Swagger 上呈現的樣子。<br><img src="https://chikuwacode.github.io/articles/spring-boot-swagger-ui-openapi-documentation/spring-boot-swagger-parameter-annotation-request-parameter.png" srcset="/img/loading.gif" lazyload></p>
+<p>下圖是 Swagger 上呈現的樣子。<br><img src="https://ntub46010.github.io/articles/spring-boot-swagger-ui-openapi-documentation/spring-boot-swagger-parameter-annotation-request-parameter.png" srcset="/img/loading.gif" lazyload></p>
 <p>然而，如果接收 query string 時是使用 <code>@ModelAttribute</code> 注解，將接收到的值通通整理成一個物件，就不能透過 <code>@Parameter</code> 注解來說明了。要採取第七節與 request 和 response body 相同的方式。</p>
 <h2 id="七、說明-request-與-response-Body"><a href="#七、說明-request-與-response-Body" class="headerlink" title="七、說明 request 與 response Body"></a>七、說明 request 與 response Body</h2><p>使用 <code>@Schema</code> 注解，可以在 request body、response body 與 query string 的類別，說明各個欄位。</p>
 <div class="code-wrapper"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">Product</span> &#123;
@@ -718,7 +693,7 @@
 <td>定義是否必填。但呼叫 API 時，Swagger 不會跳出未填的提示訊息。</td>
 </tr>
 </tbody></table>
-<p>下圖是 Swagger 上呈現的樣子，在「Request body」的區塊，切換到「Schema」頁籤，便可看見規格。<br><img src="https://chikuwacode.github.io/articles/spring-boot-swagger-ui-openapi-documentation/spring-boot-swagger-schema-annotation-request-body.png" srcset="/img/loading.gif" lazyload></p>
+<p>下圖是 Swagger 上呈現的樣子，在「Request body」的區塊，切換到「Schema」頁籤，便可看見規格。<br><img src="https://ntub46010.github.io/articles/spring-boot-swagger-ui-openapi-documentation/spring-boot-swagger-schema-annotation-request-body.png" srcset="/img/loading.gif" lazyload></p>
 <p><code>@Schema</code> 注解還提供了其他參數，方便我們給欄位進行更多的說明，舉例如下，讀者可自行探索。</p>
 <table>
 <thead>
@@ -829,8 +804,8 @@
 &#125;</code></pre></div>
 
 <p>在上面的範例程式中，先是定義了文件的標題，接著再開啟 HTTP Basic 認證的功能。</p>
-<p>下圖是 Swagger 上呈現的樣子。可看見文件標題變成我們自己定義的。而且還出現了「Authorize」按鈕，點下去可填寫帳密。<br><img src="https://chikuwacode.github.io/articles/spring-boot-swagger-ui-openapi-documentation/swagger-custom-title-and-authorize-button.png" srcset="/img/loading.gif" lazyload><br><img src="https://chikuwacode.github.io/articles/spring-boot-swagger-ui-openapi-documentation/swagger-authorize-http-basic.png" srcset="/img/loading.gif" lazyload></p>
-<p>填寫完帳密後，再按下「Authorize」按鈕。之後發出 request 時，Swagger 就會自動攜帶 Authorization 這個 request header，並加上「Basic」的前綴。<br><img src="https://chikuwacode.github.io/articles/spring-boot-swagger-ui-openapi-documentation/swagger-http-basic-authentication-header.png" srcset="/img/loading.gif" lazyload></p>
+<p>下圖是 Swagger 上呈現的樣子。可看見文件標題變成我們自己定義的。而且還出現了「Authorize」按鈕，點下去可填寫帳密。<br><img src="https://ntub46010.github.io/articles/spring-boot-swagger-ui-openapi-documentation/swagger-custom-title-and-authorize-button.png" srcset="/img/loading.gif" lazyload><br><img src="https://ntub46010.github.io/articles/spring-boot-swagger-ui-openapi-documentation/swagger-authorize-http-basic.png" srcset="/img/loading.gif" lazyload></p>
+<p>填寫完帳密後，再按下「Authorize」按鈕。之後發出 request 時，Swagger 就會自動攜帶 Authorization 這個 request header，並加上「Basic」的前綴。<br><img src="https://ntub46010.github.io/articles/spring-boot-swagger-ui-openapi-documentation/swagger-http-basic-authentication-header.png" srcset="/img/loading.gif" lazyload></p>
 <h3 id="（三）開放-JWT-認證"><a href="#（三）開放-JWT-認證" class="headerlink" title="（三）開放 JWT 認證"></a>（三）開放 JWT 認證</h3><p>仿照前面的做法，以下的範例程式是額外配置 JWT 認證的功能。</p>
 <div class="code-wrapper"><pre><code class="hljs java"><span class="hljs-meta">@Configuration</span>
 <span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">SwaggerConfig</span> &#123;
@@ -864,8 +839,8 @@
     &#125;
 &#125;</code></pre></div>
 
-<p>重新打開 Swagger 文件，讀者便能看到填寫 JWT 的地方。<br><img src="https://chikuwacode.github.io/articles/spring-boot-swagger-ui-openapi-documentation/swagger-authorize-jwt.png" srcset="/img/loading.gif" lazyload></p>
-<p>發出 request 時，Swagger 也會自動攜帶 request header，並加上「Bearer」的前綴。<br><img src="https://chikuwacode.github.io/articles/spring-boot-swagger-ui-openapi-documentation/swagger-jwt-authentication-header.png" srcset="/img/loading.gif" lazyload></p>
+<p>重新打開 Swagger 文件，讀者便能看到填寫 JWT 的地方。<br><img src="https://ntub46010.github.io/articles/spring-boot-swagger-ui-openapi-documentation/swagger-authorize-jwt.png" srcset="/img/loading.gif" lazyload></p>
+<p>發出 request 時，Swagger 也會自動攜帶 request header，並加上「Bearer」的前綴。<br><img src="https://ntub46010.github.io/articles/spring-boot-swagger-ui-openapi-documentation/swagger-jwt-authentication-header.png" srcset="/img/loading.gif" lazyload></p>
 <hr>
 <p>本文的完成後專案，請<a target="_blank" rel="noopener" href="https://github.com/ntub46010/SpringBootTutorial/tree/Ch13-fin-swagger-openapi-specification">點我</a>。</p>
 <p>上一課：<a href="/articles/spring-boot-security-implement-authentication-filter-with-jwt/" target="_blank">【Spring Boot】第12.6課－實作 Spring Security 的認證 Filter（以 JWT 為例）</a></p>
