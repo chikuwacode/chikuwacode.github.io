@@ -177,6 +177,13 @@
   </url>
   
   <url>
+    <loc>https://ntub46010.github.io/articles/spring-boot-mysql-using-jpa-repository/</loc>
+    
+    <lastmod>2025-03-22</lastmod>
+    
+  </url>
+  
+  <url>
     <loc>https://ntub46010.github.io/articles/spring-boot-jpa-one-to-one-relationship/</loc>
     
     <lastmod>2025-03-22</lastmod>
@@ -185,13 +192,6 @@
   
   <url>
     <loc>https://ntub46010.github.io/articles/spring-boot-jpa-one-to-many-relationship-and-bidirectional-association/</loc>
-    
-    <lastmod>2025-03-22</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>https://ntub46010.github.io/articles/spring-boot-mysql-using-jpa-repository/</loc>
     
     <lastmod>2025-03-22</lastmod>
     
