@@ -19,19 +19,19 @@
   <meta name="author" content="Vincent">
   <meta name="keywords" content="">
   
-    <meta name="description" content="除了 RestTemplate，我們也能選擇 Spring Cloud 的 OpenFeign 來存取外部 API。並且 OpenFeign 還能搭配 Spring MVC 相關的注解，使用上更加簡潔。">
+    <meta name="description" content="除了 RestTemplate，我們也能選擇 Spring Cloud 的 OpenFeign 來存取外部 API。並且 OpenFeign 還能搭配 Spring MVC 相關的注解，使用上更加直覺。">
 <meta property="og:type" content="article">
 <meta property="og:title" content="【Spring Boot】第14.2課－使用 OpenFeign 存取外部 API">
-<meta property="og:url" content="http://localhost:4000/articles/spring-boot-cloud-open-feign/">
+<meta property="og:url" content="https://ntub46010.github.io/articles/spring-boot-cloud-open-feign/">
 <meta property="og:site_name" content="吉古拉的程式拾光">
-<meta property="og:description" content="除了 RestTemplate，我們也能選擇 Spring Cloud 的 OpenFeign 來存取外部 API。並且 OpenFeign 還能搭配 Spring MVC 相關的注解，使用上更加簡潔。">
+<meta property="og:description" content="除了 RestTemplate，我們也能選擇 Spring Cloud 的 OpenFeign 來存取外部 API。並且 OpenFeign 還能搭配 Spring MVC 相關的注解，使用上更加直覺。">
 <meta property="og:locale" content="zh_TW">
-<meta property="og:image" content="http://localhost:4000/img/index_img/spring-boot.jpg">
-<meta property="article:published_time" content="2025-09-28T00:00:00.000Z">
-<meta property="article:modified_time" content="2025-10-15T13:59:30.244Z">
+<meta property="og:image" content="https://ntub46010.github.io/img/index_img/spring-boot.jpg">
+<meta property="article:published_time" content="2025-10-15T14:30:00.000Z">
+<meta property="article:modified_time" content="2025-10-15T14:16:40.702Z">
 <meta property="article:author" content="Vincent">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:image" content="http://localhost:4000/img/index_img/spring-boot.jpg">
+<meta name="twitter:image" content="https://ntub46010.github.io/img/index_img/spring-boot.jpg">
   
   
   
@@ -71,7 +71,7 @@
   <script id="fluid-configs">
     var Fluid = window.Fluid || {};
     Fluid.ctx = Object.assign({}, Fluid.ctx)
-    var CONFIG = {"hostname":"localhost","root":"/","version":"1.9.8","typing":{"enable":false,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h2,h3","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":false},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"left","headingSelector":"h2,h3","collapseDepth":3},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2,"exclude":[".no-lazy"]},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":"G-BZW5S6P21N"},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/local-search.xml","include_content_in_search":true};
+    var CONFIG = {"hostname":"ntub46010.github.io","root":"/","version":"1.9.8","typing":{"enable":false,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h2,h3","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":false},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"left","headingSelector":"h2,h3","collapseDepth":3},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2,"exclude":[".no-lazy"]},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":"G-BZW5S6P21N"},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/local-search.xml","include_content_in_search":true};
 
     if (CONFIG.web_analytics.follow_dnt) {
       var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
@@ -234,20 +234,20 @@
               <div class="markdown-body">
                 
                 <p>最近的工作任務，需要將資料拋送到另一個系統中。根據筆者以前的工作經驗，覺得應該會用到<a href="/articles/spring-boot-rest-template/" target="_blank">第 14.1 課</a>介紹的 <code>RestTemplate</code>。然而發現同事都是使用 Spring Cloud 中的「OpenFeign」來存取遠端服務。</p>
-<p>Spring Cloud 是一個大型框架，集合了許多關於微服務的功能。本文介紹的 OpenFeign，用途就是與外部服務通訊。它允許我們結合 Controller 中會用到的注解，因此使用方式比 <code>RestTemplate</code> 更簡潔。</p>
+<p>Spring Cloud 是一個大型框架，集合了許多關於微服務的功能。本文介紹的 OpenFeign，用途就是與外部服務通訊。它允許我們結合 Controller 中會用到的注解，因此使用方式比 <code>RestTemplate</code> 更加直覺。</p>
 <hr>
 <h2 id="一、認識-Reqres-服務"><a href="#一、認識-Reqres-服務" class="headerlink" title="一、認識 Reqres 服務"></a>一、認識 Reqres 服務</h2><p>本文同樣使用「<a target="_blank" rel="noopener" href="https://reqres.in/">Reqres</a>」這個免費服務，來串接範例的 RESTful API，它會回傳假資料。</p>
-<img src="http://localhost:4000/articles/spring-boot-cloud-open-feign/reqres-get-single-user-api.png" srcset="/img/loading.gif" lazyload>
+<img src="https://ntub46010.github.io/articles/spring-boot-cloud-open-feign/reqres-get-single-user-api.png" srcset="/img/loading.gif" lazyload>
 
 <p>從上圖中，可看到 <code>GET https://reqres.in/api/users/2</code> 這支 API 的用法。</p>
 <p>從 Reqres 的官方網頁繼續往下看，還能找到它的 <a target="_blank" rel="noopener" href="https://reqres.in/api-docs/">Swagger 文件網頁</a>。</p>
-<img src="http://localhost:4000/articles/spring-boot-cloud-open-feign/reqres-get-single-user-api-swagger.png" srcset="/img/loading.gif" lazyload>
+<img src="https://ntub46010.github.io/articles/spring-boot-cloud-open-feign/reqres-get-single-user-api-swagger.png" srcset="/img/loading.gif" lazyload>
 
 <h2 id="二、程式專案準備"><a href="#二、程式專案準備" class="headerlink" title="二、程式專案準備"></a>二、程式專案準備</h2><h3 id="（一）引入-library"><a href="#（一）引入-library" class="headerlink" title="（一）引入 library"></a>（一）引入 library</h3><p>首先請根據程式專案的 Spring Boot 版本，挑選好 Spring Cloud 版本。我們可參考<a target="_blank" rel="noopener" href="https://spring.io/projects/spring-cloud#overview">官方文件</a>的對照表。</p>
-<img src="http://localhost:4000/articles/spring-boot-cloud-open-feign/spring-cloud-version-to-spring-boot-mapping-table.png" srcset="/img/loading.gif" lazyload>
+<img src="https://ntub46010.github.io/articles/spring-boot-cloud-open-feign/spring-cloud-version-to-spring-boot-mapping-table.png" srcset="/img/loading.gif" lazyload>
 
 <p>在對照表中，找到 Spring Boot 版本後，點進左邊欄位的連結，可察看 Spring Cloud 的 Release Note。在此能找到各種 Spring Cloud 的確切版本號。</p>
-<img src="http://localhost:4000/articles/spring-boot-cloud-open-feign/spring-cloud-version-release-note.png" srcset="/img/loading.gif" lazyload>
+<img src="https://ntub46010.github.io/articles/spring-boot-cloud-open-feign/spring-cloud-version-release-note.png" srcset="/img/loading.gif" lazyload>
 
 <p>假設 Spring Boot 版本是 3.5.6，那麼本文最新可選擇的版本是 2025.0.0。</p>
 <p>請在 pom.xml 檔案中「dependencyManagement」的「dependencies」區塊中，添加 Spring Cloud 及其版本。</p>
@@ -477,7 +477,7 @@
 <p>以上的範例程式，是假設帳密已經在 application.properties 配置檔定義好，再透過 <code>$&#123;&#125;</code> 的語法來取用。</p>
 <h3 id="（五）全域配置"><a href="#（五）全域配置" class="headerlink" title="（五）全域配置"></a>（五）全域配置</h3><p>前面自定義的 ReqresFeignConfig 類別並沒有冠上 <code>@Configuration</code> 注解，原因是這些配置是專門給對應的 OpenFeign 呼叫介面所使用。</p>
 <p>一旦冠上了 <code>@Configuration</code> 注解，那麼裡頭的配置就會套用在「所有的」OpenFeign 呼叫介面。</p>
-<p>如果讀者有一些配置可以共用的，那不妨抽出來放在另一個配置類別，使其成為全域的配置。下面是以 OkHttpClient 為例：</p>
+<p>如果有一些配置可以共用的，那不妨抽出來放在另一個配置類別，使其成為全域的配置。下面是以 OkHttpClient 為例：</p>
 <div class="code-wrapper"><pre><code class="hljs java"><span class="hljs-keyword">import</span> okhttp3.OkHttpClient;
 
 <span class="hljs-meta">@Configuration</span>

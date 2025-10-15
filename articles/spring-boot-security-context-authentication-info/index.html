@@ -22,16 +22,16 @@
     <meta name="description" content="在開發商業邏輯時，我們經常需要知道 API 存取方的身份是誰。本文將以 HTTP Basic 認證方式為例，示範如何從「Security Context」取得 API 存取方的使用者資訊。最後透過觀察原始碼，認識 Spring Security 進行 HTTP Basic 認證的原理。">
 <meta property="og:type" content="article">
 <meta property="og:title" content="【Spring Boot】第12.4課－從 Security Context 取得 API 存取方的認證資訊">
-<meta property="og:url" content="http://localhost:4000/articles/spring-boot-security-context-authentication-info/">
+<meta property="og:url" content="https://ntub46010.github.io/articles/spring-boot-security-context-authentication-info/">
 <meta property="og:site_name" content="吉古拉的程式拾光">
 <meta property="og:description" content="在開發商業邏輯時，我們經常需要知道 API 存取方的身份是誰。本文將以 HTTP Basic 認證方式為例，示範如何從「Security Context」取得 API 存取方的使用者資訊。最後透過觀察原始碼，認識 Spring Security 進行 HTTP Basic 認證的原理。">
 <meta property="og:locale" content="zh_TW">
-<meta property="og:image" content="http://localhost:4000/img/index_img/spring-boot.jpg">
+<meta property="og:image" content="https://ntub46010.github.io/img/index_img/spring-boot.jpg">
 <meta property="article:published_time" content="2023-11-03T12:28:00.000Z">
 <meta property="article:modified_time" content="2025-03-23T08:58:02.652Z">
 <meta property="article:author" content="Vincent">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:image" content="http://localhost:4000/img/index_img/spring-boot.jpg">
+<meta name="twitter:image" content="https://ntub46010.github.io/img/index_img/spring-boot.jpg">
   
   
   
@@ -71,7 +71,7 @@
   <script id="fluid-configs">
     var Fluid = window.Fluid || {};
     Fluid.ctx = Object.assign({}, Fluid.ctx)
-    var CONFIG = {"hostname":"localhost","root":"/","version":"1.9.8","typing":{"enable":false,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h2,h3","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":false},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"left","headingSelector":"h2,h3","collapseDepth":3},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2,"exclude":[".no-lazy"]},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":"G-BZW5S6P21N"},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/local-search.xml","include_content_in_search":true};
+    var CONFIG = {"hostname":"ntub46010.github.io","root":"/","version":"1.9.8","typing":{"enable":false,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h2,h3","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":false},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"left","headingSelector":"h2,h3","collapseDepth":3},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2,"exclude":[".no-lazy"]},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":"G-BZW5S6P21N"},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/local-search.xml","include_content_in_search":true};
 
     if (CONFIG.web_analytics.follow_dnt) {
       var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
@@ -305,8 +305,8 @@
 <p>在 API 的程式邏輯中，第一行呼叫了 <code>SecurityContextHolder</code> 類別的靜態方法，取得了 <code>SecurityContext</code> 物件。第二行從 <code>SecurityContext</code> 物件取得 <code>Authentication</code> 物件。</p>
 <p>呼叫 <code>Authentication.getPrincipal</code> 方法，可得到 API 存取方的使用者資料。但該值會隨著認證情況的不同而有差異，所以回傳值型態是 <code>Object</code>。</p>
 <p>若尚未通過認證，principal 的值固定會是「anonymousUser」字串。若通過認證，則為 <code>UserDetails</code> 物件。在範例程式中，我們取出帳號與權限的值進行運用。</p>
-<p>下圖是使用 Postman，以 HTTP Basic 認證方式在 request header 攜帶帳密後存取 API。<br><img src="http://localhost:4000/articles/spring-boot-security-context-authentication-info/spring-security-context-postman-get-simple-info.png" srcset="/img/loading.gif" lazyload></p>
-<p>而下圖是以未認證的身份，匿名存取 API。<br><img src="http://localhost:4000/articles/spring-boot-security-context-authentication-info/spring-security-context-postman-get-anonymous-user.png" srcset="/img/loading.gif" lazyload></p>
+<p>下圖是使用 Postman，以 HTTP Basic 認證方式在 request header 攜帶帳密後存取 API。<br><img src="https://ntub46010.github.io/articles/spring-boot-security-context-authentication-info/spring-security-context-postman-get-simple-info.png" srcset="/img/loading.gif" lazyload></p>
+<p>而下圖是以未認證的身份，匿名存取 API。<br><img src="https://ntub46010.github.io/articles/spring-boot-security-context-authentication-info/spring-security-context-postman-get-anonymous-user.png" srcset="/img/loading.gif" lazyload></p>
 <p>上面見到了許多類別與介面，到了本文第五節，筆者會介紹相關的原始碼，讓讀者了解原理。</p>
 <h2 id="三、自定義使用者資料"><a href="#三、自定義使用者資料" class="headerlink" title="三、自定義使用者資料"></a>三、自定義使用者資料</h2><h3 id="（一）設計使用者類別"><a href="#（一）設計使用者類別" class="headerlink" title="（一）設計使用者類別"></a>（一）設計使用者類別</h3><p>上一節的範例程式，取用了使用者的帳號與權限這兩項資料。然而在實務上，「使用者」這種資料通常還會有更多欄位，例如 id、名字或信箱等。</p>
 <p>接下來讓我們準備自定義的使用者類別，取名為「Member」。它除了基本的帳號、密碼與權限，還包含了 id、暱稱與信箱，共 6 個欄位。</p>
@@ -499,7 +499,7 @@
     &#125;
 &#125;</code></pre></div>
 
-<p>下圖是以「user1」的使用者身份存取 API。<br><img src="http://localhost:4000/articles/spring-boot-security-context-authentication-info/spring-security-context-postman-get-customized-info.png" srcset="/img/loading.gif" lazyload></p>
+<p>下圖是以「user1」的使用者身份存取 API。<br><img src="https://ntub46010.github.io/articles/spring-boot-security-context-authentication-info/spring-security-context-postman-get-customized-info.png" srcset="/img/loading.gif" lazyload></p>
 <p>如此一來，讀者在開發商業邏輯時，不論是要在資料庫儲存文章的建立者，還是將暱稱寫入訊息文字，又或者是寄送郵件，都能更輕鬆地取得當前 API 存取方的使用者資料。</p>
 <h2 id="五、HTTP-Basic-認證的原理"><a href="#五、HTTP-Basic-認證的原理" class="headerlink" title="五、HTTP Basic 認證的原理"></a>五、HTTP Basic 認證的原理</h2><h3 id="（一）Filter-原始碼"><a href="#（一）Filter-原始碼" class="headerlink" title="（一）Filter 原始碼"></a>（一）Filter 原始碼</h3><p>我們已經知道如何取用 <code>SecurityContext</code> 中的認證資訊，而本節將介紹該內容是從何而來。</p>
 <p>Spring Security 是透過 Java Servlet 的「Filter」，才能在 request 到達 Controller 前進行認證與授權。其中 <code>BasicAuthenticationFilter</code> 是專門處理 HTTP Basic 認證的 Filter。</p>
@@ -545,16 +545,16 @@
 
 <p>本節會提到該 Filter 中的 3 個重要元件：<code>AuthenticationConverter</code>、<code>AuthenticationManager</code> 與 <code>SecurityContextHolderStrategy</code>。接下來筆者將搭配 UML 的類別圖，分別進行說明。</p>
 <h2 id="（二）AuthenticationConverter-解析帳密"><a href="#（二）AuthenticationConverter-解析帳密" class="headerlink" title="（二）AuthenticationConverter 解析帳密"></a>（二）AuthenticationConverter 解析帳密</h2><p>HTTP Basic 是一種經由在 request header 攜帶帳號與密碼，讓後端進行身份認證的方式。</p>
-<p>Filter 接收到 request 後，首先 <code>AuthenticationConverter</code> 會從 <code>HttpServletRequest</code> 取出「Authorization」這個 header 的值，進行 Base64 解碼。解析出帳密後，封裝成 <code>Authentication</code> 物件。<br><img src="http://localhost:4000/articles/spring-boot-security-context-authentication-info/spring-boot-security-authentication-converter-class-diagram.jpg" srcset="/img/loading.gif" lazyload></p>
+<p>Filter 接收到 request 後，首先 <code>AuthenticationConverter</code> 會從 <code>HttpServletRequest</code> 取出「Authorization」這個 header 的值，進行 Base64 解碼。解析出帳密後，封裝成 <code>Authentication</code> 物件。<br><img src="https://ntub46010.github.io/articles/spring-boot-security-context-authentication-info/spring-boot-security-authentication-converter-class-diagram.jpg" srcset="/img/loading.gif" lazyload></p>
 <p>而 <code>AuthenticationConverter</code> 介面的實作類別是 <code>BasicAuthenticationConverter</code>，它會回傳 <code>Authentication</code> 介面的實作類別 <code>UsernamePasswordAuthenticationToken</code>。</p>
 <p>解析出的帳號，會放在 <code>UsernamePasswordAuthenticationToken</code> 物件的 <code>principal</code> 欄位，而密碼放在 <code>credentials</code> 欄位。</p>
 <h3 id="（三）AuthenticationManager-進行認證"><a href="#（三）AuthenticationManager-進行認證" class="headerlink" title="（三）AuthenticationManager 進行認證"></a>（三）AuthenticationManager 進行認證</h3><p>將帳號與密碼的值封裝成 <code>Authentication</code> 介面的物件後，接下來 <code>AuthenticationManager</code> 會進行身份認證，並回傳另一個新的 <code>Authentication</code> 物件。兩個物件的差別在於，新物件會包含認證後的結果，即使用者資料。</p>
-<p>這個 <code>AuthenticationManager</code> 介面，有個實作類別叫做 <code>ProviderManager</code>，它擁有多個 <code>AuthenticationProvider</code> 介面的物件，讀者可理解成「認證功能的提供者」。<br><img src="http://localhost:4000/articles/spring-boot-security-context-authentication-info/spring-boot-security-authentication-manager-class-diagram.jpg" srcset="/img/loading.gif" lazyload></p>
+<p>這個 <code>AuthenticationManager</code> 介面，有個實作類別叫做 <code>ProviderManager</code>，它擁有多個 <code>AuthenticationProvider</code> 介面的物件，讀者可理解成「認證功能的提供者」。<br><img src="https://ntub46010.github.io/articles/spring-boot-security-context-authentication-info/spring-boot-security-authentication-manager-class-diagram.jpg" srcset="/img/loading.gif" lazyload></p>
 <p>在 HTTP Basic 認證的情況下，會由 <code>DaoAuthenticationProvider</code> 提供認證功能。它接收 <code>Authentication</code> 物件後，使用了 <code>UserDetailsService</code> 與 <code>PasswordEncoder</code> 進行帳號與密碼的認證。</p>
 <p>認證成功後，<code>DaoAuthenticationProvider</code> 會將 <code>UserDetailsService</code> 回傳的 <code>UserDetails</code> 放入 <code>UsernamePasswordAuthenticationToken</code> 物件的 <code>principal</code> 欄位中，並以 <code>Authentication</code> 介面回傳。</p>
 <h3 id="（四）SecurityContextHolderStrategy-管理認證資訊"><a href="#（四）SecurityContextHolderStrategy-管理認證資訊" class="headerlink" title="（四）SecurityContextHolderStrategy 管理認證資訊"></a>（四）SecurityContextHolderStrategy 管理認證資訊</h3><p>Spring Security 會將認證後的使用者資料儲存於記憶體，讓我們在程式邏輯中能使用。所以我們在第二節的 Controller 才能在取得 <code>UserDetails</code> 物件。</p>
 <p>負責管理認證資訊的是 <code>SecurityContextHolder</code> 類別中的 <code>SecurityContextHolderStrategy</code>。後者是一個介面，代表管理的「策略」，Spring Security 內建數種實作好的策略。</p>
-<p>而前者會在啟動程式時選擇其中一種管理策略。除此之外，就只是對外提供存取認證資訊的方法罷了。<br><img src="http://localhost:4000/articles/spring-boot-security-context-authentication-info/spring-boot-security-context-holder-class-diagram.jpg" srcset="/img/loading.gif" lazyload></p>
+<p>而前者會在啟動程式時選擇其中一種管理策略。除此之外，就只是對外提供存取認證資訊的方法罷了。<br><img src="https://ntub46010.github.io/articles/spring-boot-security-context-authentication-info/spring-boot-security-context-holder-class-diagram.jpg" srcset="/img/loading.gif" lazyload></p>
 <p>預設的管理策略是 <code>ThreadLocalSecurityContextHolderStrategy</code>，它採用了「ThreadLocal」的技術，讓每個執行緒只能取得屬於自己的資料。因此，即便 Spring Boot 同時處理許多 request，也不會遇到執行緒安全的問題，意外地取得他人的認證資訊。</p>
 <p>回到 Filter 的邏輯。接下來會產生一個 <code>SecurityContext</code> 介面的物件，將認證後的 <code>Authentication</code> 物件封裝起來。</p>
 <p>最後將 <code>SecurityContext</code> 存回 <code>SecurityContextHolderStrategy</code>，就完成 HTTP Basic 認證的流程。</p>

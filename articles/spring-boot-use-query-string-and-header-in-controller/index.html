@@ -22,16 +22,16 @@
     <meta name="description" content="本文將繼續介紹 Controller 的其他細節。首先是接收 query string，進行條件篩選與排序。接著是 header 的處理，包含接收指定名稱的 request header，以及產生 URI，在 response header 提供 Location。最後提供幾項實用的技巧來簡化程式碼。">
 <meta property="og:type" content="article">
 <meta property="og:title" content="【Spring Boot】第3.2課－在 Controller 接收 query string 與操作 header">
-<meta property="og:url" content="http://localhost:4000/articles/spring-boot-use-query-string-and-header-in-controller/">
+<meta property="og:url" content="https://ntub46010.github.io/articles/spring-boot-use-query-string-and-header-in-controller/">
 <meta property="og:site_name" content="吉古拉的程式拾光">
 <meta property="og:description" content="本文將繼續介紹 Controller 的其他細節。首先是接收 query string，進行條件篩選與排序。接著是 header 的處理，包含接收指定名稱的 request header，以及產生 URI，在 response header 提供 Location。最後提供幾項實用的技巧來簡化程式碼。">
 <meta property="og:locale" content="zh_TW">
-<meta property="og:image" content="http://localhost:4000/img/index_img/spring-boot.jpg">
+<meta property="og:image" content="https://ntub46010.github.io/img/index_img/spring-boot.jpg">
 <meta property="article:published_time" content="2019-05-26T15:12:50.000Z">
 <meta property="article:modified_time" content="2025-04-22T01:32:30.347Z">
 <meta property="article:author" content="Vincent">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:image" content="http://localhost:4000/img/index_img/spring-boot.jpg">
+<meta name="twitter:image" content="https://ntub46010.github.io/img/index_img/spring-boot.jpg">
   
   
   
@@ -71,7 +71,7 @@
   <script id="fluid-configs">
     var Fluid = window.Fluid || {};
     Fluid.ctx = Object.assign({}, Fluid.ctx)
-    var CONFIG = {"hostname":"localhost","root":"/","version":"1.9.8","typing":{"enable":false,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h2,h3","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":false},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"left","headingSelector":"h2,h3","collapseDepth":3},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2,"exclude":[".no-lazy"]},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":"G-BZW5S6P21N"},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/local-search.xml","include_content_in_search":true};
+    var CONFIG = {"hostname":"ntub46010.github.io","root":"/","version":"1.9.8","typing":{"enable":false,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h2,h3","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":false},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"left","headingSelector":"h2,h3","collapseDepth":3},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2,"exclude":[".no-lazy"]},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":"G-BZW5S6P21N"},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/local-search.xml","include_content_in_search":true};
 
     if (CONFIG.web_analytics.follow_dnt) {
       var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
@@ -340,7 +340,7 @@
 <li>根據排序的方向，決定是否將 Comparator 調整為遞減。</li>
 <li>取得測試資料的集合，呼叫 stream 的相關方法。將搜尋關鍵字用來篩選，再將符合的資料做排序。</li>
 </ol>
-<p>完成後，可實際用 Postman 呼叫看看。<br><img src="http://localhost:4000/articles/spring-boot-use-query-string-and-header-in-controller/postman-get-with-query-string.png" srcset="/img/loading.gif" lazyload></p>
+<p>完成後，可實際用 Postman 呼叫看看。<br><img src="https://ntub46010.github.io/articles/spring-boot-use-query-string-and-header-in-controller/postman-get-with-query-string.png" srcset="/img/loading.gif" lazyload></p>
 <p>本節著重於如何在 Controller 接收 query string。至於檢查它們的值是否合法，不在本文的討論範圍。</p>
 <h2 id="三、接收與回傳標頭"><a href="#三、接收與回傳標頭" class="headerlink" title="三、接收與回傳標頭"></a>三、接收與回傳標頭</h2><h3 id="（一）回傳-Location-標頭"><a href="#（一）回傳-Location-標頭" class="headerlink" title="（一）回傳 Location 標頭"></a>（一）回傳 Location 標頭</h3><p>在<a href="/articles/spring-boot-restful-api/" target="_blank">第 2 課</a>有介紹過，如果 API 的功能是建立資源，那麼後端可額外回傳「Location」這個標頭（header），提供指向該資源的 endpoint。</p>
 <p>在練習用專案中，尚有另一個 API 是「POST &#x2F;products」，用途是建立新的產品資料。其對應的 API 處理方法為「createProduct」，本節就在這個 API 提供此 header。</p>
@@ -373,7 +373,7 @@
 <li><code>build</code>：傳入 Map，將值填入上述的 placeholder 中，並回傳建立好的 URI 物件。</li>
 </ol>
 <p>準備好 URI 後，請建立 <code>HttpHeaders</code> 物件，添加 Location 的值。<code>HttpHeaders</code> 提供一系列的「setXXX」方法，可以很直覺地加上資料。最後將其附帶於 <code>ResponseEntity</code> 中。</p>
-<p>以下是 Postman 的操作結果，可看見 response header 確實有出現「Location」。<br><img src="http://localhost:4000/articles/spring-boot-use-query-string-and-header-in-controller/postman-response-header-indicate-location.png" srcset="/img/loading.gif" lazyload></p>
+<p>以下是 Postman 的操作結果，可看見 response header 確實有出現「Location」。<br><img src="https://ntub46010.github.io/articles/spring-boot-use-query-string-and-header-in-controller/postman-response-header-indicate-location.png" srcset="/img/loading.gif" lazyload></p>
 <h3 id="（二）接收標頭"><a href="#（二）接收標頭" class="headerlink" title="（二）接收標頭"></a>（二）接收標頭</h3><p>Controller 除了可以回傳 header，當然也能接收。以下的小範例，是接收一個叫做「If-Modified-Since」的 header。</p>
 <div class="code-wrapper"><pre><code class="hljs java"><span class="hljs-meta">@GetMapping(&quot;/test&quot;)</span>
 <span class="hljs-keyword">public</span> ResponseEntity&lt;Foo&gt; <span class="hljs-title function_">getFoo</span><span class="hljs-params">(</span>
