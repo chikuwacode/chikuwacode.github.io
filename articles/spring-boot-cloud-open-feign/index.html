@@ -1,0 +1,864 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-TW" >
+
+
+
+<head>
+  <meta charset="UTF-8">
+
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/logo.png">
+  <link rel="icon" href="/img/logo.png">
+  
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#a05926">
+  <meta name="author" content="Vincent">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="除了 RestTemplate，我們也能選擇 Spring Cloud 的 OpenFeign 來存取外部 API。並且 OpenFeign 還能搭配 Spring MVC 相關的注解，使用上更加簡潔。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="【Spring Boot】第14.2課－使用 OpenFeign 存取外部 API">
+<meta property="og:url" content="http://localhost:4000/articles/spring-boot-cloud-open-feign/">
+<meta property="og:site_name" content="吉古拉的程式拾光">
+<meta property="og:description" content="除了 RestTemplate，我們也能選擇 Spring Cloud 的 OpenFeign 來存取外部 API。並且 OpenFeign 還能搭配 Spring MVC 相關的注解，使用上更加簡潔。">
+<meta property="og:locale" content="zh_TW">
+<meta property="og:image" content="http://localhost:4000/img/index_img/spring-boot.jpg">
+<meta property="article:published_time" content="2025-09-28T00:00:00.000Z">
+<meta property="article:modified_time" content="2025-10-15T13:59:30.244Z">
+<meta property="article:author" content="Vincent">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://localhost:4000/img/index_img/spring-boot.jpg">
+  
+  
+  
+  <title>【Spring Boot】第14.2課－使用 OpenFeign 存取外部 API | 吉古拉的程式拾光</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1736178_k526ubmyhba.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"localhost","root":"/","version":"1.9.8","typing":{"enable":false,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h2,h3","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":false},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"left","headingSelector":"h2,h3","collapseDepth":3},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2,"exclude":[".no-lazy"]},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":"G-BZW5S6P21N"},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 40vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>吉古拉的程式拾光</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>文章分類</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>關於本站</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/banner.jpg') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        
+          <div class="h2">
+            
+              <span id="subtitle">【Spring Boot】第14.2課－使用 OpenFeign 存取外部 API</span>
+            
+          </div>
+        
+
+        
+          
+  <div class="mt-3">
+    
+    
+  </div>
+
+  <div class="mt-1">
+    
+
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="padding-left: 2rem; margin-right: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目錄</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">【Spring Boot】第14.2課－使用 OpenFeign 存取外部 API</h1>
+            
+              <p id="updated-time" class="note note-warning" style="">
+                
+                  
+                    本文最後更新於：2025-10-15
+                  
+                
+              </p>
+            
+            
+              <div class="markdown-body">
+                
+                <p>最近的工作任務，需要將資料拋送到另一個系統中。根據筆者以前的工作經驗，覺得應該會用到<a href="/articles/spring-boot-rest-template/" target="_blank">第 14.1 課</a>介紹的 <code>RestTemplate</code>。然而發現同事都是使用 Spring Cloud 中的「OpenFeign」來存取遠端服務。</p>
+<p>Spring Cloud 是一個大型框架，集合了許多關於微服務的功能。本文介紹的 OpenFeign，用途就是與外部服務通訊。它允許我們結合 Controller 中會用到的注解，因此使用方式比 <code>RestTemplate</code> 更簡潔。</p>
+<hr>
+<h2 id="一、認識-Reqres-服務"><a href="#一、認識-Reqres-服務" class="headerlink" title="一、認識 Reqres 服務"></a>一、認識 Reqres 服務</h2><p>本文同樣使用「<a target="_blank" rel="noopener" href="https://reqres.in/">Reqres</a>」這個免費服務，來串接範例的 RESTful API，它會回傳假資料。</p>
+<img src="http://localhost:4000/articles/spring-boot-cloud-open-feign/reqres-get-single-user-api.png" srcset="/img/loading.gif" lazyload>
+
+<p>從上圖中，可看到 <code>GET https://reqres.in/api/users/2</code> 這支 API 的用法。</p>
+<p>從 Reqres 的官方網頁繼續往下看，還能找到它的 <a target="_blank" rel="noopener" href="https://reqres.in/api-docs/">Swagger 文件網頁</a>。</p>
+<img src="http://localhost:4000/articles/spring-boot-cloud-open-feign/reqres-get-single-user-api-swagger.png" srcset="/img/loading.gif" lazyload>
+
+<h2 id="二、程式專案準備"><a href="#二、程式專案準備" class="headerlink" title="二、程式專案準備"></a>二、程式專案準備</h2><h3 id="（一）引入-library"><a href="#（一）引入-library" class="headerlink" title="（一）引入 library"></a>（一）引入 library</h3><p>首先請根據程式專案的 Spring Boot 版本，挑選好 Spring Cloud 版本。我們可參考<a target="_blank" rel="noopener" href="https://spring.io/projects/spring-cloud#overview">官方文件</a>的對照表。</p>
+<img src="http://localhost:4000/articles/spring-boot-cloud-open-feign/spring-cloud-version-to-spring-boot-mapping-table.png" srcset="/img/loading.gif" lazyload>
+
+<p>在對照表中，找到 Spring Boot 版本後，點進左邊欄位的連結，可察看 Spring Cloud 的 Release Note。在此能找到各種 Spring Cloud 的確切版本號。</p>
+<img src="http://localhost:4000/articles/spring-boot-cloud-open-feign/spring-cloud-version-release-note.png" srcset="/img/loading.gif" lazyload>
+
+<p>假設 Spring Boot 版本是 3.5.6，那麼本文最新可選擇的版本是 2025.0.0。</p>
+<p>請在 pom.xml 檔案中「dependencyManagement」的「dependencies」區塊中，添加 Spring Cloud 及其版本。</p>
+<div class="code-wrapper"><pre><code class="hljs xml"><span class="hljs-tag">&lt;<span class="hljs-name">project</span> <span class="hljs-attr">...</span>&gt;</span>
+    <span class="hljs-comment">&lt;!--略--&gt;</span>
+
+    <span class="hljs-tag">&lt;<span class="hljs-name">dependencyManagement</span>&gt;</span>
+        <span class="hljs-tag">&lt;<span class="hljs-name">dependencies</span>&gt;</span>
+            <span class="hljs-comment">&lt;!--略--&gt;</span>
+
+            <span class="hljs-tag">&lt;<span class="hljs-name">dependency</span>&gt;</span>
+                <span class="hljs-tag">&lt;<span class="hljs-name">groupId</span>&gt;</span>org.springframework.cloud<span class="hljs-tag">&lt;/<span class="hljs-name">groupId</span>&gt;</span>
+                <span class="hljs-tag">&lt;<span class="hljs-name">artifactId</span>&gt;</span>spring-cloud-dependencies<span class="hljs-tag">&lt;/<span class="hljs-name">artifactId</span>&gt;</span>
+                <span class="hljs-tag">&lt;<span class="hljs-name">version</span>&gt;</span>2025.0.0<span class="hljs-tag">&lt;/<span class="hljs-name">version</span>&gt;</span>
+                <span class="hljs-tag">&lt;<span class="hljs-name">type</span>&gt;</span>pom<span class="hljs-tag">&lt;/<span class="hljs-name">type</span>&gt;</span>
+                <span class="hljs-tag">&lt;<span class="hljs-name">scope</span>&gt;</span>import<span class="hljs-tag">&lt;/<span class="hljs-name">scope</span>&gt;</span>
+            <span class="hljs-tag">&lt;/<span class="hljs-name">dependency</span>&gt;</span>
+
+        <span class="hljs-tag">&lt;/<span class="hljs-name">dependencies</span>&gt;</span>
+    <span class="hljs-tag">&lt;/<span class="hljs-name">dependencyManagement</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-name">project</span>&gt;</span></code></pre></div>
+
+<p>Spring Cloud 底下有許多功能可引入到程式專案中。為了讓彼此之間相容，需透過 POM 的 dependency management 功能，來抓取適合的 library 版本。</p>
+<p>確定好 Spring Cloud 版本後，我們才添加底下功能的 library。</p>
+<div class="code-wrapper"><pre><code class="hljs xml"><span class="hljs-tag">&lt;<span class="hljs-name">dependency</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">groupId</span>&gt;</span>org.springframework.cloud<span class="hljs-tag">&lt;/<span class="hljs-name">groupId</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">artifactId</span>&gt;</span>spring-cloud-starter-openfeign<span class="hljs-tag">&lt;/<span class="hljs-name">artifactId</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-name">dependency</span>&gt;</span></code></pre></div>
+
+<p>此處不必指定 OpenFeign 的版本，交由 POM 的 dependency management 功能來抓取即可。</p>
+<h3 id="（二）準備測試程式"><a href="#（二）準備測試程式" class="headerlink" title="（二）準備測試程式"></a>（二）準備測試程式</h3><p>讀者可另外準備測試類別，以便練習呼叫 OpenFeign 來存取外部 API。</p>
+<div class="code-wrapper"><pre><code class="hljs java"><span class="hljs-meta">@SpringBootTest</span>
+<span class="hljs-keyword">class</span> <span class="hljs-title class_">OpenFeignTests</span> &#123;
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">final</span> <span class="hljs-type">ObjectMapper</span> <span class="hljs-variable">om</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">ObjectMapper</span>();
+
+    <span class="hljs-comment">// TODO</span>
+
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">printJSON</span><span class="hljs-params">(Object obj)</span> &#123;
+        <span class="hljs-keyword">try</span> &#123;
+            <span class="hljs-type">String</span> <span class="hljs-variable">json</span> <span class="hljs-operator">=</span> om.writeValueAsString(obj);
+            System.out.println(json);
+        &#125; <span class="hljs-keyword">catch</span> (JsonProcessingException e) &#123;
+            <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">RuntimeException</span>(e);
+        &#125;
+    &#125;
+&#125;</code></pre></div>
+
+<p>測試類別會透過 Spring Boot 提供的 <code>ObjectMapper</code>，將 response body 轉換成 JSON 字串，並印在 console 視窗。</p>
+<h2 id="三、使用-OpenFeign-進行呼叫"><a href="#三、使用-OpenFeign-進行呼叫" class="headerlink" title="三、使用 OpenFeign 進行呼叫"></a>三、使用 OpenFeign 進行呼叫</h2><h3 id="（一）宣告介面"><a href="#（一）宣告介面" class="headerlink" title="（一）宣告介面"></a>（一）宣告介面</h3><p>使用 OpenFeign 時，我們會宣告一個介面，藉此定義要呼叫哪個服務的哪些 API。</p>
+<div class="code-wrapper"><pre><code class="hljs java"><span class="hljs-meta">@FeignClient(name = &quot;reqres-feign&quot;, url = &quot;https://reqres.in/api&quot;)</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">interface</span> <span class="hljs-title class_">ReqresFeignClient</span> &#123;
+    <span class="hljs-comment">// TODO</span>
+&#125;</code></pre></div>
+
+<p>該介面冠上了 <code>@FeignClient</code> 注解，並傳入兩個參數。<code>name</code> 是定義這個呼叫介面的名稱；<code>url</code> 則定義服務的 API endpoint 前綴。</p>
+<p><code>url</code> 參數也可在 application.properties 檔案配置好，再透過 <code>$&#123;&#125;</code> 的語法來取用。若外部服務的主機，在測試與正式環境的 API 前綴不同，便可使用此做法。</p>
+<p>在 Spring Boot 的啟動類別，需冠上 <code>@EnableFeignClients</code> 注解，上述的 OpenFeign 介面才會生效。</p>
+<div class="code-wrapper"><pre><code class="hljs java"><span class="hljs-meta">@SpringBootApplication</span>
+<span class="hljs-meta">@EnableFeignClients</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">Application</span> &#123;
+
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">main</span><span class="hljs-params">(String[] args)</span> &#123;
+        SpringApplication.run(Application.class, args);
+    &#125;
+&#125;</code></pre></div>
+
+<p>下面的例子，會以 Reqres 網站提供的 API 為例，來示範串接。</p>
+<h3 id="（二）定義呼叫方法"><a href="#（二）定義呼叫方法" class="headerlink" title="（二）定義呼叫方法"></a>（二）定義呼叫方法</h3><p>以 <code>/users/2</code> 這支 API 為例，它的用途是取得 id 為 2 的使用者資料。Response body 為：</p>
+<div class="code-wrapper"><pre><code class="hljs json"><span class="hljs-punctuation">&#123;</span>
+    <span class="hljs-attr">&quot;data&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">&#123;</span>
+        <span class="hljs-attr">&quot;id&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-number">2</span><span class="hljs-punctuation">,</span>
+        <span class="hljs-attr">&quot;email&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;janet.weaver@reqres.in&quot;</span><span class="hljs-punctuation">,</span>
+        <span class="hljs-attr">&quot;first_name&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;Janet&quot;</span><span class="hljs-punctuation">,</span>
+        <span class="hljs-attr">&quot;last_name&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;Weaver&quot;</span><span class="hljs-punctuation">,</span>
+        <span class="hljs-attr">&quot;avatar&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;https://reqres.in/img/faces/2-image.jpg&quot;</span>
+    <span class="hljs-punctuation">&#125;</span><span class="hljs-punctuation">,</span>
+    <span class="hljs-attr">&quot;support&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">&#123;</span>
+        <span class="hljs-attr">&quot;url&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;https://contentcaddy.io?utm_source=reqres&amp;utm_medium=json&amp;utm_campaign=referral&quot;</span><span class="hljs-punctuation">,</span>
+        <span class="hljs-attr">&quot;text&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;Tired of writing endless social media content? Let Content Caddy generate it for you.&quot;</span>
+    <span class="hljs-punctuation">&#125;</span>
+<span class="hljs-punctuation">&#125;</span></code></pre></div>
+
+<p>以下的類別是用來接收 response body：</p>
+<div class="code-wrapper"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">SingleUserResponse</span> &#123;
+    <span class="hljs-keyword">private</span> UserResponse data;
+
+    <span class="hljs-comment">// getter, setter ...</span>
+&#125;</code></pre></div>
+
+<div class="code-wrapper"><pre><code class="hljs java"><span class="hljs-keyword">import</span> com.fasterxml.jackson.annotation.JsonProperty;
+
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">UserResponse</span> &#123;
+    <span class="hljs-keyword">private</span> <span class="hljs-type">int</span> id;
+    <span class="hljs-keyword">private</span> String email;
+
+    <span class="hljs-meta">@JsonProperty(&quot;first_name&quot;)</span>
+    <span class="hljs-keyword">private</span> String firstName;
+
+    <span class="hljs-meta">@JsonProperty(&quot;last_name&quot;)</span>
+    <span class="hljs-keyword">private</span> String lastName;
+
+	<span class="hljs-comment">// getter, setter ...</span>
+&#125;</code></pre></div>
+
+<p>在 OpenFeign 介面中，需宣告對應的方法，來指向這支 API。</p>
+<div class="code-wrapper"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">interface</span> <span class="hljs-title class_">ReqresFeignClient</span> &#123;
+
+    <span class="hljs-meta">@GetMapping(&quot;/users/&#123;id&#125;&quot;)</span>
+    SingleUserResponse <span class="hljs-title function_">getUserById</span><span class="hljs-params">(</span>
+<span class="hljs-params">        <span class="hljs-meta">@RequestHeader(&quot;x-api-key&quot;)</span> String apiKey,</span>
+<span class="hljs-params">        <span class="hljs-meta">@PathVariable(&quot;id&quot;)</span> <span class="hljs-type">int</span> userId</span>
+<span class="hljs-params">    )</span>;
+&#125;</code></pre></div>
+
+<p>透過平常在 Controller 使用的 <code>@GetMapping</code>、<code>@PathVariable</code> 等注解，我們可輕鬆地定義好 API 的呼叫方式。而 API 的 response body 也會被轉換成方法回傳類別的物件。</p>
+<p>附帶一提，Reqres 網站的 API 規定要攜帶指定的 request header（<code>x-api-key: reqres-free-v1</code>），因此在下面的範例程式中也一併提供。</p>
+<h3 id="（三）實際呼叫"><a href="#（三）實際呼叫" class="headerlink" title="（三）實際呼叫"></a>（三）實際呼叫</h3><p>啟動程式時，Spring Boot 會建立出 OpenFeign 介面的元件，讀者可將它注入到需要的地方。</p>
+<div class="code-wrapper"><pre><code class="hljs java"><span class="hljs-meta">@SpringBootTest</span>
+<span class="hljs-keyword">class</span> <span class="hljs-title class_">OpenFeignTests</span> &#123;
+    <span class="hljs-comment">// ...</span>
+
+    <span class="hljs-meta">@Autowired</span>
+    <span class="hljs-keyword">private</span> ReqresFeignClient client;
+
+    <span class="hljs-meta">@Test</span>
+    <span class="hljs-keyword">void</span> <span class="hljs-title function_">testGetUserById</span><span class="hljs-params">()</span> &#123;
+        <span class="hljs-type">SingleUserResponse</span> <span class="hljs-variable">user</span> <span class="hljs-operator">=</span> client.getUserById(<span class="hljs-string">&quot;reqres-free-v1&quot;</span>, <span class="hljs-number">2</span>);
+        printJSON(user);
+    &#125;
+&#125;</code></pre></div>
+
+<p>存取外部服務時，只要呼叫 OpenFeign 介面的方法即可，並隨即運用回傳值，十分簡潔。</p>
+<h3 id="（四）攜帶-query-string-與-request-body"><a href="#（四）攜帶-query-string-與-request-body" class="headerlink" title="（四）攜帶 query string 與 request body"></a>（四）攜帶 query string 與 request body</h3><p>在定義 OpenFeign 介面時，我們也能透過注解的方式，來攜帶 query string 與 request body。</p>
+<div class="code-wrapper"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">interface</span> <span class="hljs-title class_">ReqresFeignClient</span> &#123;
+
+    <span class="hljs-meta">@GetMapping(&quot;/users&quot;)</span>
+    ListUserResponse <span class="hljs-title function_">getUsers</span><span class="hljs-params">(</span>
+<span class="hljs-params">        <span class="hljs-meta">@RequestHeader(&quot;x-api-key&quot;)</span> String apiKey,</span>
+<span class="hljs-params">        <span class="hljs-meta">@RequestParam(&quot;page&quot;)</span> <span class="hljs-type">int</span> page,</span>
+<span class="hljs-params">        <span class="hljs-meta">@RequestParam(&quot;per_page&quot;)</span> <span class="hljs-type">int</span> size</span>
+<span class="hljs-params">    )</span>;
+
+
+    <span class="hljs-meta">@PostMapping(&quot;/users&quot;)</span>
+    CreateUserResponse <span class="hljs-title function_">createUser</span><span class="hljs-params">(</span>
+<span class="hljs-params">        <span class="hljs-meta">@RequestHeader(&quot;x-api-key&quot;)</span> String apiKey,</span>
+<span class="hljs-params">        <span class="hljs-meta">@RequestBody</span> CreateUserRequest request</span>
+<span class="hljs-params">    )</span>;
+&#125;</code></pre></div>
+
+<p>範例程式中的 request 與 response body 類別，與<a href="/articles/spring-boot-rest-template/" target="_blank">第 14.1 課</a>大同小異。讀者可參考文末的完成後專案及測試程式，在此不贅述。</p>
+<h3 id="（五）取得更完整的-response-內容"><a href="#（五）取得更完整的-response-內容" class="headerlink" title="（五）取得更完整的 response 內容"></a>（五）取得更完整的 response 內容</h3><p>若讀者還想取得 response 的 HTTP 狀態碼、header 等資料，可使用 <code>ResponseEntity</code> 做為 OpenFeign 介面方法的回傳值。示意如下：</p>
+<div class="code-wrapper"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">interface</span> <span class="hljs-title class_">ReqresFeignClient</span> &#123;
+
+    <span class="hljs-meta">@GetMapping(&quot;/users/&#123;id&#125;&quot;)</span>
+    ResponseEntity&lt;SingleUserResponse&gt; <span class="hljs-title function_">getUserById</span><span class="hljs-params">(</span>
+<span class="hljs-params">        <span class="hljs-meta">@RequestHeader(&quot;x-api-key&quot;)</span> String apiKey,</span>
+<span class="hljs-params">        <span class="hljs-meta">@PathVariable(&quot;id&quot;)</span> <span class="hljs-type">int</span> userId</span>
+<span class="hljs-params">    )</span>;
+&#125;</code></pre></div>
+
+<p><code>ResponseEntity</code> 也是平常在 Controller 中會用到的東西，從中便可取出各種 response 相關的資料了。</p>
+<h2 id="四、額外配置"><a href="#四、額外配置" class="headerlink" title="四、額外配置"></a>四、額外配置</h2><h3 id="（一）配置類別"><a href="#（一）配置類別" class="headerlink" title="（一）配置類別"></a>（一）配置類別</h3><p>本文接下來會介紹可以對 OpenFeign 做的其他配置。請宣告一個配置類別，但不需要冠上 <code>@Configuration</code> 注解，如下：</p>
+<div class="code-wrapper"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">ReqresFeignConfig</span> &#123;
+&#125;</code></pre></div>
+
+<p>接著將此類別傳入 OpenFeign 介面的 <code>@FeignClient</code> 注解的 <code>configuration</code> 參數。</p>
+<div class="code-wrapper"><pre><code class="hljs java"><span class="hljs-meta">@FeignClient(</span>
+<span class="hljs-meta">    name = &quot;reqres-feign&quot;,</span>
+<span class="hljs-meta">    url = &quot;https://reqres.in/api&quot;,</span>
+<span class="hljs-meta">    configuration = ReqresFeignConfig.class)</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">interface</span> <span class="hljs-title class_">ReqresFeign</span> &#123;
+    <span class="hljs-comment">// ...</span>
+&#125;</code></pre></div>
+
+<p>這個類別會存放各種建立配置元件的方法，供 OpenFeign 介面讀取。</p>
+<h3 id="（二）配置-HTTP-Client"><a href="#（二）配置-HTTP-Client" class="headerlink" title="（二）配置 HTTP Client"></a>（二）配置 HTTP Client</h3><p>OpenFeign 預設使用的 client 是 JDK 的 <code>HttpURLConnection</code>，我們可以換成「OkHttp」，得到更好的性能。</p>
+<p>首先在 pom.xml 檔案中引入 library。</p>
+<div class="code-wrapper"><pre><code class="hljs xml"><span class="hljs-tag">&lt;<span class="hljs-name">dependency</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">groupId</span>&gt;</span>io.github.openfeign<span class="hljs-tag">&lt;/<span class="hljs-name">groupId</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">artifactId</span>&gt;</span>feign-okhttp<span class="hljs-tag">&lt;/<span class="hljs-name">artifactId</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-name">dependency</span>&gt;</span></code></pre></div>
+
+<p>接著在配置類別準備好 <code>OkHttpClient</code> 的元件。</p>
+<div class="code-wrapper"><pre><code class="hljs java"><span class="hljs-keyword">import</span> okhttp3.OkHttpClient;
+
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">ReqresFeignConfig</span> &#123;
+
+    <span class="hljs-meta">@Bean</span>
+    <span class="hljs-keyword">public</span> OkHttpClient <span class="hljs-title function_">client</span><span class="hljs-params">()</span> &#123;
+        <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">OkHttpClient</span>.Builder()
+            .callTimeout(<span class="hljs-number">20</span>, TimeUnit.SECONDS)
+            .build();
+    &#125;
+&#125;</code></pre></div>
+
+<p>此處還另外配置了連線逾時時間。</p>
+<h3 id="（三）配置攔截器（interceptor）"><a href="#（三）配置攔截器（interceptor）" class="headerlink" title="（三）配置攔截器（interceptor）"></a>（三）配置攔截器（interceptor）</h3><p>透過攔截器，我們可以在發送 request 前，固定做一些想要的事。以下的例子是添加 header，並在 console 視窗印出呼叫的 API。</p>
+<div class="code-wrapper"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">ReqresFeignConfig</span> &#123;
+
+    <span class="hljs-meta">@Bean</span>
+    <span class="hljs-keyword">public</span> RequestInterceptor <span class="hljs-title function_">requestInterceptor</span><span class="hljs-params">()</span> &#123;
+        <span class="hljs-keyword">return</span> requestTemplate -&gt; &#123;
+            <span class="hljs-type">Request</span> <span class="hljs-variable">request</span> <span class="hljs-operator">=</span> requestTemplate.request();
+            System.out.println(request.httpMethod() + <span class="hljs-string">&quot; &quot;</span> + request.url());
+
+            requestTemplate.header(<span class="hljs-string">&quot;x-api-key&quot;</span>, <span class="hljs-string">&quot;reqres-free-v1&quot;</span>);
+        &#125;;
+    &#125;
+&#125;</code></pre></div>
+
+<p>如此一來，原本在 OpenFeign 介面方法的 request header 參數，便能移除了。</p>
+<h3 id="（四）配置-HTTP-Basic-認證"><a href="#（四）配置-HTTP-Basic-認證" class="headerlink" title="（四）配置 HTTP Basic 認證"></a>（四）配置 HTTP Basic 認證</h3><p>有些外部 API 是受到保護的，存取時需認證呼叫方的身份。若該 API 是採用 HTTP Basic 認證，那麼存取時就得將帳密經過 Base64 編碼，將產生的 token 值添加到 request header。</p>
+<p>OpenFeign 提供了元件，讓我們能直接提供帳密明文，並在發送 request 時自動產生 token 值，添加到 header 上。</p>
+<div class="code-wrapper"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">ReqresFeignConfig</span> &#123;
+    <span class="hljs-comment">// ...</span>
+
+    <span class="hljs-meta">@Bean</span>
+    <span class="hljs-keyword">public</span> BasicAuthRequestInterceptor <span class="hljs-title function_">basicAuthRequestInterceptor</span><span class="hljs-params">(</span>
+<span class="hljs-params">        <span class="hljs-meta">@Value(&quot;$&#123;your-username&#125;&quot;)</span> String username,</span>
+<span class="hljs-params">        <span class="hljs-meta">@Value(&quot;$&#123;your-password&#125;&quot;)</span> String password</span>
+<span class="hljs-params">    )</span> &#123;
+        <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">BasicAuthRequestInterceptor</span>(username, password);
+    &#125;
+&#125;</code></pre></div>
+
+<p>以上的範例程式，是假設帳密已經在 application.properties 配置檔定義好，再透過 <code>$&#123;&#125;</code> 的語法來取用。</p>
+<h3 id="（五）全域配置"><a href="#（五）全域配置" class="headerlink" title="（五）全域配置"></a>（五）全域配置</h3><p>前面自定義的 ReqresFeignConfig 類別並沒有冠上 <code>@Configuration</code> 注解，原因是這些配置是專門給對應的 OpenFeign 呼叫介面所使用。</p>
+<p>一旦冠上了 <code>@Configuration</code> 注解，那麼裡頭的配置就會套用在「所有的」OpenFeign 呼叫介面。</p>
+<p>如果讀者有一些配置可以共用的，那不妨抽出來放在另一個配置類別，使其成為全域的配置。下面是以 OkHttpClient 為例：</p>
+<div class="code-wrapper"><pre><code class="hljs java"><span class="hljs-keyword">import</span> okhttp3.OkHttpClient;
+
+<span class="hljs-meta">@Configuration</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">GlobalFeignConfig</span> &#123;
+
+    <span class="hljs-meta">@Bean</span>
+    <span class="hljs-keyword">public</span> OkHttpClient <span class="hljs-title function_">client</span><span class="hljs-params">()</span> &#123;
+        <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">OkHttpClient</span>.Builder()
+                .callTimeout(<span class="hljs-number">20</span>, TimeUnit.SECONDS)
+                .build();
+    &#125;
+&#125;</code></pre></div>
+
+<p>筆者第一次使用 OpenFeign 時，不知道有這種用法，且不小心冠上了 <code>@Configuration</code> 注解。使得上述 <code>BasicAuthRequestInterceptor</code> 的 HTTP Basic 認證資訊變成全域配置，被套用在呼叫其他系統的介面上，導致存取那些 API 時被拒絕。這個案例也與讀者分享。</p>
+<h2 id="五、例外處理"><a href="#五、例外處理" class="headerlink" title="五、例外處理"></a>五、例外處理</h2><p>OpenFeign 發出 request 後，若發生逾時，或 response 的 HTTP 狀態碼是 4、5 開頭，就會拋出 <code>FeignException</code>。以下介紹幾種例外處理的方式。</p>
+<h3 id="（一）處理例外物件"><a href="#（一）處理例外物件" class="headerlink" title="（一）處理例外物件"></a>（一）處理例外物件</h3><p>我們可以從 <code>FeignException</code> 取出 response body、header、狀態碼，或是當初的 request 相關資料，根據需要做處理。示意如下：</p>
+<div class="code-wrapper"><pre><code class="hljs java"><span class="hljs-meta">@SpringBootTest</span>
+<span class="hljs-keyword">class</span> <span class="hljs-title class_">OpenFeignTests</span> &#123;
+    <span class="hljs-comment">// ...</span>
+
+    <span class="hljs-meta">@Autowired</span>
+    <span class="hljs-keyword">private</span> ReqresFeignClient client;
+
+    <span class="hljs-meta">@Test</span>
+    <span class="hljs-keyword">void</span> <span class="hljs-title function_">testGetUserById</span><span class="hljs-params">()</span> &#123;
+        <span class="hljs-keyword">try</span> &#123;
+            <span class="hljs-type">SingleUserResponse</span> <span class="hljs-variable">user</span> <span class="hljs-operator">=</span> client.getUserById(<span class="hljs-number">1</span>);
+            printJSON(user);
+        &#125; <span class="hljs-keyword">catch</span> (FeignException e) &#123;
+            <span class="hljs-type">int</span> <span class="hljs-variable">httpStatus</span> <span class="hljs-operator">=</span> e.status();
+            <span class="hljs-type">String</span> <span class="hljs-variable">responseBody</span> <span class="hljs-operator">=</span> e.contentUTF8();
+            <span class="hljs-comment">// ...</span>
+        &#125;
+    &#125;
+&#125;</code></pre></div>
+
+<h3 id="（二）配置-Error-Decoder"><a href="#（二）配置-Error-Decoder" class="headerlink" title="（二）配置 Error Decoder"></a>（二）配置 Error Decoder</h3><p>當 response 的 HTTP 狀態碼為 4、5 開頭時，OpenFeign 會拋出<code>FeignException</code>。但它畢竟是比較通用的例外物件，故業務邏輯需自行解析裡面的資料。</p>
+<p>我們可以配置 <code>ErrorDecoder</code>，當發生錯誤時，將 response 的相關資料整理成自定義的例外物件，讓開發團隊更容易使用與理解。示意如下：</p>
+<div class="code-wrapper"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">ReqresFeignConfig</span> &#123;
+
+    <span class="hljs-meta">@Bean</span>
+    <span class="hljs-keyword">public</span> ErrorDecoder <span class="hljs-title function_">errorDecoder</span><span class="hljs-params">()</span> &#123;
+        <span class="hljs-keyword">return</span> (methodKey, response) -&gt; &#123;
+            <span class="hljs-type">int</span> <span class="hljs-variable">httpStatus</span> <span class="hljs-operator">=</span> response.status();
+            <span class="hljs-type">Request</span> <span class="hljs-variable">request</span> <span class="hljs-operator">=</span> response.request();
+            <span class="hljs-type">FeignException</span> <span class="hljs-variable">feignException</span> <span class="hljs-operator">=</span> FeignException.errorStatus(methodKey, response);
+
+            <span class="hljs-keyword">if</span> (httpStatus == <span class="hljs-number">400</span>) &#123;
+                <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">IllegalArgumentException</span>();
+            &#125; <span class="hljs-keyword">else</span> &#123;
+                <span class="hljs-keyword">return</span> feignException;
+            &#125;
+        &#125;;
+    &#125;
+&#125;</code></pre></div>
+
+<p><code>ErrorDecoder</code> 是一個介面，建立元件時需實作它的 <code>decode</code> 方法。此處的範例直接簡化成 lambda 寫法。讀者也能另外建立 <code>ErrorDecoder</code> 介面的物件，將程式碼抽離出去。</p>
+<p>我們可從 <code>Response</code> 物件中取出 response 和當初的 request 相關資訊，也能直接轉換成前面提到的 <code>FeignException</code>。最後再做資料處理，包裝成自己的 exception。</p>
+<p>之後發送 request 後若發生問題，OpenFeign 就會拋出這些自定義的 exception。</p>
+<h3 id="（三）配置-Fallback"><a href="#（三）配置-Fallback" class="headerlink" title="（三）配置 Fallback"></a>（三）配置 Fallback</h3><p>當伺服器連線逾時，無法取得回應的時候，Fallback 讓我們可以用自定義的預設資料當成 response，使程式能繼續運行。</p>
+<p>請建立 Fallback 元件，並實作 OpenFeign 的呼叫介面。也就是說，我們會為每個 API 方法定義預設的 response。此處僅回傳空物件。</p>
+<div class="code-wrapper"><pre><code class="hljs java"><span class="hljs-meta">@Component</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">ReqresFeignFallback</span> <span class="hljs-keyword">implements</span> <span class="hljs-title class_">ReqresFeign</span> &#123;
+
+    <span class="hljs-meta">@Override</span>
+    <span class="hljs-keyword">public</span> SingleUserResponse <span class="hljs-title function_">getUserById</span><span class="hljs-params">(<span class="hljs-type">int</span> userId)</span> &#123;
+        <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">SingleUserResponse</span>();
+    &#125;
+
+    <span class="hljs-meta">@Override</span>
+    <span class="hljs-keyword">public</span> CreateUserResponse <span class="hljs-title function_">createUser</span><span class="hljs-params">(CreateUserRequest request)</span> &#123;
+        <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">CreateUserResponse</span>();
+    &#125;
+
+    <span class="hljs-meta">@Override</span>
+    <span class="hljs-keyword">public</span> ListUserResponse <span class="hljs-title function_">getUsers</span><span class="hljs-params">(<span class="hljs-type">int</span> page, <span class="hljs-type">int</span> size)</span> &#123;
+        <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">ListUserResponse</span>();
+    &#125;
+&#125;</code></pre></div>
+
+<p>接著將 Fallback 的類別，傳入 OpenFeign 介面的 <code>@FeignClient</code> 注解的 <code>fallback</code> 參數。</p>
+<div class="code-wrapper"><pre><code class="hljs java"><span class="hljs-meta">@FeignClient(</span>
+<span class="hljs-meta">    name = &quot;reqres-feign&quot;,</span>
+<span class="hljs-meta">    url = &quot;https://reqres.in/api&quot;,</span>
+<span class="hljs-meta">    configuration = ReqresFeignConfig.class,</span>
+<span class="hljs-meta">    fallback = ReqresFeignFallback.class)</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">interface</span> <span class="hljs-title class_">ReqresFeign</span> &#123;
+    <span class="hljs-comment">// ...</span>
+&#125;</code></pre></div>
+
+<p>接著我們得啟用「斷路器」（circuit breaker）的機制。</p>
+<p>在電氣設備中，斷路器的用途是在電流過大時斷電，避免損壞。而在軟體領域中，則是在遠端服務不可用時，中斷對其的存取。</p>
+<p>請在 pom.xml 檔案添加斷路器的依賴，此處採用叫做「resilience4j」的實作。這個斷路器本身也是 Spring Cloud 底下的 library。</p>
+<div class="code-wrapper"><pre><code class="hljs xml"><span class="hljs-tag">&lt;<span class="hljs-name">dependency</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">groupId</span>&gt;</span>org.springframework.cloud<span class="hljs-tag">&lt;/<span class="hljs-name">groupId</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">artifactId</span>&gt;</span>spring-cloud-starter-circuitbreaker-resilience4j<span class="hljs-tag">&lt;/<span class="hljs-name">artifactId</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-name">dependency</span>&gt;</span></code></pre></div>
+
+<p>然後在 application.properties 檔案中添加參數。</p>
+<div class="code-wrapper"><pre><code class="hljs properties"><span class="hljs-attr">feign.circuitbreaker.enabled</span>=<span class="hljs-string">true</span></code></pre></div>
+
+<p>如此一來，Fallback 就會生效了。若讀者想要測試，可以自行將連線逾時的時間設成很小，如 1 毫秒。</p>
+<div class="code-wrapper"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">ReqresFeignConfig</span> &#123;
+
+  <span class="hljs-meta">@Bean</span>
+  <span class="hljs-keyword">public</span> OkHttpClient <span class="hljs-title function_">client</span><span class="hljs-params">()</span> &#123;
+    <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">OkHttpClient</span>.Builder()
+        .callTimeout(<span class="hljs-number">1</span>, TimeUnit.MILLISECONDS)
+        .build();
+  &#125;
+&#125;</code></pre></div>
+
+<p>本文的完成後專案，請<a target="_blank" rel="noopener" href="https://github.com/ntub46010/SpringBootTutorial/tree/Ch14.2-spring-boot-cloud-openfeign">點我</a>。</p>
+<p>上一課：<a href="/articles/spring-boot-rest-template/" target="_blank">【Spring Boot】第 14.1 課－使用 RestTemplate 存取外部 API</a></p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/Spring-Boot/" class="category-chain-item">Spring Boot</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+</div>
+
+
+              
+
+              
+            </div>
+
+            <div style="padding-top: 30px;">
+              <b style="font-size: 1.5rem;">張貼留言</b>
+              <script src="https://utteranc.es/client.js"
+                repo="chikuwacode/chikuwacode.github.io"
+                issue-term="pathname"
+                theme="github-light"
+                crossorigin="anonymous"
+                async>
+              </script>
+            </div>
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+
+
+    
+
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜尋</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">關鍵字</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/5.0.0/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允許 JavaScript 運行的環境下瀏覽效果更佳</div>
+  </noscript>
+</body>
+</html>

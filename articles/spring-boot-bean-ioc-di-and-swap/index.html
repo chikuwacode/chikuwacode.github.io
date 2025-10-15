@@ -22,16 +22,16 @@
     <meta name="description" content="控制反轉（IoC）與依賴注入（DI）是 Spring Boot 中的重要觀念。本文首先讓讀者知道物件的依賴關係，接著說明「單例」的重要性。隨後經由這些議題來介紹控制反轉與依賴注入，以及應用的方式。最後帶入物件導向的「多型」特性，示範以介面來操作物件，將有助於實作細節的抽換。">
 <meta property="og:type" content="article">
 <meta property="og:title" content="【Spring Boot】第5課－元件的控制反轉、依賴注入與抽換">
-<meta property="og:url" content="https://chikuwacode.github.io/articles/spring-boot-bean-ioc-di-and-swap/">
+<meta property="og:url" content="http://localhost:4000/articles/spring-boot-bean-ioc-di-and-swap/">
 <meta property="og:site_name" content="吉古拉的程式拾光">
 <meta property="og:description" content="控制反轉（IoC）與依賴注入（DI）是 Spring Boot 中的重要觀念。本文首先讓讀者知道物件的依賴關係，接著說明「單例」的重要性。隨後經由這些議題來介紹控制反轉與依賴注入，以及應用的方式。最後帶入物件導向的「多型」特性，示範以介面來操作物件，將有助於實作細節的抽換。">
 <meta property="og:locale" content="zh_TW">
-<meta property="og:image" content="https://chikuwacode.github.io/img/index_img/spring-boot.jpg">
-<meta property="article:published_time" content="2019-06-04T07:27:40.000Z">
+<meta property="og:image" content="http://localhost:4000/img/index_img/spring-boot.jpg">
+<meta property="article:published_time" content="2019-06-04T14:27:40.000Z">
 <meta property="article:modified_time" content="2025-03-22T10:33:37.985Z">
 <meta property="article:author" content="Vincent">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:image" content="https://chikuwacode.github.io/img/index_img/spring-boot.jpg">
+<meta name="twitter:image" content="http://localhost:4000/img/index_img/spring-boot.jpg">
   
   
   
@@ -71,7 +71,7 @@
   <script id="fluid-configs">
     var Fluid = window.Fluid || {};
     Fluid.ctx = Object.assign({}, Fluid.ctx)
-    var CONFIG = {"hostname":"chikuwacode.github.io","root":"/","version":"1.9.8","typing":{"enable":false,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h2,h3","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":false},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"left","headingSelector":"h2,h3","collapseDepth":3},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2,"exclude":[".no-lazy"]},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":{"measurement_id":"G-BZW5S6P21N"},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/local-search.xml","include_content_in_search":true};
+    var CONFIG = {"hostname":"localhost","root":"/","version":"1.9.8","typing":{"enable":false,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h2,h3","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":false},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"left","headingSelector":"h2,h3","collapseDepth":3},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2,"exclude":[".no-lazy"]},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":"G-BZW5S6P21N"},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/local-search.xml","include_content_in_search":true};
 
     if (CONFIG.web_analytics.follow_dnt) {
       var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
@@ -81,31 +81,6 @@
   <script  src="/js/utils.js" ></script>
   <script  src="/js/color-schema.js" ></script>
   
-
-  
-
-  
-    <!-- Google tag (gtag.js) -->
-    <script async>
-      if (!Fluid.ctx.dnt) {
-        Fluid.utils.createScript("https://www.googletagmanager.com/gtag/js?id=G-BZW5S6P21N", function() {
-          window.dataLayer = window.dataLayer || [];
-          function gtag() {
-            dataLayer.push(arguments);
-          }
-          gtag('js', new Date());
-          gtag('config', 'G-BZW5S6P21N');
-        });
-      }
-    </script>
-  
-
-  
-
-  
-
-  
-
 
 
   

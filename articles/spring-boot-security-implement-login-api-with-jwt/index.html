@@ -22,16 +22,16 @@
     <meta name="description" content="為了存取受到 Spring Security 保護的 RESTful API，前端發出請求時，必須出示「Token」，來得到後端的授權。本文首先會介紹 Token 的概念，以及 JWT 的組成。接著利用第三方函式庫，實作出產生與解析 JWT 的程式，藉此設計出登入用途的 API。">
 <meta property="og:type" content="article">
 <meta property="og:title" content="【Spring Boot】第12.5課－將 Spring Security 與 JWT 結合，實作登入 API">
-<meta property="og:url" content="https://chikuwacode.github.io/articles/spring-boot-security-implement-login-api-with-jwt/">
+<meta property="og:url" content="http://localhost:4000/articles/spring-boot-security-implement-login-api-with-jwt/">
 <meta property="og:site_name" content="吉古拉的程式拾光">
 <meta property="og:description" content="為了存取受到 Spring Security 保護的 RESTful API，前端發出請求時，必須出示「Token」，來得到後端的授權。本文首先會介紹 Token 的概念，以及 JWT 的組成。接著利用第三方函式庫，實作出產生與解析 JWT 的程式，藉此設計出登入用途的 API。">
 <meta property="og:locale" content="zh_TW">
-<meta property="og:image" content="https://chikuwacode.github.io/img/index_img/spring-boot.jpg">
-<meta property="article:published_time" content="2021-06-06T07:52:00.000Z">
+<meta property="og:image" content="http://localhost:4000/img/index_img/spring-boot.jpg">
+<meta property="article:published_time" content="2021-06-06T14:52:00.000Z">
 <meta property="article:modified_time" content="2025-03-23T10:10:45.676Z">
 <meta property="article:author" content="Vincent">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:image" content="https://chikuwacode.github.io/img/index_img/spring-boot.jpg">
+<meta name="twitter:image" content="http://localhost:4000/img/index_img/spring-boot.jpg">
   
   
   
@@ -71,7 +71,7 @@
   <script id="fluid-configs">
     var Fluid = window.Fluid || {};
     Fluid.ctx = Object.assign({}, Fluid.ctx)
-    var CONFIG = {"hostname":"chikuwacode.github.io","root":"/","version":"1.9.8","typing":{"enable":false,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h2,h3","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":false},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"left","headingSelector":"h2,h3","collapseDepth":3},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2,"exclude":[".no-lazy"]},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":{"measurement_id":"G-BZW5S6P21N"},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/local-search.xml","include_content_in_search":true};
+    var CONFIG = {"hostname":"localhost","root":"/","version":"1.9.8","typing":{"enable":false,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h2,h3","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":false},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"left","headingSelector":"h2,h3","collapseDepth":3},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2,"exclude":[".no-lazy"]},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":"G-BZW5S6P21N"},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/local-search.xml","include_content_in_search":true};
 
     if (CONFIG.web_analytics.follow_dnt) {
       var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
@@ -81,31 +81,6 @@
   <script  src="/js/utils.js" ></script>
   <script  src="/js/color-schema.js" ></script>
   
-
-  
-
-  
-    <!-- Google tag (gtag.js) -->
-    <script async>
-      if (!Fluid.ctx.dnt) {
-        Fluid.utils.createScript("https://www.googletagmanager.com/gtag/js?id=G-BZW5S6P21N", function() {
-          window.dataLayer = window.dataLayer || [];
-          function gtag() {
-            dataLayer.push(arguments);
-          }
-          gtag('js', new Date());
-          gtag('config', 'G-BZW5S6P21N');
-        });
-      }
-    </script>
-  
-
-  
-
-  
-
-  
-
 
 
   
@@ -320,7 +295,7 @@
 <p>JWT 的內容與簽名是會一併傳遞的。驗證的方式，是將收到的內容，以相同的密鑰與演算法產生另一組簽名，並與收到的簽名比對是否相同。若不同，則代表內容是不合法的。</p>
 <p>例如收到的內容是「peach」，而收到的偽造簽名是「qfbdi」（偏移量 1）。此時系統使用偏移量 3 所產生的簽名為「shdfk」。由於兩組簽名不同，故視為認證失敗。同時我們也意會到密鑰是不能外流的。</p>
 <p>回到 JWT 的簽名。其產生過程，是將標頭與內容分別進行 Base64 編碼後串接起來，再透過特定演算法與密鑰的處理所產生。</p>
-<p>JWT 的官網提供了<a target="_blank" rel="noopener" href="https://jwt.io/#debugger-io">工具</a>，用來產生與驗證 JWT。<br><img src="https://chikuwacode.github.io/articles/spring-boot-security-implement-login-api-with-jwt/jwt-debugger.png" srcset="/img/loading.gif" lazyload></p>
+<p>JWT 的官網提供了<a target="_blank" rel="noopener" href="https://jwt.io/#debugger-io">工具</a>，用來產生與驗證 JWT。<br><img src="http://localhost:4000/articles/spring-boot-security-implement-login-api-with-jwt/jwt-debugger.png" srcset="/img/loading.gif" lazyload></p>
 <p>整個 JWT 的組成，就是 <code>標頭的編碼.內容的編碼.簽名</code>。</p>
 <h2 id="二、準備程式專案"><a href="#二、準備程式專案" class="headerlink" title="二、準備程式專案"></a>二、準備程式專案</h2><h3 id="（一）Spring-Security-配置"><a href="#（一）Spring-Security-配置" class="headerlink" title="（一）Spring Security 配置"></a>（一）Spring Security 配置</h3><p>認識了 JWT 後，本文讓我們在程式專案中實作出來。首先進行 Spring Security 的配置，請確認 pom.xml 檔案已經添加以下依賴。</p>
 <div class="code-wrapper"><pre><code class="hljs xml"><span class="hljs-tag">&lt;<span class="hljs-name">dependency</span>&gt;</span>
@@ -390,7 +365,7 @@
     &#125;
 &#125;</code></pre></div>
 
-<p>下圖是使用 Postman 進行測試的結果。<br><img src="https://chikuwacode.github.io/articles/spring-boot-security-implement-login-api-with-jwt/spring-boot-login-api-test.png" srcset="/img/loading.gif" lazyload></p>
+<p>下圖是使用 Postman 進行測試的結果。<br><img src="http://localhost:4000/articles/spring-boot-security-implement-login-api-with-jwt/spring-boot-login-api-test.png" srcset="/img/loading.gif" lazyload></p>
 <p>若帳密有誤，則拋出 Spring Security 內建的 <code>BadCredentialsException</code> 例外。</p>
 <h2 id="三、實作產生-JWT"><a href="#三、實作產生-JWT" class="headerlink" title="三、實作產生 JWT"></a>三、實作產生 JWT</h2><h3 id="（一）程式實作"><a href="#（一）程式實作" class="headerlink" title="（一）程式實作"></a>（一）程式實作</h3><p>這節讓我們實作產生 JWT 的程式。在 JWT 官網的 <a target="_blank" rel="noopener" href="https://jwt.io/libraries">libraries</a> 頁面，可找到許多開源的 library。本文挑選「JJWT」，其操作方式簡單，且 GitHub 的星星數最多，相當知名。</p>
 <p>根據該 library 的 <a target="_blank" rel="noopener" href="https://github.com/jwtk/jjwt">GitHub</a> 頁面所寫，請在 pom.xml 檔案添加依賴。</p>
@@ -505,7 +480,7 @@
 &#125;</code></pre></div>
 
 <p>在此將通過身份認證的 <code>UserDetails</code> 傳入 JwtService 中，產生 JWT 字串後回傳。</p>
-<p>下圖是使用 Postman 進行測試的結果。<br><img src="https://chikuwacode.github.io/articles/spring-boot-security-implement-login-api-with-jwt/spring-boot-login-api-return-jwt.png" srcset="/img/loading.gif" lazyload></p>
+<p>下圖是使用 Postman 進行測試的結果。<br><img src="http://localhost:4000/articles/spring-boot-security-implement-login-api-with-jwt/spring-boot-login-api-return-jwt.png" srcset="/img/loading.gif" lazyload></p>
 <p>範例為了方便，故以純文字回傳 JWT。若讀者想以 JSON 格式的 response body 回傳，也是可以的。</p>
 <h2 id="四、實作解析-JWT"><a href="#四、實作解析-JWT" class="headerlink" title="四、實作解析 JWT"></a>四、實作解析 JWT</h2><h3 id="（一）程式實作-1"><a href="#（一）程式實作-1" class="headerlink" title="（一）程式實作"></a>（一）程式實作</h3><p>本節會實作解析 JWT 內容的程式。除了在本文確認 JWT 的內容是否與我們預期的相同，也為下一篇將解析出的使用者資料放入「Security Context」來做準備。</p>
 <div class="code-wrapper"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">JwtService</span> &#123;
@@ -553,7 +528,7 @@
 
 <p>在 request header 攜帶 JWT 時，格式是先以「Bearer」加一個半形空格做為前綴，才加上 JWT。因此後端接收到 header 後，要先排除該前綴，才能進行解析。</p>
 <p>若解析發生問題，則對 <code>JwtException</code> 進行例外處理。此處再拋出 <code>BadCredentialsException</code>，讓 Spring Security 回傳 HTTP 401 的狀態碼。</p>
-<p>下圖是使用 Postman 進行測試的結果。<br><img src="https://chikuwacode.github.io/articles/spring-boot-security-implement-login-api-with-jwt/spring-boot-api-parse-jwt.png" srcset="/img/loading.gif" lazyload></p>
+<p>下圖是使用 Postman 進行測試的結果。<br><img src="http://localhost:4000/articles/spring-boot-security-implement-login-api-with-jwt/spring-boot-api-parse-jwt.png" srcset="/img/loading.gif" lazyload></p>
 <p>操作方式是切換到 Authorization 頁籤，在下拉式選單選取「Bearer Token」，並填入 JWT。發送 request 時，Postman 會自動在「Authorization」這個 header 加上「Bearer」與一個半形空格的前綴，此為攜帶 Token 的格式。</p>
 <p>本文到目前為止，已經完成 JWT 的產生與解析。後續小節將基於目前實作出的程式做優化。</p>
 <h2 id="五、讓登入-API-回傳更多資料"><a href="#五、讓登入-API-回傳更多資料" class="headerlink" title="五、讓登入 API 回傳更多資料"></a>五、讓登入 API 回傳更多資料</h2><p>根據筆者在前公司的經驗，登入 API 除了回傳 JWT，還會附上其他資料，例如使用者的 id、名字、偏好設定等。目的是控制前端的行為，例如登入後要前往什麼畫面、如何顯示某些 HTML，或者將其攜帶於 query string，有各種用途。</p>
@@ -596,9 +571,9 @@
     &#125;
 &#125;</code></pre></div>
 
-<p>下圖是使用 Postman 進行測試的結果。<br><img src="https://chikuwacode.github.io/articles/spring-boot-security-implement-login-api-with-jwt/spring-boot-login-api-return-json.png" srcset="/img/loading.gif" lazyload></p>
+<p>下圖是使用 Postman 進行測試的結果。<br><img src="http://localhost:4000/articles/spring-boot-security-implement-login-api-with-jwt/spring-boot-login-api-return-json.png" srcset="/img/loading.gif" lazyload></p>
 <p>然而在本節的範例中，能夠從 <code>UserDetails</code> 物件取得的內容，就只有帳號與權限而已。若讀者想在 JWT 本身或登入 API 的 response body 攜帶更多使用者資料，不妨搭配實作自己的 <code>UserDetails</code> 和 <code>UserDetailsService</code>。詳情可參考<a href="/articles/spring-boot-security-context-authentication-info/" target="_blank">第 12.4 課</a>。</p>
-<p>筆者在文末附上的完成後專案，也會融入這部份的實作。下圖是使用 Postman 測試登入 API 的結果。<br><img src="https://chikuwacode.github.io/articles/spring-boot-security-implement-login-api-with-jwt/spring-boot-login-api-return-more-data.png" srcset="/img/loading.gif" lazyload></p>
+<p>筆者在文末附上的完成後專案，也會融入這部份的實作。下圖是使用 Postman 測試登入 API 的結果。<br><img src="http://localhost:4000/articles/spring-boot-security-implement-login-api-with-jwt/spring-boot-login-api-return-more-data.png" srcset="/img/loading.gif" lazyload></p>
 <p>例子中可看到額外回傳了使用者的 id 與暱稱。</p>
 <h2 id="六、使用-AuthenticationManager-元件進行認證"><a href="#六、使用-AuthenticationManager-元件進行認證" class="headerlink" title="六、使用 AuthenticationManager 元件進行認證"></a>六、使用 AuthenticationManager 元件進行認證</h2><p>還記得 <code>UserDetails</code> 介面所提供的方法，除了回傳帳號、密碼與權限，還包含一些狀態嗎？</p>
 <table>

@@ -22,16 +22,16 @@
     <meta name="description" content="若能將資料庫放上雲端服務，便能簡化伺服器的管理工作。本文介紹如何在 Azure 上建立 MongoDB 資料庫，並分別在 NoSQLBooster 這款 GUI 工具，以及 Spring Boot 後端程式來連線。">
 <meta property="og:type" content="article">
 <meta property="og:title" content="在 Azure 上建立 MongoDB 資料庫，並進行連線">
-<meta property="og:url" content="https://chikuwacode.github.io/articles/azure-create-cosmos-db-for-mongodb/">
+<meta property="og:url" content="http://localhost:4000/articles/azure-create-cosmos-db-for-mongodb/">
 <meta property="og:site_name" content="吉古拉的程式拾光">
 <meta property="og:description" content="若能將資料庫放上雲端服務，便能簡化伺服器的管理工作。本文介紹如何在 Azure 上建立 MongoDB 資料庫，並分別在 NoSQLBooster 這款 GUI 工具，以及 Spring Boot 後端程式來連線。">
 <meta property="og:locale" content="zh_TW">
-<meta property="og:image" content="https://chikuwacode.github.io/img/index_img/azure.jpg">
-<meta property="article:published_time" content="2024-12-06T06:30:11.000Z">
+<meta property="og:image" content="http://localhost:4000/img/index_img/azure.jpg">
+<meta property="article:published_time" content="2024-12-06T13:30:11.000Z">
 <meta property="article:modified_time" content="2025-03-01T16:27:41.025Z">
 <meta property="article:author" content="Vincent">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:image" content="https://chikuwacode.github.io/img/index_img/azure.jpg">
+<meta name="twitter:image" content="http://localhost:4000/img/index_img/azure.jpg">
   
   
   
@@ -71,7 +71,7 @@
   <script id="fluid-configs">
     var Fluid = window.Fluid || {};
     Fluid.ctx = Object.assign({}, Fluid.ctx)
-    var CONFIG = {"hostname":"chikuwacode.github.io","root":"/","version":"1.9.8","typing":{"enable":false,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h2,h3","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":false},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"left","headingSelector":"h2,h3","collapseDepth":3},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2,"exclude":[".no-lazy"]},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":{"measurement_id":"G-BZW5S6P21N"},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/local-search.xml","include_content_in_search":true};
+    var CONFIG = {"hostname":"localhost","root":"/","version":"1.9.8","typing":{"enable":false,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h2,h3","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":false},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"left","headingSelector":"h2,h3","collapseDepth":3},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2,"exclude":[".no-lazy"]},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":"G-BZW5S6P21N"},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/local-search.xml","include_content_in_search":true};
 
     if (CONFIG.web_analytics.follow_dnt) {
       var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
@@ -81,31 +81,6 @@
   <script  src="/js/utils.js" ></script>
   <script  src="/js/color-schema.js" ></script>
   
-
-  
-
-  
-    <!-- Google tag (gtag.js) -->
-    <script async>
-      if (!Fluid.ctx.dnt) {
-        Fluid.utils.createScript("https://www.googletagmanager.com/gtag/js?id=G-BZW5S6P21N", function() {
-          window.dataLayer = window.dataLayer || [];
-          function gtag() {
-            dataLayer.push(arguments);
-          }
-          gtag('js', new Date());
-          gtag('config', 'G-BZW5S6P21N');
-        });
-      }
-    </script>
-  
-
-  
-
-  
-
-  
-
 
 
   
@@ -250,7 +225,7 @@
               <p id="updated-time" class="note note-warning" style="">
                 
                   
-                    本文最後更新於：2025-03-02
+                    本文最後更新於：2025-03-01
                   
                 
               </p>
@@ -263,7 +238,7 @@
 <p>本文介紹如何在 Azure 上建立 MongoDB 資料庫，並分別在 NoSQLBooster 這款 GUI 工具，以及 Spring Boot 後端程式來連線。</p>
 <hr>
 <h2 id="一、建立資料庫"><a href="#一、建立資料庫" class="headerlink" title="一、建立資料庫"></a>一、建立資料庫</h2><p>Azure 推出的「Cosmos DB」是一種資料庫服務，它提供了 MongoDB 的 API，讓我們可以用原本操作 MongoDB 的方式來存取。</p>
-<p>首先在 Azure 上搜尋「Azure Cosmos DB for MongoDB (vCore)」。進入頁面後，點擊建立。<br><img src="https://chikuwacode.github.io/articles/azure-create-cosmos-db-for-mongodb/azure-mongodb-list.png" srcset="/img/loading.gif" lazyload></p>
+<p>首先在 Azure 上搜尋「Azure Cosmos DB for MongoDB (vCore)」。進入頁面後，點擊建立。<br><img src="http://localhost:4000/articles/azure-create-cosmos-db-for-mongodb/azure-mongodb-list.png" srcset="/img/loading.gif" lazyload></p>
 <p>以下是筆者選擇的設定，並提供 MongoDB 的帳號與密碼。其餘則使用預設值，讀者可視自己的情況調整。</p>
 <ul>
 <li>叢集名稱：vincentdemomongodb</li>
@@ -272,13 +247,13 @@
 <li>MongoDB 版本：7.0</li>
 <li>管理使用者名稱：vincent</li>
 </ul>
-<img src="https://chikuwacode.github.io/articles/azure-create-cosmos-db-for-mongodb/azure-mongodb-basic-setting.png" srcset="/img/loading.gif" lazyload>
+<img src="http://localhost:4000/articles/azure-create-cosmos-db-for-mongodb/azure-mongodb-basic-setting.png" srcset="/img/loading.gif" lazyload>
 
-<p>接著切換到「網路」頁籤，設定防火牆規則。設定的目的，是開放哪些 IP 可以連線到這台資料庫。<br><img src="https://chikuwacode.github.io/articles/azure-create-cosmos-db-for-mongodb/azure-mongodb-firewall-rule-setting.png" srcset="/img/loading.gif" lazyload></p>
+<p>接著切換到「網路」頁籤，設定防火牆規則。設定的目的，是開放哪些 IP 可以連線到這台資料庫。<br><img src="http://localhost:4000/articles/azure-create-cosmos-db-for-mongodb/azure-mongodb-firewall-rule-setting.png" srcset="/img/loading.gif" lazyload></p>
 <p>本文為了測試用途，只簡單地選擇「Add 0.0.0.0 - 255.255.255.255」，代表網路上的所有 IP 都可以連進來。此時 Azure 會跳出安全性的警告，我們點擊繼續即可。</p>
-<p>最後並按下「檢閱 + 建立」。確認設定後，再按下「建立」，等待 Azure 部署完成。<br><img src="https://chikuwacode.github.io/articles/azure-create-cosmos-db-for-mongodb/azure-mongodb-review-and-create.png" srcset="/img/loading.gif" lazyload></p>
-<h2 id="二、基本管理"><a href="#二、基本管理" class="headerlink" title="二、基本管理"></a>二、基本管理</h2><h3 id="（一）查看資訊"><a href="#（一）查看資訊" class="headerlink" title="（一）查看資訊"></a>（一）查看資訊</h3><p>前往資源畫面，在「概觀」能看見基本資訊，包含叢集名稱、管理員名稱等。<br><img src="https://chikuwacode.github.io/articles/azure-create-cosmos-db-for-mongodb/azure-mongodb-overview.png" srcset="/img/loading.gif" lazyload></p>
-<h3 id="（二）可存取的-IP"><a href="#（二）可存取的-IP" class="headerlink" title="（二）可存取的 IP"></a>（二）可存取的 IP</h3><p>在「設定」→「網路」的畫面，可找到建立資料庫時所設定的防火牆規則。若日後想更改，可在此進行設定。<br><img src="https://chikuwacode.github.io/articles/azure-create-cosmos-db-for-mongodb/azure-mongodb-firewall-rule-setting-2.png" srcset="/img/loading.gif" lazyload></p>
+<p>最後並按下「檢閱 + 建立」。確認設定後，再按下「建立」，等待 Azure 部署完成。<br><img src="http://localhost:4000/articles/azure-create-cosmos-db-for-mongodb/azure-mongodb-review-and-create.png" srcset="/img/loading.gif" lazyload></p>
+<h2 id="二、基本管理"><a href="#二、基本管理" class="headerlink" title="二、基本管理"></a>二、基本管理</h2><h3 id="（一）查看資訊"><a href="#（一）查看資訊" class="headerlink" title="（一）查看資訊"></a>（一）查看資訊</h3><p>前往資源畫面，在「概觀」能看見基本資訊，包含叢集名稱、管理員名稱等。<br><img src="http://localhost:4000/articles/azure-create-cosmos-db-for-mongodb/azure-mongodb-overview.png" srcset="/img/loading.gif" lazyload></p>
+<h3 id="（二）可存取的-IP"><a href="#（二）可存取的-IP" class="headerlink" title="（二）可存取的 IP"></a>（二）可存取的 IP</h3><p>在「設定」→「網路」的畫面，可找到建立資料庫時所設定的防火牆規則。若日後想更改，可在此進行設定。<br><img src="http://localhost:4000/articles/azure-create-cosmos-db-for-mongodb/azure-mongodb-firewall-rule-setting-2.png" srcset="/img/loading.gif" lazyload></p>
 <h3 id="（三）備份與還原"><a href="#（三）備份與還原" class="headerlink" title="（三）備份與還原"></a>（三）備份與還原</h3><p>我們可下載 Mongo DB 的<a target="_blank" rel="noopener" href="https://www.mongodb.com/try/download/database-tools">資料庫工具</a>（database tools），在 command line 環境使用指令，進行備份與還原。</p>
 <p>備份時，需使用「mongodump」指令：</p>
 <div class="code-wrapper"><pre><code class="hljs sh">mongodump --uri=<span class="hljs-string">&quot;mongodb+srv://&lt;username&gt;:&lt;password&gt;@vincentdemomongodb.mongocluster.cosmos.azure.com/&lt;database&gt;?tls=true&amp;authMechanism=SCRAM-SHA-256&quot;</span> --out=<span class="hljs-string">&quot;&lt;path&gt;&quot;</span></code></pre></div>
@@ -296,9 +271,9 @@
 <p>同樣需在 URI 提供連線字串，其中包含要還原到的資料庫。</p>
 <p>而最後一個參數為備份檔的來源路徑。延續本文範例，此處的值將會是「.\backup\test」。</p>
 <h2 id="三、在-NoSQLBooster-連線"><a href="#三、在-NoSQLBooster-連線" class="headerlink" title="三、在 NoSQLBooster 連線"></a>三、在 NoSQLBooster 連線</h2><p>本節讓我們使用 <a target="_blank" rel="noopener" href="https://nosqlbooster.com/">NoSQLBooster</a> 這款 GUI 工具，連線到 Azure 上建立好的 Mongo DB 資料庫。</p>
-<p>在「設定」→「連接字串」的畫面，可找到應用程式要連結到 MongoDB 的連接字串，它是由叢集名稱和 Azure 的網域所組成。請讀者先複製起來。<br><img src="https://chikuwacode.github.io/articles/azure-create-cosmos-db-for-mongodb/azure-mongodb-connection-string.png" srcset="/img/loading.gif" lazyload></p>
-<p>在 NoSQLBooster 建立新連線的視窗中，請點擊「From URI」，並貼上剛剛的連線字串，別忘了將「<code>&lt;password&gt;</code>」字眼替換成自己的密碼。<br><img src="https://chikuwacode.github.io/articles/azure-create-cosmos-db-for-mongodb/azure-mongodb-nosqlbooster-from-uri.png" srcset="/img/loading.gif" lazyload></p>
-<p>接著可點擊「Test Connection」，進行測試。最後為連線取名，建立完成後，便能連上。<br><img src="https://chikuwacode.github.io/articles/azure-create-cosmos-db-for-mongodb/azure-mongodb-nosqlbooster-open-connections.png" srcset="/img/loading.gif" lazyload></p>
+<p>在「設定」→「連接字串」的畫面，可找到應用程式要連結到 MongoDB 的連接字串，它是由叢集名稱和 Azure 的網域所組成。請讀者先複製起來。<br><img src="http://localhost:4000/articles/azure-create-cosmos-db-for-mongodb/azure-mongodb-connection-string.png" srcset="/img/loading.gif" lazyload></p>
+<p>在 NoSQLBooster 建立新連線的視窗中，請點擊「From URI」，並貼上剛剛的連線字串，別忘了將「<code>&lt;password&gt;</code>」字眼替換成自己的密碼。<br><img src="http://localhost:4000/articles/azure-create-cosmos-db-for-mongodb/azure-mongodb-nosqlbooster-from-uri.png" srcset="/img/loading.gif" lazyload></p>
+<p>接著可點擊「Test Connection」，進行測試。最後為連線取名，建立完成後，便能連上。<br><img src="http://localhost:4000/articles/azure-create-cosmos-db-for-mongodb/azure-mongodb-nosqlbooster-open-connections.png" srcset="/img/loading.gif" lazyload></p>
 <p>裡面預設會有一個叫做「test」的資料庫。</p>
 <h2 id="四、在-Spring-Boot-連線"><a href="#四、在-Spring-Boot-連線" class="headerlink" title="四、在 Spring Boot 連線"></a>四、在 Spring Boot 連線</h2><p>本節讓我們在 Spring Boot 後端程式中，針對 Azure 上的 MongoDB 進行配置。</p>
 <p>首先在 pom.xml 檔案中，添加 Spring Data MongoDB 的依賴。</p>

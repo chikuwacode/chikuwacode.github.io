@@ -22,16 +22,16 @@
     <meta name="description" content="MySQL 資料庫是一種關聯式資料庫，與其他 NoSQL 相比，關聯是資料庫是職缺中更常見的要求。本文會啟動 MySQL 的服務，並在 Spring Boot 專案中配置各種設定值，確認可以連線上。最後介紹「Spring Data JPA」這套框架，了解它的由來。">
 <meta property="og:type" content="article">
 <meta property="og:title" content="【Spring Boot】第9.1課－準備 MySQL 資料庫與認識 Spring Data JPA">
-<meta property="og:url" content="https://chikuwacode.github.io/articles/spring-boot-setup-mysql-and-introduce-jpa/">
+<meta property="og:url" content="http://localhost:4000/articles/spring-boot-setup-mysql-and-introduce-jpa/">
 <meta property="og:site_name" content="吉古拉的程式拾光">
 <meta property="og:description" content="MySQL 資料庫是一種關聯式資料庫，與其他 NoSQL 相比，關聯是資料庫是職缺中更常見的要求。本文會啟動 MySQL 的服務，並在 Spring Boot 專案中配置各種設定值，確認可以連線上。最後介紹「Spring Data JPA」這套框架，了解它的由來。">
 <meta property="og:locale" content="zh_TW">
-<meta property="og:image" content="https://chikuwacode.github.io/img/index_img/spring-boot.jpg">
-<meta property="article:published_time" content="2024-05-29T08:00:00.000Z">
+<meta property="og:image" content="http://localhost:4000/img/index_img/spring-boot.jpg">
+<meta property="article:published_time" content="2024-05-29T15:00:00.000Z">
 <meta property="article:modified_time" content="2025-03-22T10:33:37.985Z">
 <meta property="article:author" content="Vincent">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:image" content="https://chikuwacode.github.io/img/index_img/spring-boot.jpg">
+<meta name="twitter:image" content="http://localhost:4000/img/index_img/spring-boot.jpg">
   
   
   
@@ -71,7 +71,7 @@
   <script id="fluid-configs">
     var Fluid = window.Fluid || {};
     Fluid.ctx = Object.assign({}, Fluid.ctx)
-    var CONFIG = {"hostname":"chikuwacode.github.io","root":"/","version":"1.9.8","typing":{"enable":false,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h2,h3","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":false},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"left","headingSelector":"h2,h3","collapseDepth":3},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2,"exclude":[".no-lazy"]},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":{"measurement_id":"G-BZW5S6P21N"},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/local-search.xml","include_content_in_search":true};
+    var CONFIG = {"hostname":"localhost","root":"/","version":"1.9.8","typing":{"enable":false,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h2,h3","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":false},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"left","headingSelector":"h2,h3","collapseDepth":3},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2,"exclude":[".no-lazy"]},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":"G-BZW5S6P21N"},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/local-search.xml","include_content_in_search":true};
 
     if (CONFIG.web_analytics.follow_dnt) {
       var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
@@ -81,31 +81,6 @@
   <script  src="/js/utils.js" ></script>
   <script  src="/js/color-schema.js" ></script>
   
-
-  
-
-  
-    <!-- Google tag (gtag.js) -->
-    <script async>
-      if (!Fluid.ctx.dnt) {
-        Fluid.utils.createScript("https://www.googletagmanager.com/gtag/js?id=G-BZW5S6P21N", function() {
-          window.dataLayer = window.dataLayer || [];
-          function gtag() {
-            dataLayer.push(arguments);
-          }
-          gtag('js', new Date());
-          gtag('config', 'G-BZW5S6P21N');
-        });
-      }
-    </script>
-  
-
-  
-
-  
-
-  
-
 
 
   
@@ -267,10 +242,10 @@
 <p>以上取用的 MySQL 版本為 8.2.0。容器取名為「MySQL_8.2.0」，運行在 3306 的 port 號上。而 root 帳號的密碼設為「123456」。</p>
 <p>其他版本可參考 <a target="_blank" rel="noopener" href="https://hub.docker.com/_/mysql">Docker Hub</a>。關於 Docker 的操作，本文將不詳細介紹。</p>
 <h3 id="（二）圖形化介面工具"><a href="#（二）圖形化介面工具" class="headerlink" title="（二）圖形化介面工具"></a>（二）圖形化介面工具</h3><p>為了在後續的練習中能夠查詢資料庫，直接確認裡面的資料，讀者可安裝圖形化介面（GUI）工具。本文選擇「<a target="_blank" rel="noopener" href="https://dev.mysql.com/downloads/workbench/">Workbench</a>」。</p>
-<p>開啟 GUI 後，點擊「MySQL Connections」字樣旁邊的「+」號，會出現資料庫連線設定的視窗。若讀者想存取不同伺服器上的資料庫，就能在這裡建立多個需要的連線。<br><img src="https://chikuwacode.github.io/articles/spring-boot-setup-mysql-and-introduce-jpa/mysql-workbench-setup-new-connection.png" srcset="/img/loading.gif" lazyload></p>
+<p>開啟 GUI 後，點擊「MySQL Connections」字樣旁邊的「+」號，會出現資料庫連線設定的視窗。若讀者想存取不同伺服器上的資料庫，就能在這裡建立多個需要的連線。<br><img src="http://localhost:4000/articles/spring-boot-setup-mysql-and-introduce-jpa/mysql-workbench-setup-new-connection.png" srcset="/img/loading.gif" lazyload></p>
 <p>在上圖中，「Connection name」欄位是為這個連線命名，方便我們在 GUI 辨識。其他欄位則填寫資料庫的位址、port 號與帳號。至於密碼，需點擊「Store in Vault …」後，在小視窗輸入。</p>
 <p>最後按下「OK」，即可建立連線。</p>
-<h3 id="（三）建立資料庫"><a href="#（三）建立資料庫" class="headerlink" title="（三）建立資料庫"></a>（三）建立資料庫</h3><p>按下 GUI 上方的「SQL +」按鈕，可開啟查詢視窗。下圖撰寫了兩句語法，第一句是建立名稱為「school」的資料庫，第二句是切換過去。<br><img src="https://chikuwacode.github.io/articles/spring-boot-setup-mysql-and-introduce-jpa/mysql-workbench-use-query-to-create-database.png" srcset="/img/loading.gif" lazyload></p>
+<h3 id="（三）建立資料庫"><a href="#（三）建立資料庫" class="headerlink" title="（三）建立資料庫"></a>（三）建立資料庫</h3><p>按下 GUI 上方的「SQL +」按鈕，可開啟查詢視窗。下圖撰寫了兩句語法，第一句是建立名稱為「school」的資料庫，第二句是切換過去。<br><img src="http://localhost:4000/articles/spring-boot-setup-mysql-and-introduce-jpa/mysql-workbench-use-query-to-create-database.png" srcset="/img/loading.gif" lazyload></p>
 <div class="code-wrapper"><pre><code class="hljs sql"><span class="hljs-keyword">CREATE</span> DATABASE `school`;
 USE `school`;</code></pre></div>
 
@@ -350,7 +325,7 @@ USE `school`;</code></pre></div>
 <p>該類別叫做「Student」，包含 id、名字與年級，共 3 個欄位。</p>
 <p>使用 <code>@Entity</code> 注解，代表它是要儲存到資料庫的實體類別。而 <code>@Table</code> 注解，則設定它在資料庫中，要對應到叫做「student」的 table 。</p>
 <p>在 id 欄位，冠上了 <code>@Id</code> 注解，代表它是 table 中的主鍵（Primary Key，PK）。而 <code>@GeneratedValue</code> 注解，則設定主鍵值的產生方式。由於 MySQL 支援自增長（auto increment）的流水號 id，因此選擇 <code>GenerationType.IDENTITY</code>。</p>
-<p>重新啟動 Spring Boot，讀者便可在 GUI 中看到建立好的 table 了。<br><img src="https://chikuwacode.github.io/articles/spring-boot-setup-mysql-and-introduce-jpa/mysql-workbench-describe-table-with-few-fields.png" srcset="/img/loading.gif" lazyload></p>
+<p>重新啟動 Spring Boot，讀者便可在 GUI 中看到建立好的 table 了。<br><img src="http://localhost:4000/articles/spring-boot-setup-mysql-and-introduce-jpa/mysql-workbench-describe-table-with-few-fields.png" srcset="/img/loading.gif" lazyload></p>
 <h2 id="四、Spring-Data-JPA-介紹"><a href="#四、Spring-Data-JPA-介紹" class="headerlink" title="四、Spring Data JPA 介紹"></a>四、Spring Data JPA 介紹</h2><p>在本文第二節，我們添加了「Spring Data JPA」的依賴，本節將進一步介紹。</p>
 <h3 id="（一）JDBC-使用範例"><a href="#（一）JDBC-使用範例" class="headerlink" title="（一）JDBC 使用範例"></a>（一）JDBC 使用範例</h3><p>當 JDBC 結合對應的驅動程式，便可存取 MySQL 等關聯式資料庫，以下為示意程式：</p>
 <div class="code-wrapper"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">Main</span> &#123;

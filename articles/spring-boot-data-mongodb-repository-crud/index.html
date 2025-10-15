@@ -22,16 +22,16 @@
     <meta name="description" content="準備好 MongoDB 的環境後，就能在 Spring Boot 中存取資料庫了。本文將介紹「Spring Data」這款框架，建立 ORM &#x2F; ODM 的概念。隨後透過「MongoRepository」內建的 CRUD 方法，存取資料庫。">
 <meta property="og:type" content="article">
 <meta property="og:title" content="【Spring Boot】第8.2課－使用 Spring Data 存取 MongoDB 資料庫，進行基本 CRUD 操作">
-<meta property="og:url" content="https://chikuwacode.github.io/articles/spring-boot-data-mongodb-repository-crud/">
+<meta property="og:url" content="http://localhost:4000/articles/spring-boot-data-mongodb-repository-crud/">
 <meta property="og:site_name" content="吉古拉的程式拾光">
 <meta property="og:description" content="準備好 MongoDB 的環境後，就能在 Spring Boot 中存取資料庫了。本文將介紹「Spring Data」這款框架，建立 ORM &#x2F; ODM 的概念。隨後透過「MongoRepository」內建的 CRUD 方法，存取資料庫。">
 <meta property="og:locale" content="zh_TW">
-<meta property="og:image" content="https://chikuwacode.github.io/img/index_img/spring-boot.jpg">
-<meta property="article:published_time" content="2024-05-20T01:00:00.000Z">
+<meta property="og:image" content="http://localhost:4000/img/index_img/spring-boot.jpg">
+<meta property="article:published_time" content="2024-05-20T08:00:00.000Z">
 <meta property="article:modified_time" content="2025-03-22T10:33:37.985Z">
 <meta property="article:author" content="Vincent">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:image" content="https://chikuwacode.github.io/img/index_img/spring-boot.jpg">
+<meta name="twitter:image" content="http://localhost:4000/img/index_img/spring-boot.jpg">
   
   
   
@@ -71,7 +71,7 @@
   <script id="fluid-configs">
     var Fluid = window.Fluid || {};
     Fluid.ctx = Object.assign({}, Fluid.ctx)
-    var CONFIG = {"hostname":"chikuwacode.github.io","root":"/","version":"1.9.8","typing":{"enable":false,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h2,h3","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":false},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"left","headingSelector":"h2,h3","collapseDepth":3},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2,"exclude":[".no-lazy"]},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":{"measurement_id":"G-BZW5S6P21N"},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/local-search.xml","include_content_in_search":true};
+    var CONFIG = {"hostname":"localhost","root":"/","version":"1.9.8","typing":{"enable":false,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h2,h3","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":false},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"left","headingSelector":"h2,h3","collapseDepth":3},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2,"exclude":[".no-lazy"]},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":"G-BZW5S6P21N"},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/local-search.xml","include_content_in_search":true};
 
     if (CONFIG.web_analytics.follow_dnt) {
       var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
@@ -81,31 +81,6 @@
   <script  src="/js/utils.js" ></script>
   <script  src="/js/color-schema.js" ></script>
   
-
-  
-
-  
-    <!-- Google tag (gtag.js) -->
-    <script async>
-      if (!Fluid.ctx.dnt) {
-        Fluid.utils.createScript("https://www.googletagmanager.com/gtag/js?id=G-BZW5S6P21N", function() {
-          window.dataLayer = window.dataLayer || [];
-          function gtag() {
-            dataLayer.push(arguments);
-          }
-          gtag('js', new Date());
-          gtag('config', 'G-BZW5S6P21N');
-        });
-      }
-    </script>
-  
-
-  
-
-  
-
-  
-
 
 
   
@@ -505,7 +480,7 @@
 &#125;</code></pre></div>
 
 <p>此處會呼叫 <code>deleteAll</code> 方法，刪除 collection 中的所有資料。接著再呼叫另一個多載的 <code>insert</code> 方法，插入多筆資料。</p>
-<p>下圖是透過 GUI 工具「NoSQLBooster」查詢到的內容。<br><img src="https://chikuwacode.github.io/articles/spring-boot-data-mongodb-repository-crud/nosqlbooster-find-documents.png" srcset="/img/loading.gif" lazyload></p>
+<p>下圖是透過 GUI 工具「NoSQLBooster」查詢到的內容。<br><img src="http://localhost:4000/articles/spring-boot-data-mongodb-repository-crud/nosqlbooster-find-documents.png" srcset="/img/loading.gif" lazyload></p>
 <p>可確認到 MongoDB 會自動產生「_id」欄位，其型態為 Object Id。</p>
 <p>到目前為止，都是使用 <code>MongoRepository</code> 內建的方法存取資料庫。下一篇將說明如何設計自己的查詢條件，以及排序方式。</p>
 <hr>

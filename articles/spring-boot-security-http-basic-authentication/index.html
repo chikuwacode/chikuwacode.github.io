@@ -22,16 +22,16 @@
     <meta name="description" content="在學習 Spring Security 時，經常透過內建的登入畫面來認證。但在前後端分離時，我們需獨立於 Spring Boot 之外來存取 API，也就是透過前端程式或 Postman。本文會介紹 HTTP Basic 認證，在 request header 攜帶帳密，以取代登入畫面。">
 <meta property="og:type" content="article">
 <meta property="og:title" content="【Spring Boot】第12.3課－在 Spring Security 使用 HTTP Basic 認證">
-<meta property="og:url" content="https://chikuwacode.github.io/articles/spring-boot-security-http-basic-authentication/">
+<meta property="og:url" content="http://localhost:4000/articles/spring-boot-security-http-basic-authentication/">
 <meta property="og:site_name" content="吉古拉的程式拾光">
 <meta property="og:description" content="在學習 Spring Security 時，經常透過內建的登入畫面來認證。但在前後端分離時，我們需獨立於 Spring Boot 之外來存取 API，也就是透過前端程式或 Postman。本文會介紹 HTTP Basic 認證，在 request header 攜帶帳密，以取代登入畫面。">
 <meta property="og:locale" content="zh_TW">
-<meta property="og:image" content="https://chikuwacode.github.io/img/index_img/spring-boot.jpg">
-<meta property="article:published_time" content="2024-05-08T06:00:00.000Z">
+<meta property="og:image" content="http://localhost:4000/img/index_img/spring-boot.jpg">
+<meta property="article:published_time" content="2024-05-08T13:00:00.000Z">
 <meta property="article:modified_time" content="2025-03-22T16:01:55.455Z">
 <meta property="article:author" content="Vincent">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:image" content="https://chikuwacode.github.io/img/index_img/spring-boot.jpg">
+<meta name="twitter:image" content="http://localhost:4000/img/index_img/spring-boot.jpg">
   
   
   
@@ -71,7 +71,7 @@
   <script id="fluid-configs">
     var Fluid = window.Fluid || {};
     Fluid.ctx = Object.assign({}, Fluid.ctx)
-    var CONFIG = {"hostname":"chikuwacode.github.io","root":"/","version":"1.9.8","typing":{"enable":false,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h2,h3","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":false},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"left","headingSelector":"h2,h3","collapseDepth":3},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2,"exclude":[".no-lazy"]},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":{"measurement_id":"G-BZW5S6P21N"},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/local-search.xml","include_content_in_search":true};
+    var CONFIG = {"hostname":"localhost","root":"/","version":"1.9.8","typing":{"enable":false,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h2,h3","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":false},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"left","headingSelector":"h2,h3","collapseDepth":3},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2,"exclude":[".no-lazy"]},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":"G-BZW5S6P21N"},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/local-search.xml","include_content_in_search":true};
 
     if (CONFIG.web_analytics.follow_dnt) {
       var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
@@ -81,31 +81,6 @@
   <script  src="/js/utils.js" ></script>
   <script  src="/js/color-schema.js" ></script>
   
-
-  
-
-  
-    <!-- Google tag (gtag.js) -->
-    <script async>
-      if (!Fluid.ctx.dnt) {
-        Fluid.utils.createScript("https://www.googletagmanager.com/gtag/js?id=G-BZW5S6P21N", function() {
-          window.dataLayer = window.dataLayer || [];
-          function gtag() {
-            dataLayer.push(arguments);
-          }
-          gtag('js', new Date());
-          gtag('config', 'G-BZW5S6P21N');
-        });
-      }
-    </script>
-  
-
-  
-
-  
-
-  
-
 
 
   
@@ -250,7 +225,7 @@
               <p id="updated-time" class="note note-warning" style="">
                 
                   
-                    本文最後更新於：2025-03-23
+                    本文最後更新於：2025-03-22
                   
                 
               </p>
@@ -396,8 +371,8 @@
 <p>Spring Security 支援一種叫做「HTTP Basic」的認證方式。其做法是在「Authorization」這個 request header 攜帶帳號與密碼，就像在登入畫面輸入帳密一樣。而後端會在每次接收到 request 時，就先進行認證。</p>
 <h3 id="（二）攜帶-request-header"><a href="#（二）攜帶-request-header" class="headerlink" title="（二）攜帶 request header"></a>（二）攜帶 request header</h3><p>那麼具體上要如何攜帶 header 以存取 API 呢？首先我們要將帳號與密碼的值，轉換為 Base64 編碼。<a target="_blank" rel="noopener" href="https://zh-tw.rakko.tools/tools/24/">這裡</a>提供 Base64 編碼與解碼的工具。</p>
 <p>舉例來說，帳號為「user1」，密碼為「111」，則取 <code>user1:111</code> 的編碼（以冒號隔開帳密），即 <code>dXNlcjE6MTEx</code>。而 <code>user2:222</code> 的編碼為 <code>dXNlcjI6MjIy</code>。</p>
-<p>接著使用 Postman 工具存取 API 時，請切換到「Authorization」頁籤，在下拉式選單選擇「Basic Auth」，並填寫帳號與密碼。<br><img src="https://chikuwacode.github.io/articles/spring-boot-security-http-basic-authentication/spring-security-postman-basic-auth-interface.png" srcset="/img/loading.gif" lazyload></p>
-<p>此時再切換到「Headers」頁籤，讀者可看到 Postman 已經幫我們自動添加 Authorization 的 header 了。它的值是「Basic」加一個半形空格，再加 Base64 編碼。<br><img src="https://chikuwacode.github.io/articles/spring-boot-security-http-basic-authentication/spring-security-postman-basic-auth-header.png" srcset="/img/loading.gif" lazyload></p>
+<p>接著使用 Postman 工具存取 API 時，請切換到「Authorization」頁籤，在下拉式選單選擇「Basic Auth」，並填寫帳號與密碼。<br><img src="http://localhost:4000/articles/spring-boot-security-http-basic-authentication/spring-security-postman-basic-auth-interface.png" srcset="/img/loading.gif" lazyload></p>
+<p>此時再切換到「Headers」頁籤，讀者可看到 Postman 已經幫我們自動添加 Authorization 的 header 了。它的值是「Basic」加一個半形空格，再加 Base64 編碼。<br><img src="http://localhost:4000/articles/spring-boot-security-http-basic-authentication/spring-security-postman-basic-auth-header.png" srcset="/img/loading.gif" lazyload></p>
 <p>而前端程式也是如此，每次存取 API 時，都必須在 header 攜帶這種可以證明自己身份的資料。以生活情境來比喻，就像搭乘公司的電梯，會刷門禁卡來確認身份一樣。</p>
 <h3 id="（三）優缺點"><a href="#（三）優缺點" class="headerlink" title="（三）優缺點"></a>（三）優缺點</h3><p>要向後端證明自己的身份，終究是來自帳號與密碼。HTTP Basic 認證的優點就是簡單方便，將帳密做個編碼，放在 request header 即可。</p>
 <p>若程式專案採用其他認證方式，勢必有其他前置作業。比方說使用<a href="/articles/spring-boot-security-implement-authentication-filter-with-jwt/" target="_blank">第 12.6 課</a>會介紹的 JWT 認證，需撰寫 JWT 的產生與解析程式；使用 OAuth 認證，則需串接第三方登入。</p>
